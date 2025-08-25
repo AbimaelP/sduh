@@ -1,0 +1,8 @@
+
+.collapsed {
+  width: var(--sidebar-width-collapsed) !important;
+}
+
+.collapsed-display {
+  display: none !important;
+}
