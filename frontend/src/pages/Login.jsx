@@ -1,17 +1,19 @@
 import Logo from '../components/Logo';
 import Button from '../components/Button';
-import { login } from '../services/api/api';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const {user, login} = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [authType, setAuthType] = useState(null);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = (authType) => {
     try {
-      const response = await login(email, pass);
-      console.log("Login ok:", response);
+      login(email, pass, authType);
     } catch (error) {
       console.error("Erro no login:", error);
     }
@@ -24,7 +26,7 @@ export default function Login() {
           <Logo className="h-12" logoName="logo" />
         </div>
 
-        <form onSubmit={handleLogin} className="mt-10">
+        <form className="mt-10">
           <input
             type="text"
             placeholder="Usuário"
@@ -51,9 +53,9 @@ export default function Login() {
           </div>
 
           <div className="mt-4">
-            <Button type="submit" className="btn-md btn-gray f-size-small">ACESSAR (Protótipo)</Button>
-            <Button type="button" className="btn-md mt-3 btn-black f-size-small">ENTRAR COM GOV.BR</Button>
-            <Button type="button" className="btn-md mt-3 btn-red f-size-small">ACESSE O PAINEL DO CIDADÃO</Button>
+            <Button type="button" onClick={() => handleLogin('prototipo')} className="btn-md btn-gray f-size-small">ACESSAR (Protótipo)</Button>
+            <Button type="button" onClick={() => handleLogin('gov')} className="btn-md mt-3 btn-black f-size-small">ENTRAR COM GOV.BR</Button>
+            <Button type="button" onClick={() => handleLogin('cidadao')} className="btn-md mt-3 btn-red f-size-small">ACESSE O PAINEL DO CIDADÃO</Button>
           </div>
         </form>
 

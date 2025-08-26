@@ -1,7 +1,7 @@
 // frontend/src/services/appsheet/api.js
 import { api } from './config';
 
-export async function login(email, password) {
+export async function loginAPI(email, password) {
   try {
     const response = await api.post('/login', { email, password });
     return response.data; // { id, name, role }

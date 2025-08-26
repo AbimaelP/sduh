@@ -1,9 +1,26 @@
 import { createContext, useState, useContext, useEffect } from "react";
+import { loginAPI } from '../services/api/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const login = async (userData) => {
+
+  const login = async (email = '', password = '', authType = 'prototipo') => {
+    let userData = {};
+
+    switch (authType) {
+      case 'prototipo':
+        userData = await loginAPI(email, password)
+        break;
+
+      case 'gov':
+        
+        break;
+
+      case 'cidadao':
+        userData = { user: 'Cidadão', role: 'cidadao' }
+        break;
+    }
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -13,9 +30,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // TESTE
   useEffect(() => {
-    setUser({name: 'Abimael', id: 1, role: 'cidadao'})
+    let userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
   }, [])
 
   return (

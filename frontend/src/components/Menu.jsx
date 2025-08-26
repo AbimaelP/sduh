@@ -6,11 +6,13 @@ import DropDownItem from "./DropDownItem";
 import { useAuth } from '../contexts/AuthContext';
 import Filters from './Filters';
 import { useMenu } from '../contexts/MenuContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Menu() {
   const {isOpen, setIsOpen} = useMenu();
   const [hideContent, setHideContent] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleStatusSidebar = () => {
     if (isOpen) {
@@ -26,6 +28,11 @@ export default function Menu() {
       setHideContent(false);
     }
   };
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login");
+  }
 
   return (
     <aside className={`menu-y h-full ${!isOpen && "collapsed"}`}
@@ -73,7 +80,7 @@ export default function Menu() {
             />
           }
           <div className="mt-6">
-            <Button className="btn btn-light" iconPosition="left" icon="fas fa-sign-out-alt" >
+            <Button className="btn btn-light" iconPosition="left" icon="fas fa-sign-out-alt" onClick={() => handleLogout()}>
               Sair
             </Button>
           </div>
