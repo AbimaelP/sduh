@@ -5,21 +5,27 @@ import Dashboard from "./pages/Dashboard";
 import Maps from "./components/Maps";
 import Reports from "./pages/Reports";
 import DefaultLayout from "./components/DefaultLayout";
+import { FiltersProvider } from './contexts/FiltersContext';
+import { MenuProvider } from './contexts/MenuContext';
 
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+      <MenuProvider>
+        <FiltersProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-          <Route path="/" element={<DefaultLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="reports" element={<Reports />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              <Route path="/" element={<DefaultLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="reports" element={<Reports />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </FiltersProvider>
+      </MenuProvider>
     </AuthProvider>
   );
 }

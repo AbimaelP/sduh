@@ -8,7 +8,6 @@
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   border: 2px solid white;
-  background-color: green;
   cursor: pointer;
 }
 
@@ -20,4 +19,40 @@
 
 .map-marker-icon {
   font-size: 16px; color: #ffff;transform: rotate(45deg);
+}
+
+.txt-infowindow {
+  white-space: nowrap;
+}
+
+.info-window-content-map {
+    padding: 1rem;
+    font-size: 14px;
+    line-height: 1.6;
+    min-width: 320px;
+}
+
+.info-window-content-map h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.info-window-content-map p {
+    margin: 5px 0;
+}
+
+.map-container {
+  width: 100%;
+}
+
+.map-sduh {
+  height: calc(100vh - 206px);
+}
+
+.map-cidadao {
+  height: calc(100vh - 150px);
 }

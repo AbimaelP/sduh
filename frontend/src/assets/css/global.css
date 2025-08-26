@@ -52,6 +52,25 @@
     font-size: 14px !important;
 }
 
+.form-input-min {
+    margin-top: 4px;
+    width: 100%;
+    font-size: 0.875rem;
+    border-bottom-width: 1px !important;
+}
+
+.form-select-min {
+    margin-top: 4px;
+    width: 100%;
+    font-size: 0.875rem;
+    border-bottom-width: 1px !important;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    color: rgb(75 85 99 / 1);
+}
+
 .form-select-discreet {
     border: none;
     height: auto !important;
@@ -185,7 +204,15 @@
 
 /* font size */
 .f-size-small {
-    font-size: 0.875rem !important;
+    font-size: 14px !important;
+}
+
+.f-size-small-min {
+    font-size: 12px;
+}
+
+.f-size-small-nano {
+    font-size: 10px;
 }
 
 .f-size-6 {
@@ -215,6 +242,11 @@
     margin-left: 320px;
     height: calc(100vh - 96px);
     overflow: hidden;
+    transition: margin-left 0.3s ease;
+}
+
+.layout-menu-collapse {
+    margin-left: 60px !important;
 }
 
 

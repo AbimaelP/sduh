@@ -1,7 +1,9 @@
 import { useAuth } from '../contexts/AuthContext';
+import { useMenu } from '../contexts/MenuContext';
 
 export default function LayoutClient({ children }) {
   const { user } = useAuth();
+  const { isOpen } = useMenu();
 
   // Array com os perfis
   const profiles = [
@@ -13,7 +15,7 @@ export default function LayoutClient({ children }) {
   ];
 
   return (
-    <div className="layout">
+    <div className={`layout ${!isOpen && "layout-menu-collapse"}`}>
       <div className="header-maps">
         <div className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
           <span className="text-sm font-medium text-gray-700">Perfil:</span>

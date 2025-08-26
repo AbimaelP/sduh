@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   // TESTE
   useEffect(() => {
-    setUser({name: 'Abimael', id: 1, role: 'sduh'})
+    setUser({name: 'Abimael', id: 1, role: 'cidadao'})
   }, [])
 
   return (

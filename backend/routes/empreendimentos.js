@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
 
   try {
     const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos`, {
-      headers: { 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJob3J1c2hhYiIsImFjY2Vzc190eXBlIjoicmVhZGVyIiwiZXhwIjoxNzU2MTQzNDQ0fQ.9YEa3m--5VsuoBjPxXScVVm_crJDA8J6hPkZY8xnRsU' }
+      headers: { 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJob3J1c2hhYiIsImFjY2Vzc190eXBlIjoicmVhZGVyIiwiZXhwIjoxNzU2MTg0MDYyfQ.t0KLMG-2INpbHyiaSKVi7l6GOcqH4z0ZepNZOqmBzEo' }
     });
     let data = response.data.data
     if (statusObra) {
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
   } catch (err) {
     console.error(err.response?.data || err.message);
-    return res.status(500).json({ error: 'Erro interno no servidor' });
+    return res.status(500).json({ error: err.response.status });
   }
 });
 

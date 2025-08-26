@@ -12,6 +12,7 @@
 }
 
 .menu-title {
+    padding: 1.15rem;
     border-bottom: 1px solid #ddd;
     display: flex;
     align-items: center;

@@ -4,9 +4,11 @@ import "../assets/css/sidebar.css";
 import Button from "./Button";
 import DropDownItem from "./DropDownItem";
 import { useAuth } from '../contexts/AuthContext';
+import Filters from './Filters';
+import { useMenu } from '../contexts/MenuContext';
 
 export default function Menu() {
-  const [isOpen, setIsOpen] = useState(true);
+  const {isOpen, setIsOpen} = useMenu();
   const [hideContent, setHideContent] = useState(false);
   const { user } = useAuth();
 
@@ -29,7 +31,7 @@ export default function Menu() {
     <aside className={`menu-y h-full ${!isOpen && "collapsed"}`}
       onTransitionEnd={handleTransitionEnd}
     >
-      <div className="p-4 menu-title">
+      <div className="menu-title">
         <h1
           className={`text-gray f-size-6 font-bold ${
             hideContent && "collapsed-display"
@@ -66,7 +68,9 @@ export default function Menu() {
             <DropDownItem title="Indicadores de Desempenho" className="mt-2" />
             </>
           :
-            <DropDownItem title="Filtros" className="mt-2" />
+            <DropDownItem title="Filtros" className="mt-2" 
+            ExpandedComponent={<Filters />}
+            />
           }
           <div className="mt-6">
             <Button className="btn btn-light" iconPosition="left" icon="fas fa-sign-out-alt" >

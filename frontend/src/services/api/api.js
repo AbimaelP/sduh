@@ -20,10 +20,14 @@ export async function empreendimentos(statusObra = '') {
       url += `?statusObra=${encodeURIComponent(statusObra)}`;
     }
     const response = await api.get(url);
+   
     return response.data; 
   } catch (err) {
-    const message = err.response?.data?.error || ' falhou';
-    console.log(err.response)
-    throw new Error(message);
+    if(err.response.data.error === 403) { //bearer token invalido
+      console.log('token invalido')
+    } else {
+      const message = err.response?.data?.error || ' falhou';
+      throw new Error(message);
+    }
   }
 }
