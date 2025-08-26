@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_APP_BACKEND_URL || "http://localhost:3000/api", // URL da API
+  baseURL: import.meta.env.VITE_APP_BACKEND_URL || "https://sduh-backend-914565622949.southamerica-east1.run.app", // URL da API
   timeout: 10000, // tempo máximo de espera
   headers: {
     "Content-Type": "application/json",
