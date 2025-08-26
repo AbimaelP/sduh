@@ -10,7 +10,7 @@ import Section from '../components/Section';
 import Logo from '../components/Logo';
 import Th from '../components/Th';
 import { useEffect, useState } from 'react';
-import { empreendimentos } from '../services/api/api';
+import { empreendimentos, ultimaAtualizacao } from '../services/api/api';
 import { useFilters } from '../contexts/FiltersContext';
 import exportPDF from '../utils/export';
 
@@ -24,12 +24,32 @@ function formatBRL(value) {
 export default function Reports() {
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(null)
   const { filters } = useFilters();
   
+  const formatDate = (data) => {
+    const d = new Date(data);
+
+    return d.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const formatHour = (data) => {
+    const d = new Date(data);
+
+    return d.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   useEffect(() => {
+  const applyFilters = async () => {
     let data = [...allEmpreendimentos];
 
-    // filtro de busca (endereço ou município)
     if (filters.search) {
       const term = filters.search.toLowerCase();
       data = data.filter(
@@ -39,36 +59,40 @@ export default function Reports() {
       );
     }
 
-    // filtro de tipo de atendimento
     if (filters.tipoAtendimento) {
       data = data.filter(
         (item) => item.tipoAtendimento === filters.tipoAtendimento
       );
     }
 
-    // filtro de tipo de imóvel
     if (filters.tipoImovel) {
       data = data.filter((item) => item.tipologia === filters.tipoImovel);
     }
 
-    // filtro de dormitórios
     if (filters.dormitorios) {
       data = data.filter(
         (item) => String(item.qtDormitorio) === String(filters.dormitorios)
       );
     }
 
+    const lastUpdatedData = await ultimaAtualizacao();
+
     setListaEmpreendimentos(data);
-  }, [filters, allEmpreendimentos]);
+    setLastUpdated(lastUpdatedData);
+  };
+
+  applyFilters();
+}, [filters, allEmpreendimentos]);
   
   useEffect(() => {
     const fetchData = async () => {
       try {
         let data = await empreendimentos();
-        // data = data.slice(0, 40);
+        let lastUpdatedData = await ultimaAtualizacao();
 
         setAllEmpreendimentos(data);
         setListaEmpreendimentos(data);
+        setLastUpdated(lastUpdatedData)
       } catch (err) {
         console.error("Erro ao carregar empreendimentos:", err.message);
       }
@@ -102,7 +126,7 @@ export default function Reports() {
                   <Section>
                     EMPREENDIMENTOS ATIVOS NO PROGRAMA CASA PAULISTA - CARTA DE CRÉDITO IMOBILIÁRIO - CCI
                   </Section>
-                  <Section className="font-normal">Atualizado em 25/07/2025</Section>
+                  <Section className="font-normal">{lastUpdated ? <>Atualizado em {formatDate(lastUpdated)} às {formatHour(lastUpdated)}</>: <>Carregando...</>}</Section>
                 </Section>
               </Th>
             </Tr>

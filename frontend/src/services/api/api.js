@@ -1,5 +1,5 @@
 // frontend/src/services/appsheet/api.js
-import { api } from './config';
+import api from './config';
 
 export async function loginAPI(email, password) {
   try {
@@ -14,19 +14,32 @@ export async function loginAPI(email, password) {
 
 export async function empreendimentos(statusObra = '') {
   try {
-    let url = '/empreendimentos'
-
+    let url = '/empreendimentos';
     if (statusObra) {
       url += `?statusObra=${encodeURIComponent(statusObra)}`;
     }
     const response = await api.get(url);
-   
     return response.data; 
   } catch (err) {
-    if(err.response.data.error === 403) { //bearer token invalido
-      console.log('token invalido')
+    if (err.response?.status === 401) {
+      throw new Error('Token inválido');
     } else {
-      const message = err.response?.data?.error || ' falhou';
+      const message = err.response?.data?.error || 'Falhou';
+      throw new Error(message);
+    }
+  }
+}
+
+export async function ultimaAtualizacao(statusObra = '') {
+  try {
+    let url = '/empreendimentos/ultima-atualizacao';
+    const response = await api.get(url);
+    return response.data; 
+  } catch (err) {
+    if (err.response?.status === 401) {
+      throw new Error('Token inválido');
+    } else {
+      const message = err.response?.data?.error || 'Falhou';
       throw new Error(message);
     }
   }
