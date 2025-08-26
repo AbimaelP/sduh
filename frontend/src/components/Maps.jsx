@@ -26,6 +26,7 @@ export default function Maps() {
   const { user } = useAuth();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  const [mapsLoaded, setMapsLoaded] = useState(false);
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,28 @@ export default function Maps() {
   const [markers, setMarkers] = useState([]);
   const markerDivs = useRef([]);
   const { filters } = useFilters();
+  
+ useEffect(() => {
+  const loadGoogleMapsScript = () => {
+    return new Promise((resolve, reject) => {
+      if (window.google && window.google.maps) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=marker,geometry,visualization`;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  };
+
+  loadGoogleMapsScript()
+    .then(() => setMapsLoaded(true))
+    .catch(() => console.error("Erro ao carregar Google Maps"));
+}, []);
 
   useEffect(() => {
     let data = [...allEmpreendimentos];
@@ -163,6 +186,8 @@ export default function Maps() {
   };
 
   useEffect(() => {
+    if (!mapsLoaded) return;
+    
     async function initializeApp() {
       if (!window.google) {
         console.error("Google Maps script não carregado!");
@@ -187,7 +212,7 @@ export default function Maps() {
     }
 
     initializeApp();
-  }, []);
+  }, [mapsLoaded]);
 
   useEffect(() => {
     const fetchData = async () => {

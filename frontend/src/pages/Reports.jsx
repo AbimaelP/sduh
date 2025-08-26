@@ -104,18 +104,18 @@ export default function Reports() {
   return (
     <LayoutClient>
       <Section className='p-4 f-size-small-min table-report-screen'>
-        <Table ID='tableRelatorio' className="w-full border-collapse f-size-small-nano">
+        <Table ID='tableRelatorio' className="w-full border-collapse f-size-small-nano bg-white">
           <Thead>
             <Tr>
               <Th colSpan={9} className="p-2 border-line-table">
                 <Section className="flex items-center justify-between w-full">
-                  <Logo className="h-12" logoName="spUrbano" />
+                  <Logo className="h-12" logoName="novaCasaPaulista" />
                   <Section className="flex items-center">
                     <Section className="pr-2 text-end">
                       <Section className="font-normal">Secretaria de</Section>
                       <Section className="font-bold">Desenvolvimento Urbano e Habitação</Section>
                     </Section>
-                    <Logo className="h-12" logoName="spUrbano" />
+                    <Logo className="h-8" logoName="spGoverno" />
                   </Section>
                 </Section>
               </Th>
