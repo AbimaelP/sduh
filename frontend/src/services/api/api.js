@@ -3,7 +3,7 @@ import api from './config';
 
 export async function loginAPI(email, password) {
   try {
-    const response = await api.post('/login', { email, password });
+    const response = await api.post('/auth/login', { email, password });
     return response.data; // { id, name, role }
   } catch (err) {
     // pega o erro retornado pelo backend

@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/login', login);
+app.use('/auth', login);
 app.use('/empreendimentos', empreendimentos);
 
 app.listen(PORT, () => {
