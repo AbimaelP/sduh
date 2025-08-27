@@ -103,11 +103,13 @@ useEffect(() => {
     data = data.filter((item) => item.tipologia === filters.tipoImovel);
   }
 
-  if (filters.dormitorios) {
-    data = data.filter(
-      (item) => Number(item.qtDormitorio) >= Number(filters.dormitorios)
-    );
-  }
+if (filters.dormitorios) {
+  data = data.filter((item) =>
+    Number(filters.dormitorios) === 3
+      ? Number(item.qtDormitorio) >= 3
+      : Number(item.qtDormitorio) === Number(filters.dormitorios)
+  );
+}
 
   setListaEmpreendimentos(data);
   debouncedCreateMarkers(data);
