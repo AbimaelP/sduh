@@ -5,6 +5,8 @@ import ButtonGroup from "./ButtonGroup";
 import "../assets/css/maps.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useFilters } from "../contexts/FiltersContext";
+import Section from './Section';
+import Icon from './Icon';
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -34,6 +36,7 @@ export default function Maps() {
   const [markers, setMarkers] = useState([]);
   const markerDivs = useRef([]);
   const { filters } = useFilters();
+  const openInfoWindowRef = useRef(null);
   
  useEffect(() => {
   const loadGoogleMapsScript = () => {
@@ -97,96 +100,96 @@ export default function Maps() {
   }, [filters, allEmpreendimentos]);
 
   const createMarkers = async (empreendimentosData) => {
-    if (!mapInstance.current || !window.google) return;
+  if (!mapInstance.current || !window.google) return [];
 
-    // 🔥 limpa marcadores antigos
-    markers.forEach((marker) => marker.setMap(null));
-    markerDivs.current.forEach((div) => {
-      if (div && div.parentNode) {
-        div.parentNode.removeChild(div);
-      }
-    });
-    markerDivs.current = [];
+  // limpa marcadores antigos
+  markers.forEach((marker) => marker.setMap(null));
+  markerDivs.current.forEach((div) => {
+    if (div && div.parentNode) div.parentNode.removeChild(div);
+  });
+  markerDivs.current = [];
 
-    const geocoder = new window.google.maps.Geocoder();
+  const geocoder = new window.google.maps.Geocoder();
 
-    const promises = empreendimentosData.map(async (item) => {
-      const { cep, municipio, enderecoEmpreendimento, tipologia } = item;
-      const address = `${cep}, ${municipio}`;
-      try {
-        const result = await geocoder.geocode({ address });
-        if (!result.results[0]) return null;
+  const promises = empreendimentosData.map(async (item) => {
+    const { cep, municipio, tipologia, qtDormitorio, enderecoEmpreendimento, unidadesSubsidiadas, subsidioEstadual, nomeEmpreendimento } = item;
+    const address = `${cep}, ${municipio}`;
 
-        const position = result.results[0].geometry.location;
+    try {
+      const result = await geocoder.geocode({ address });
+      if (!result.results[0]) return null;
 
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `
+      const position = result.results[0].geometry.location;
+
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
           <div class='info-window-content-map'>
-            <h3>${item.nomeEmpreendimento}</h3>
-            <p class='txt-infowindow'><strong>Município:</strong> ${municipio ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>Dormitórios:</strong> ${item.qtDormitorio ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>Endereço:</strong> ${enderecoEmpreendimento ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>Unidades:</strong> ${item.unidadesSubsidiadas ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>Valor do Benefício:</strong> ${formatBRL(item.subsidioEstadual) ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>Tipologia:</strong> ${tipologia ?? 'N/A'}</p>
-            <p class='txt-infowindow'><strong>URL:</strong> www.url.com.br</p>
+            <h3>${nomeEmpreendimento}</h3>
+            <p><strong>Município:</strong> ${municipio ?? 'N/A'}</p>
+            <p><strong>Dormitórios:</strong> ${qtDormitorio ?? 'N/A'}</p>
+            <p><strong>Endereço:</strong> ${enderecoEmpreendimento ?? 'N/A'}</p>
+            <p><strong>Unidades:</strong> ${unidadesSubsidiadas ?? 'N/A'}</p>
+            <p><strong>Valor do Benefício:</strong> ${formatBRL(subsidioEstadual) ?? 'N/A'}</p>
+            <p><strong>Tipologia:</strong> ${tipologia ?? 'N/A'}</p>
           </div>
         `,
-        });
+      });
 
-        const overlay = new window.google.maps.OverlayView();
+      const overlay = new window.google.maps.OverlayView();
 
-        overlay.onAdd = function () {
-          const div = document.createElement("div");
-          div.innerHTML = `
-          <div class='custom-marker-icon' 
-            style='background-color: ${iconsMap[tipologia]?.color || "gray"};'>
-            <i class='${
-              iconsMap[tipologia]?.icon || "fas fa-map-marker-alt"
-            } map-marker-icon'></i>
+      overlay.onAdd = function () {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <div class='custom-marker-icon' style='background-color: ${iconsMap[tipologia]?.color || "gray"};'>
+            <i class='${iconsMap[tipologia]?.icon || "fas fa-map-marker-alt"} map-marker-icon'></i>
           </div>
         `;
-          this.div = div;
-          markerDivs.current.push(div); // 🔥 guarda referência ao div
+        this.div = div;
+        markerDivs.current.push(div);
 
-          div.addEventListener("click", () => {
-            infoWindow.setPosition(position);
-            infoWindow.open({ map: mapInstance.current, anchor: null });
-          });
-
-          const panes = this.getPanes();
-          panes.overlayMouseTarget.appendChild(div);
-        };
-
-        overlay.draw = function () {
-          const projection = this.getProjection();
-          const point = projection.fromLatLngToDivPixel(position);
-          if (this.div) {
-            this.div.style.position = "absolute";
-            this.div.style.left = `${point.x}px`;
-            this.div.style.top = `${point.y}px`;
+        div.addEventListener("click", () => {
+          // fecha qualquer outro InfoWindow aberto
+          if (openInfoWindowRef.current) {
+            openInfoWindowRef.current.close();
           }
-        };
+          infoWindow.setPosition(position);
+          infoWindow.open({ map: mapInstance.current, anchor: null });
+          openInfoWindowRef.current = infoWindow; // atualiza a referência
+        });
 
-        overlay.onRemove = function () {
-          if (this.div && this.div.parentNode) {
-            this.div.parentNode.removeChild(this.div);
-          }
-          this.div = null;
-        };
+        const panes = this.getPanes();
+        panes.overlayMouseTarget.appendChild(div);
+      };
 
-        overlay.setMap(mapInstance.current);
+      overlay.draw = function () {
+        const projection = this.getProjection();
+        const point = projection.fromLatLngToDivPixel(position);
+        if (this.div) {
+          this.div.style.position = "absolute";
+          this.div.style.left = `${point.x}px`;
+          this.div.style.top = `${point.y}px`;
+        }
+      };
 
-        return overlay;
-      } catch (err) {
-        console.warn("Erro ao geocodificar:", address);
-        return null;
-      }
-    });
+      overlay.onRemove = function () {
+        if (this.div && this.div.parentNode) {
+          this.div.parentNode.removeChild(this.div);
+        }
+        this.div = null;
+      };
 
-    const results = await Promise.all(promises);
-    setMarkers(results.filter(Boolean));
-  };
+      overlay.setMap(mapInstance.current);
+      return overlay;
+    } catch (err) {
+      console.warn("Erro ao geocodificar:", address);
+      return null;
+    }
+  });
+
+  const results = await Promise.all(promises);
+  setMarkers(results.filter(Boolean));
+  return results.filter(Boolean);
+};
 
   useEffect(() => {
     if (!mapsLoaded) return;
@@ -219,13 +222,15 @@ export default function Maps() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         let data = await empreendimentos(); // 'let' para poder reatribuir
-        data = data.slice(0, 40); // limita a 10 itens
         setAllEmpreendimentos(data);
-        createMarkers(data);
+        await createMarkers(data);
       } catch (err) {
         console.error("Erro ao carregar empreendimentos:", err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -238,9 +243,8 @@ export default function Maps() {
     setLoading(true);
     try {
       let data = await empreendimentos(status);
-      data = data.slice(0, 40);
       setAllEmpreendimentos(data);
-      createMarkers(data);
+      await createMarkers(data);
     } catch (err) {
       console.error("Erro ao buscar empreendimentos:", err.message);
     } finally {
@@ -250,6 +254,9 @@ export default function Maps() {
 
   return (
     <>
+      { loading ? <Section className='flex w-screen h-screen items-center justify-center'>
+        <Icon className='' icon='fas fa-spinner fa-spin text-4xl text-blue-500'/>
+      </Section> : <></> }
       <div>
         {user && user.role === "sduh" ? (
           <div className="p-2 flex bg-white justify-between items-center">

@@ -14,7 +14,7 @@ function AppRoutes() {
   if (loading) {
     return (
       <Section className='flex w-screen h-screen items-center justify-center'>
-        <Icon className='text-4xl text-blue-500' icon='fas fa-spinner fa-spin'/>
+        <Icon className='' icon='fas fa-spinner fa-spin text-4xl text-blue-500'/>
       </Section>
     )
   }

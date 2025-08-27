@@ -32,6 +32,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const onLoading = () => {
+    setLoading(true)
+  }
+
+  const offLoading = () => {
+    setLoading(false)
+  }
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -41,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading }}>
       {children}
     </AuthContext.Provider>
   );

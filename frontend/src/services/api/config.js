@@ -19,29 +19,40 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Intercepta resposta para tratar erro 403
+// Intercepta resposta para tratar erro 401
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // Pede um novo token ao backend
-      const refreshResponse = await axios.get(
-        `${import.meta.env.VITE_APP_BACKEND_URL}/empreendimentos/token`
-      );
+    const originalRequest = error.config;
 
-      const newToken = refreshResponse.data;
-      if (newToken) {
-        localStorage.setItem("token", newToken);
+    // Se for erro 401 E não for a rota de login, tenta renovar
+    if (
+      error.response?.status === 401 &&
+      !originalRequest.url.includes("/auth/login")
+    ) {
+      try {
+        // Pede um novo token ao backend
+        const refreshResponse = await axios.get(
+          `${import.meta.env.VITE_APP_BACKEND_URL}/empreendimentos/token`
+        );
 
-        // Tenta novamente a requisição original
-        error.config.params = { 
-          ...error.config.params, 
-          token: newToken 
-        };
-        return api(error.config);
+        const newToken = refreshResponse.data;
+        if (newToken) {
+          localStorage.setItem("token", newToken);
+
+          // Tenta novamente a requisição original
+          originalRequest.params = { 
+            ...originalRequest.params, 
+            token: newToken 
+          };
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
       }
     }
 
+    // Se for login ou qualquer outro erro
     return Promise.reject(error);
   }
 );
