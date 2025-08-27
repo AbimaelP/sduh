@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import debounce from "lodash/debounce";
 import DropDownItem from "./DropDownItem";
 import { empreendimentos } from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
@@ -70,34 +71,47 @@ export default function Maps() {
     .catch(() => console.error("Erro ao carregar Google Maps"));
 }, []);
 
-  useEffect(() => {
-    let data = [...allEmpreendimentos];
+const normalize = (str) =>
+  str
+    ?.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 
-    // filtro de busca (endereço ou município)
-    if (filters.search) {
-      const term = filters.search.toLowerCase();
-      data = data.filter(
-        (item) =>
-          item.enderecoEmpreendimento?.toLowerCase().includes(term) ||
-          item.municipio?.toLowerCase().includes(term)
-      );
+const debouncedCreateMarkers = useRef(
+  debounce(async (data) => {
+    try {
+      await createMarkers(data);
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
+  }, 500) // 300ms após o último caractere digitado
+).current;
 
-    // filtro de tipo de imóvel
-    if (filters.tipoImovel) {
-      data = data.filter((item) => item.tipologia === filters.tipoImovel);
-    }
+useEffect(() => {
+  setLoading(true)
+  let data = [...allEmpreendimentos];
 
-    // filtro de dormitórios
-    if (filters.dormitorios) {
-      data = data.filter(
-        (item) => Number(item.qtDormitorio) >= Number(filters.dormitorios)
-      );
-    }
+  if (filters.search) {
+    const term = normalize(filters.search);
+    data = data.filter((item) => normalize(item.municipio)?.includes(term));
+  }
 
-    setListaEmpreendimentos(data);
-    createMarkers(data);
-  }, [filters, allEmpreendimentos]);
+  if (filters.tipoImovel) {
+    data = data.filter((item) => item.tipologia === filters.tipoImovel);
+  }
+
+  if (filters.dormitorios) {
+    data = data.filter(
+      (item) => Number(item.qtDormitorio) >= Number(filters.dormitorios)
+    );
+  }
+
+  setListaEmpreendimentos(data);
+  debouncedCreateMarkers(data);
+}, [filters, allEmpreendimentos]);
 
   const createMarkers = async (empreendimentosData) => {
   if (!mapInstance.current || !window.google) return [];
@@ -110,7 +124,6 @@ export default function Maps() {
   markerDivs.current = [];
 
   const geocoder = new window.google.maps.Geocoder();
-
   const promises = empreendimentosData.map(async (item) => {
     const { cep, municipio, tipologia, qtDormitorio, enderecoEmpreendimento, unidadesSubsidiadas, subsidioEstadual, nomeEmpreendimento } = item;
     const address = `${cep}, ${municipio}`;
@@ -131,6 +144,7 @@ export default function Maps() {
             <p><strong>Unidades:</strong> ${unidadesSubsidiadas ?? 'N/A'}</p>
             <p><strong>Valor do Benefício:</strong> ${formatBRL(subsidioEstadual) ?? 'N/A'}</p>
             <p><strong>Tipologia:</strong> ${tipologia ?? 'N/A'}</p>
+            <p><strong>URL:</strong> <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank">https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao</a></p>
           </div>
         `,
       });
