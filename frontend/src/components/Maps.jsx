@@ -80,13 +80,6 @@ export default function Maps() {
       );
     }
 
-    // filtro de tipo de atendimento
-    if (filters.tipoAtendimento) {
-      data = data.filter(
-        (item) => item.tipoAtendimento === filters.tipoAtendimento
-      );
-    }
-
     // filtro de tipo de imóvel
     if (filters.tipoImovel) {
       data = data.filter((item) => item.tipologia === filters.tipoImovel);

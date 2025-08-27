@@ -59,19 +59,13 @@ export default function Reports() {
       );
     }
 
-    if (filters.tipoAtendimento) {
-      data = data.filter(
-        (item) => item.tipoAtendimento === filters.tipoAtendimento
-      );
-    }
-
     if (filters.tipoImovel) {
       data = data.filter((item) => item.tipologia === filters.tipoImovel);
     }
 
     if (filters.dormitorios) {
       data = data.filter(
-        (item) => String(item.qtDormitorio) === String(filters.dormitorios)
+        (item) => Number(item.qtDormitorio) >= Number(filters.dormitorios)
       );
     }
 

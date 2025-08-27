@@ -6,7 +6,6 @@ const FiltersContext = createContext();
 export function FiltersProvider({ children }) {
   const [filters, setFilters] = useState({
     search: "",
-    tipoAtendimento: "",
     tipoImovel: "",
     dormitorios: "",
   });

@@ -18,19 +18,6 @@ export default function Filters() {
       </div>
 
       <div className='mt-4'>
-        <label className='form-label'>Tipo de Atendimento</label>
-        <select
-          value={filters.tipoAtendimento}
-          onChange={(e) => setFilters(prev => ({ ...prev, tipoAtendimento: e.target.value }))}
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
-        >
-          <option value="">Todos</option>
-          <option value="presencial">Presencial</option>
-          <option value="online">Online</option>
-        </select>
-      </div>
-
-      <div className='mt-4'>
         <label className='form-label'>Tipo de Imóvel</label>
         <select
           value={filters.tipoImovel}
