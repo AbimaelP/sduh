@@ -7,7 +7,9 @@ import {
   loadGovbrConfig,
   GOVBR_AUTH_URL,
   GOVBR_TOKEN_URL,
-  GOVBR_USERINFO_URL
+  GOVBR_USERINFO_URL,
+  APPSHEET_URL,
+  APPSHEET_KEY
 } from "../config.js";
 
 await loadGovbrConfig();
@@ -49,6 +51,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Usuário ou senha incorretos' });
     }
 
+    if (user.role == 'user') {
+      user.role = 'municipal'
+    }
     return res.json({ id: user.id, name: user.name, role: user.role });
 
   } catch (err) {
