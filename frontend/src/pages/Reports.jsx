@@ -98,6 +98,8 @@ export default function Reports() {
   return (
     <LayoutClient>
       <Section className='p-4 f-size-small-min table-report-screen'>
+        <Section className='mb-4'><Button className='btn w-auto btn-gray' iconPosition='left' icon='fas fa-map' link='/'>Voltar para o Mapa</Button></Section>
+
         <Table ID='tableRelatorio' className="w-full border-collapse f-size-small-nano bg-white">
           <Thead>
             <Tr>
