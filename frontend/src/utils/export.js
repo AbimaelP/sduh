@@ -2,14 +2,35 @@ export default function exportPDF(tableId) {
   const table = document.getElementById(tableId);
   if (!table) return;
 
-  const newWin = window.open("", "_blank");
+  // cria iframe temporário
+  const iframe = document.createElement("iframe");
+  document.body.appendChild(iframe);
 
-  const arquivo = document.getElementById("arquivo");
-  window.location.reload()
+  const doc = iframe.contentWindow.document;
 
-  arquivo.innerHTML += table.outerHTML;
+  // pega todos os <link rel="stylesheet"> e <style> do documento principal
+  const styles = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
+    .map(node => node.outerHTML)
+    .join("\n");
 
-  arquivo.innerHTML +=
-    "<script defer>document.getElementById('root').remove(); window.print(); window.close()</script>";
-  newWin.document.write(arquivo.outerHTML);
+  doc.open();
+  doc.write(`
+    <html>
+      <head>
+        <title>Export PDF</title>
+        ${styles}
+      </head>
+      <body>
+        ${table.outerHTML}
+        <script>
+          window.onload = function() {
+            window.print();
+            window.close();
+            parent.document.body.removeChild(parent.document.querySelector('iframe'));
+          }
+        </script>
+      </body>
+    </html>
+  `);
+  doc.close();
 }
