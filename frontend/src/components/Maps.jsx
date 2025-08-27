@@ -95,7 +95,7 @@ export default function Maps() {
     // filtro de dormitórios
     if (filters.dormitorios) {
       data = data.filter(
-        (item) => String(item.qtDormitorio) === String(filters.dormitorios)
+        (item) => Number(item.qtDormitorio) >= Number(filters.dormitorios)
       );
     }
 
@@ -119,7 +119,7 @@ export default function Maps() {
 
     const promises = empreendimentosData.map(async (item) => {
       const { cep, municipio, enderecoEmpreendimento, tipologia } = item;
-      const address = `${cep}, ${enderecoEmpreendimento}`;
+      const address = `${cep}, ${municipio}`;
       try {
         const result = await geocoder.geocode({ address });
         if (!result.results[0]) return null;

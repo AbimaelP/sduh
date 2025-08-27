@@ -56,7 +56,7 @@ export default function Filters() {
           <option value="">Todos</option>
           <option value="1">1 dormitório</option>
           <option value="2">2 dormitórios</option>
-          <option value="3">3 dormitórios</option>
+          <option value="3"> 3+ dormitórios</option>
         </select>
       </div>
     </div>
