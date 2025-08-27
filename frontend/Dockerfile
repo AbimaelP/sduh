@@ -35,6 +35,15 @@ RUN npm run build
 # Estágio 2: Servidor de Produção (Nginx)
 # ----------------------------------------------------
 FROM nginx:stable-alpine
+
+# Copia os arquivos gerados no estágio de build para a pasta padrão do Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copia a configuração personalizada do Nginx para lidar com rotas de SPA
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expõe a porta 80
 EXPOSE 80
+
+# Comando para iniciar o servidor Nginx
 CMD ["nginx", "-g", "daemon off;"]
