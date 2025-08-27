@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import DropDownItem from "./DropDownItem";
-import { empreendimentos } from "../services/api/api";
+import { empreendimentos, ultimaAtualizacao } from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
 import "../assets/css/maps.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useFilters } from "../contexts/FiltersContext";
 import Section from './Section';
 import Icon from './Icon';
+import { formatDate, formatHour } from '../utils/format'
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -38,7 +39,8 @@ export default function Maps() {
   const markerDivs = useRef([]);
   const { filters } = useFilters();
   const openInfoWindowRef = useRef(null);
-  
+  const [lastUpdated, setLastUpdated] = useState(null)
+
  useEffect(() => {
   const loadGoogleMapsScript = () => {
     return new Promise((resolve, reject) => {
@@ -241,7 +243,10 @@ if (filters.dormitorios) {
       setLoading(true);
       try {
         let data = await empreendimentos(); // 'let' para poder reatribuir
+        let lastUpdatedData = await ultimaAtualizacao();
+
         setAllEmpreendimentos(data);
+        setLastUpdated(lastUpdatedData)
         await createMarkers(data);
       } catch (err) {
         console.error("Erro ao carregar empreendimentos:", err.message);
@@ -292,6 +297,7 @@ if (filters.dormitorios) {
         ) : (
           <></>
         )}
+      <Section className="font-normal f-size-small-nano container-last-updated-map">{lastUpdated ? <>Atualizado em {formatDate(lastUpdated)} às {formatHour(lastUpdated)}</>: <>Carregando...</>}</Section>
       </div>
       <div id="map" ref={mapRef} className={`map-container map-${user && user.role}`}></div>
     </>

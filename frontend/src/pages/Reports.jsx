@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { empreendimentos, ultimaAtualizacao } from '../services/api/api';
 import { useFilters } from '../contexts/FiltersContext';
 import exportPDF from '../utils/export';
-
+import { formatDate, formatHour } from '../utils/format'
 function formatBRL(value) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -26,25 +26,6 @@ export default function Reports() {
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null)
   const { filters } = useFilters();
-  
-  const formatDate = (data) => {
-    const d = new Date(data);
-
-    return d.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  const formatHour = (data) => {
-    const d = new Date(data);
-
-    return d.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   useEffect(() => {
   const applyFilters = async () => {

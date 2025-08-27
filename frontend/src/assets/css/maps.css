@@ -56,3 +56,15 @@
 .map-cidadao {
   height: calc(100vh - 150px);
 }
+
+.container-last-updated-map {
+  position: absolute;
+  right: 10px;
+  z-index: 1;
+  margin-top: 10px;
+  padding: 5px;
+  background-color: #fdfdfdad;
+  color: #000000;
+  box-shadow: 1px 1px 3px 0px black;
+  border-radius: 5px;
+}
