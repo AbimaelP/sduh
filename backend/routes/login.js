@@ -199,7 +199,7 @@ router.post("/gov/callback", async (req, res) => {
 
 
     const tokenResponse = await axios.post(
-      GOVBR_TOKEN_URL,
+      GOVBR_TOKEN_URL(),
       qs.stringify({
         grant_type: "authorization_code",
         code,
