@@ -14,7 +14,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET, // troque por variável de ambiente
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // true se usar HTTPS
+  cookie: { secure: true } // true se usar HTTPS
 }));
 
 app.use('/auth', login);
