@@ -27,21 +27,9 @@ export default function GovCallback() {
         // aqui você poderia salvar no AuthContext
         // navigate("/dashboard"); // redireciona após login
       } catch (err) {
-  if (err.response) {
-    // O servidor respondeu com status diferente de 2xx
-    console.error("Status:", err.response.status);
-    console.error("Headers:", err.response.headers);
-    console.error("Data:", err.response.data); // 👈 aqui vem o erro detalhado do Gov.br
-  } else if (err.request) {
-    // Nenhuma resposta recebida
-    console.error("No response received:", err.request);
-  } else {
-    // Erro na configuração do request
-    console.error("Error setting up request:", err.message);
-  }
-
-  return res.status(500).json({ error: err.response?.data || err.message });
-}
+        console.error(err);
+        // navigate("/login");
+      }
     };
 
     processGovCallback();

@@ -224,9 +224,21 @@ const tokenResponse = await axios.post(
 
     return res.json({user: userInfoResponse, tokenGov: access_token });
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    return res.status(500).json({ error: err });
+  if (err.response) {
+    // O servidor respondeu com status diferente de 2xx
+    console.error("Status:", err.response.status);
+    console.error("Data:", err.response.data); // ✅ aqui vem o erro detalhado do Gov.br
+    return res.status(err.response.status).json({ error: err.response.data });
+  } else if (err.request) {
+    // Nenhuma resposta recebida
+    console.error("No response received:", err.request);
+    return res.status(500).json({ error: "No response from server" });
+  } else {
+    // Erro na configuração do request
+    console.error("Error setting up request:", err.message);
+    return res.status(500).json({ error: err.message });
   }
+}
 });
 
 export default router;
