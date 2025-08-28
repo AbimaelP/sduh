@@ -16,3 +16,10 @@ export const formatHour = (data) => {
     minute: "2-digit",
   });
 };
+
+export const formatBRL = (value) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  }).format(value);
+}

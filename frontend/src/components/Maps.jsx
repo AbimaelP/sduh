@@ -4,11 +4,13 @@ import DropDownItem from "./DropDownItem";
 import { empreendimentos, ultimaAtualizacao } from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
 import "../assets/css/maps.css";
+import "../assets/css/report.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useFilters } from "../contexts/FiltersContext";
 import Section from './Section';
 import Icon from './Icon';
-import { formatDate, formatHour } from '../utils/format'
+import { formatDate, formatHour, formatBRL } from '../utils/format'
+import open from '../utils/open';
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -17,14 +19,6 @@ const iconsMap = {
   LOTE: { icon: "fas fa-map", color: "rgba(226, 113, 43, 1)" },
   "CASA SOBREPOSTA": { icon: "fas fa-home", color: "#1e682fff" },
 };
-
-function formatBRL(value) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  }).format(value);
-}
-
 
 export default function Maps() {
   const { user } = useAuth();
@@ -37,7 +31,7 @@ export default function Maps() {
   const [activeButton, setActiveButton] = useState(null);
   const [markers, setMarkers] = useState([]);
   const markerDivs = useRef([]);
-  const { filters } = useFilters();
+  const { filters, setOptionsFromData } = useFilters();
   const openInfoWindowRef = useRef(null);
   const [lastUpdated, setLastUpdated] = useState(null)
 
@@ -140,16 +134,69 @@ if (filters.dormitorios) {
 
       const infoWindow = new window.google.maps.InfoWindow({
         content: `
-          <div class='info-window-content-map'>
-            <h3>${nomeEmpreendimento}</h3>
-            <p><strong>Município:</strong> ${municipio ?? 'N/A'}</p>
-            <p><strong>Dormitórios:</strong> ${qtDormitorio ?? 'N/A'}</p>
-            <p><strong>Endereço:</strong> ${enderecoEmpreendimento ?? 'N/A'}</p>
-            <p><strong>Unidades:</strong> ${unidadesSubsidiadas ?? 'N/A'}</p>
-            <p><strong>Valor do Benefício:</strong> ${formatBRL(subsidioEstadual) ?? 'N/A'}</p>
-            <p><strong>Tipologia:</strong> ${tipologia ?? 'N/A'}</p>
-            <p><strong>URL:</strong> <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank">https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao</a></p>
+          <div class="card-container p-4 bg-white rounded-2xl shadow shadow-none">
+          <div class="card-header flex items-center">
+            <div class="font-bold">${item.nomeEmpreendimento}</div>
           </div>
+          
+          <div class="card-info">
+            <div class="card-item card-item-endereco">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-map-marker-alt mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title">Endereço do Empreendimento:</span>
+                  <span class="item-info-detail" title=${item.enderecoEmpreendimento}>
+                    ${item.enderecoEmpreendimento}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-item">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-bed mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title">Número de Dormitórios:</span>
+                  <span class="item-info-detail">${item.qtDormitorio}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-item">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title">Tipologia:</span>
+                  <span class="item-info-detail">${item.tipologia}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-item">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-hand-holding-usd mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title">Valor do Subsídio:</span>
+                  <span class="item-info-detail">${formatBRL(item.subsidioEstadual)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="w-full flex justify-center">
+              <button class="btn btn-green font-bold-important" onclick="">
+                Fale pelo Whatsapp
+              </button>
+            </div>
+          </div>
+        </div>
         `,
       });
 
@@ -238,27 +285,39 @@ if (filters.dormitorios) {
     initializeApp();
   }, [mapsLoaded]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let data = await empreendimentos(); // 'let' para poder reatribuir
-        let lastUpdatedData = await ultimaAtualizacao();
+useEffect(() => {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      let municipios = [];
 
-        setAllEmpreendimentos(data);
-        setLastUpdated(lastUpdatedData)
-        await createMarkers(data);
-      } catch (err) {
-        console.error("Erro ao carregar empreendimentos:", err.message);
-      } finally {
-        setLoading(false);
+      // Só filtra se o usuário for municipal
+      if (user?.role === 'municipal') {
+        municipios = user.municipios && user.municipios.length > 0
+          ? user.municipios
+          : [1]; // valor que não existe, retorna 0 resultados
       }
-    };
 
-    if (user && user.role === "cidadao") {
-      fetchData();
+      // Chama a API passando o filtro de municípios (ou array vazio para outros roles)
+      let data = await empreendimentos('', municipios);
+      setOptionsFromData(data);
+      let lastUpdatedData = await ultimaAtualizacao();
+
+      setAllEmpreendimentos(data);
+      setLastUpdated(lastUpdatedData);
+      
+      await createMarkers(data);
+    } catch (err) {
+      console.error("Erro ao carregar empreendimentos:", err.message);
+    } finally {
+      setLoading(false);
     }
-  }, [user, mapsLoaded]);
+  };
+
+  if (user) {
+    fetchData();
+  }
+}, [user, mapsLoaded]);
 
   const handleClick = async (status) => {
     setLoading(true);

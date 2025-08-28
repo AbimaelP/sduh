@@ -1,7 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import { useMenu } from '../contexts/MenuContext';
 
-export default function LayoutClient({ children }) {
+export default function LayoutClient({ className, children }) {
   const { user } = useAuth();
   const { isOpen } = useMenu();
 
@@ -15,8 +15,8 @@ export default function LayoutClient({ children }) {
   ];
 
   return (
-    <div className={`layout ${!isOpen && "layout-menu-collapse"}`}>
-      <div className="header-maps">
+    <div className={`layout ${!isOpen && "layout-menu-collapse"} ${className}`}>
+      <div className="header-second">
         <div className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select

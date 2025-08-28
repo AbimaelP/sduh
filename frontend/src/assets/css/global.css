@@ -126,6 +126,15 @@
     background-color: #333943;
 }
 
+.btn-green {
+    color: #ffff;
+    background-color: rgb(32, 191, 90);
+}
+
+.btn-green:hover {
+    background-color: rgb(20, 121, 57);
+}
+
 .btn-black {
     color: #ffff;
     background-color: #000000;
@@ -245,11 +254,34 @@
     transition: margin-left 0.3s ease;
 }
 
+.layout-size-none {
+    margin-left: 0 !important;
+    height: 100vh !important;
+}
+
 .layout-menu-collapse {
     margin-left: 60px !important;
 }
 
+.layout-appshet {
+    height: calc(100vh - 150px);
+   overflow: visible;
+}
+
+.iframe-appshet {
+    position: relative;
+    z-index: 1;
+    padding: 1rem;
+}
 
 .h-default {
     height: calc(100% - 96px - 1rem);
+}
+
+.font-bold-important {
+    font-weight: bold !important;
+}
+
+.shadow-none {
+    box-shadow: none !important;
 }

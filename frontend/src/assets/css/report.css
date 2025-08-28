@@ -1,11 +1,11 @@
 .th-report {
-  padding-left: 0.75rem;   /* px-3 */
+  padding-left: 0.75rem; /* px-3 */
   padding-right: 0.75rem;
-  padding-top: 0.5rem;     /* py-2 */
+  padding-top: 0.5rem; /* py-2 */
   padding-bottom: 0.5rem;
-  text-align: center;        /* text-left */
-  color: #ffffff;          /* text-white */
-  white-space: nowrap;     /* whitespace-nowrap */
+  text-align: center; /* text-left */
+  color: #ffffff; /* text-white */
+  white-space: nowrap; /* whitespace-nowrap */
 }
 
 .border-line-table {
@@ -36,4 +36,70 @@
   bottom: 25px;
   right: 25px;
   width: auto !important;
+}
+
+.card-container {
+  border-radius: 10px;
+  box-shadow: 1px 1px 3px 0px black;
+  background-color: #ffff;
+  overflow: hidden;
+  /* font-size: 14px !important; */
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  background-color: #000000;
+  color: #ffff;
+  padding: 1rem;
+  border-radius: 8px;
+  height: 52px;
+}
+
+.card-item {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.875rem;
+}
+
+.card-item.card-item-endereco {
+  height: 36px;
+}
+
+.card-info {
+  padding: 1rem 0;
+}
+
+input[type="checkbox"].appearance-none:checked::after {
+  content: "";
+  width: 10px; /* tamanho do ponto */
+  height: 10px;
+  background-color: #111; /* cor do ponto */
+  border-radius: 9999px;
+  position: absolute;
+  inset: 0;
+  margin: auto; /* centraliza */
+}
+
+.item-info-title {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.item-info-detail {
+  margin-left: 5px;
+  color: #8b8b8b;
+  font-weight: 600;
+}
+
+.icon-card-report-item {
+  padding-top: 2px;
+  font-size: 14px;
+}
+
+.container-icone-card-report {
+  min-width: 25px;
+  max-width: 25px;
+  text-align: center;
 }

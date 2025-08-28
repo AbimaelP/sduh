@@ -12,14 +12,35 @@ export async function loginAPI(email, password) {
   }
 }
 
-export async function empreendimentos(statusObra = '') {
+export async function callbackGovBR(data) {
+  try {
+    const response = await api.post('/auth/gov/callback', data);
+    return response.data; // { id, name, role }
+  } catch (err) {
+    const message = err.response?.data?.error || 'Autenticação falhou';
+    throw new Error(message);
+  }
+}
+
+// services/appsheet/api.js
+export async function empreendimentos(statusObra = '', municipios = []) {
   try {
     let url = '/empreendimentos';
+    const params = [];
+
     if (statusObra) {
-      url += `?statusObra=${encodeURIComponent(statusObra)}`;
+      params.push(`statusObra=${encodeURIComponent(statusObra)}`);
     }
+    if (municipios.length > 0) {
+      params.push(`municipios=${municipios.join(',')}`);
+    }
+
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+
     const response = await api.get(url);
-    return response.data; 
+    return response.data;
   } catch (err) {
     if (err.response?.status === 401) {
       throw new Error('Token inválido');
@@ -29,6 +50,32 @@ export async function empreendimentos(statusObra = '') {
     }
   }
 }
+
+export async function empreendimentosPaginado(statusObra = '') {
+  try {
+    let url = '/empreendimentos/paginacao';
+    const params = [];
+
+    if (statusObra) {
+      params.push(`statusObra=${encodeURIComponent(statusObra)}`);
+    }
+
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  } catch (err) {
+    if (err.response?.status === 401) {
+      throw new Error('Token inválido');
+    } else {
+      const message = err.response?.data?.error || 'Falhou';
+      throw new Error(message);
+    }
+  }
+}
+
 
 export async function ultimaAtualizacao(statusObra = '') {
   try {

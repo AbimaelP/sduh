@@ -8,6 +8,7 @@ import { FiltersProvider } from './contexts/FiltersContext';
 import { MenuProvider } from './contexts/MenuContext';
 import Section from './components/Section';
 import Icon from './components/Icon';
+import Applications from './pages/Applications';
 function AppRoutes() {
   const { user, loading } = useAuth();
 
@@ -33,6 +34,7 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="applications" element={<Applications />} />
       </Route>
     </Routes>
   );

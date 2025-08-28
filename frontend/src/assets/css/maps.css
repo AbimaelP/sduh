@@ -53,7 +53,7 @@
   height: calc(100vh - 206px);
 }
 
-.map-cidadao {
+.map-cidadao, .map-municipal {
   height: calc(100vh - 150px);
 }
 

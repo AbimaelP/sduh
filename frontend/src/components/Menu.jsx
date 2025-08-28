@@ -3,13 +3,13 @@ import "../assets/css/menu.css";
 import "../assets/css/sidebar.css";
 import Button from "./Button";
 import DropDownItem from "./DropDownItem";
-import { useAuth } from '../contexts/AuthContext';
-import Filters from './Filters';
-import { useMenu } from '../contexts/MenuContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../contexts/AuthContext";
+import Filters from "./Filters";
+import { useMenu } from "../contexts/MenuContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Menu() {
-  const {isOpen, setIsOpen} = useMenu();
+  const { isOpen, setIsOpen } = useMenu();
   const [hideContent, setHideContent] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -30,12 +30,91 @@ export default function Menu() {
   };
 
   const handleLogout = () => {
-    logout()
+    logout();
     navigate("/login");
-  }
+  };
+
+  // 🔑 Definição única dos componentes do menu
+  const components = {
+    relatorios: (
+      <Button
+        key="relatorios"
+        className="btn btn-black"
+        iconPosition="left"
+        icon="fas fa-file-alt"
+        link="reports"
+      >
+        Relatórios
+      </Button>
+    ),
+    aplicativos: (
+      <Button
+        key="aplicativos"
+        className="btn btn-red mt-3"
+        iconPosition="left"
+        icon="fas fa-th-large"
+        link="applications"
+      >
+        Aplicativos
+      </Button>
+    ),
+    totalizadores: (
+      <DropDownItem
+        key="totalizadores"
+        title="Totalizadores"
+        isInfoOnly={true}
+        className="mt-6"
+        data={[
+          { label: "Planejamento", value: 16284 },
+          { label: "Licitação", value: 8300 },
+          { label: "Em Andamento", value: 12450 },
+          { label: "Entregues", value: 5432 },
+          { label: "Total", value: 30547, labelClass: "font-bold text-black" },
+          {
+            label: "Alertas",
+            value: 15,
+            labelClass: "font-bold text-red",
+            valueClass: "font-bold bg-red text-red",
+          },
+        ]}
+      />
+    ),
+    filtros: (
+      <DropDownItem
+        key="filtros"
+        title="Filtros"
+        className="mt-2"
+        ExpandedComponent={<Filters />}
+      />
+    ),
+    filtrosSimples: (
+      <DropDownItem key="filtros-simples" title="Filtros" className="mt-2" />
+    ),
+    indicadores: (
+      <DropDownItem
+        key="indicadores"
+        title="Indicadores de Desempenho"
+        className="mt-2"
+      />
+    ),
+  };
+
+  // 🔑 Configuração por papel (sem duplicação de código)
+  const roleConfig = {
+    cidadao: [components.relatorios, components.filtros],
+    municipal: [components.aplicativos],
+    sduh: [
+      components.relatorios,
+      components.aplicativos,
+      components.totalizadores,
+      components.filtrosSimples,
+      components.indicadores,
+    ],
+  };
 
   return (
-    <aside className={`menu-y h-full ${!isOpen && "collapsed"}`}
+    <aside
+      className={`menu-y h-full ${!isOpen && "collapsed"}`}
       onTransitionEnd={handleTransitionEnd}
     >
       <div className="menu-title">
@@ -53,37 +132,18 @@ export default function Menu() {
       </div>
 
       <div className={`p-4 ${hideContent && "collapsed-display"}`}>
-          <Button className="btn btn-black" iconPosition="left" icon="fas fa-file-alt" link='reports' >
-            Relatórios
+        {user && roleConfig[user.role]}
+
+        <div className="mt-6">
+          <Button
+            className="btn btn-light"
+            iconPosition="left"
+            icon="fas fa-sign-out-alt"
+            onClick={handleLogout}
+          >
+            Sair
           </Button>
-          
-          { user && user.role === 'sduh' ? 
-          <>
-            <Button className="btn btn-red mt-3" iconPosition="left" icon="fas fa-th-large" >
-              Aplicativos
-            </Button>
-            <DropDownItem title="Totalizadores" isInfoOnly={true} className="mt-6"
-              data={[
-                { label: 'Planejamento', value: 16284 },
-                { label: 'Licitação', value: 8300 },
-                { label: 'Em Andamento', value: 12450 },
-                { label: 'Entregues', value: 5432},
-                { label: 'Total', value: 30547, labelClass: 'font-bold text-black' },
-                { label: 'Alertas', value: 15, labelClass: 'font-bold text-red', valueClass: 'font-bold bg-red text-red' }
-            ]}/>
-            <DropDownItem title="Filtros" className="mt-2" />
-            <DropDownItem title="Indicadores de Desempenho" className="mt-2" />
-            </>
-          :
-            <DropDownItem title="Filtros" className="mt-2" 
-            ExpandedComponent={<Filters />}
-            />
-          }
-          <div className="mt-6">
-            <Button className="btn btn-light" iconPosition="left" icon="fas fa-sign-out-alt" onClick={() => handleLogout()}>
-              Sair
-            </Button>
-          </div>
+        </div>
       </div>
     </aside>
   );

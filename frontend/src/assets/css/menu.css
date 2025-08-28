@@ -9,6 +9,7 @@
     left: 0;
     display: flex;
     flex-direction: column;
+    z-index: 0;
 }
 
 .menu-title {
@@ -31,8 +32,4 @@
 
 .expand-bars-icon:hover {
     color: #000000;
-}
-
-.menu-x {
-
 }

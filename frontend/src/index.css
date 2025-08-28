@@ -19,3 +19,11 @@
 body, html {
     background-color: #F9FAF8;
 }
+
+.h-50 {
+    height: 50vh;
+}
+
+.w-50 {
+    width: 50vw;
+}

@@ -1,7 +1,10 @@
 import { useFilters } from "../contexts/FiltersContext";
 
 export default function Filters() {
-  const { filters, setFilters } = useFilters();
+  const { filters, setFilters, options } = useFilters();
+
+  const formatDormLabel = (d) =>
+    d === 3 ? "3+ dormitórios" : `${d} dormitório${d > 1 ? "s" : ""}`;
 
   return (
     <div>
@@ -25,11 +28,9 @@ export default function Filters() {
           className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
         >
           <option value="">Todos</option>
-          <option value="APTO">APTO</option>
-          <option value="CASA">CASA</option>
-          <option value="FAMÍLIA">FAMÍLIA</option>
-          <option value="LOTE">LOTE</option>
-          <option value="CASA SOBREPOSTA">CASA SOBREPOSTA</option>
+          {options.tiposImovel?.map(tipo => (
+            <option key={tipo} value={tipo}>{tipo}</option>
+          ))}
         </select>
       </div>
 
@@ -41,9 +42,9 @@ export default function Filters() {
           className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
         >
           <option value="">Todos</option>
-          <option value="1">1 dormitório</option>
-          <option value="2">2 dormitórios</option>
-          <option value="3"> 3+ dormitórios</option>
+          {options.dormitorios?.map(d => (
+            <option key={d} value={d}>{formatDormLabel(Number(d))}</option>
+          ))}
         </select>
       </div>
     </div>
