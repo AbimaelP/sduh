@@ -30,7 +30,7 @@ function AppRoutes() {
     />
 
     <Route 
-      path="/autenticacao" 
+      path="/callback" 
       element={<GovCallback />} 
     />
 
