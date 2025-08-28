@@ -1,44 +1,28 @@
 import express from 'express';
 import cors from 'cors';
-import session from 'express-session';
+import session from 'express-session'; // 👈 importar
 import login from './routes/login.js';
 import empreendimentos from './routes/empreendimentos.js';
 import { loadGovbrConfig, PORT } from './config.js';
 
 const app = express();
-
-// Se estiver atrás de proxy reverso (HTTPS), necessário para cookies secure
-app.set('trust proxy', 1);
-
-// CORS configurado para permitir cookies
-app.use(cors({
-  origin: 'https://homologacao.horushab.habitacao.sp.gov.br', // substitua pelo domínio do frontend
-  credentials: true
-}));
-
-// Parse JSON
+app.use(cors());
 app.use(express.json());
 
-// Configuração de sessões
+// 👇 configurar sessões
 app.use(session({
-  secret: process.env.SESSION_SECRET, // variável de ambiente obrigatória
+  secret: process.env.SESSION_SECRET, // troque por variável de ambiente
   resave: false,
   saveUninitialized: true,
-  cookie: {
-    secure: true,     // true porque HTTPS
-    httpOnly: true,   // não acessível via JS do browser
-    sameSite: 'lax'   // protege contra CSRF, mas permite redirect OAuth
-  }
+  cookie: { secure: true } // true se usar HTTPS
 }));
 
-// Rotas
 app.use('/auth', login);
 app.use('/empreendimentos', empreendimentos);
 
-// Inicializa config Gov.br antes de subir o servidor
 (async () => {
   try {
-    await loadGovbrConfig(); 
+    await loadGovbrConfig(); // 👈 carrega endpoints antes de iniciar
     app.listen(PORT, () => {
       console.log(`Backend rodando na porta ${PORT}`);
     });
