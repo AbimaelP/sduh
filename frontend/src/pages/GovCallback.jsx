@@ -27,7 +27,7 @@ export default function GovCallback() {
         // aqui você poderia salvar no AuthContext
         // navigate("/dashboard"); // redireciona após login
       } catch (err) {
-        console.error(err.message);
+        console.error(err);
         // navigate("/login");
       }
     };
