@@ -20,6 +20,14 @@ app.use(session({
 app.use('/auth', login);
 app.use('/empreendimentos', empreendimentos);
 
-app.listen(PORT, () => {
-  console.log(`Backend rodando na porta ${PORT}`);
-});
+(async () => {
+  try {
+    await loadGovbrConfig(); // 👈 carrega endpoints antes de iniciar
+    app.listen(PORT, () => {
+      console.log(`Backend rodando na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Erro ao inicializar GovBR config:", err.message);
+    process.exit(1);
+  }
+})();
