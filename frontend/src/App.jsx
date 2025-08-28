@@ -34,6 +34,7 @@ function AppRoutes() {
       element={<GovCallback />} 
     />
 
+    {user && user.role != 'municipal' ? 
     <Route 
       path="/" 
       element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
@@ -43,6 +44,15 @@ function AppRoutes() {
       <Route path="reports" element={<Reports />} />
       <Route path="applications" element={<Applications />} />
     </Route>
+    :
+    <Route 
+      path="/" 
+      element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
+    >
+      <Route index element={<Applications />} />
+      <Route path="applications" element={<Applications />} />
+    </Route>
+    }
   </Routes>
 )
 
