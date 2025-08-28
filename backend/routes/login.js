@@ -164,24 +164,26 @@ function sha256(buffer) {
 router.get("/gov/login", (req, res) => {
   const state = crypto.randomBytes(16).toString("hex");
   const nonce = crypto.randomBytes(16).toString("hex");
-  const code_verifier = crypto.randomBytes(32).toString("hex");
 
-  // agora funciona
-  req.session.state = state;
-  req.session.nonce = nonce;
-  req.session.code_verifier = code_verifier;
+  // Hardcoded code_verifier
+  const code_verifier = "meu-code-verifier-fixo-12345678901234567890123456789012";
 
   const code_challenge = base64URLEncode(sha256(code_verifier));
   const code_challenge_method = "S256";
 
-const url = `${GOVBR_AUTH_URL()}?response_type=code` +
-  `&client_id=${GOVBR_CLIENT_ID}` +
-  `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
-  `&scope=openid+email+profile` + // ⬅️ só os scopes liberados
-  `&state=${state}` +
-  `&nonce=${nonce}` +
-  `&code_challenge=${code_challenge}` +
-  `&code_challenge_method=${code_challenge_method}`;
+  // Salvar na sessão se quiser manter compatibilidade
+  req.session.code_verifier = code_verifier;
+  req.session.state = state;
+  req.session.nonce = nonce;
+
+  const url = `${GOVBR_AUTH_URL()}?response_type=code` +
+    `&client_id=${GOVBR_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
+    `&scope=openid+email+profile` +
+    `&state=${state}` +
+    `&nonce=${nonce}` +
+    `&code_challenge=${code_challenge}` +
+    `&code_challenge_method=${code_challenge_method}`;
 
   res.redirect(url);
 });
@@ -198,21 +200,21 @@ router.post("/gov/callback", async (req, res) => {
     const authBase64 = Buffer.from(authString).toString("base64");
 
 
-    const tokenResponse = await axios.post(
-      GOVBR_TOKEN_URL(),
-      qs.stringify({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: GOVBR_REDIRECT_URI,
-        code_verifier: req.session.code_verifier, // 👈 agora pega da sessão
-      }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": `Basic ${authBase64}`,
-        },
-      }
-    );
+const tokenResponse = await axios.post(
+  GOVBR_TOKEN_URL(),
+  qs.stringify({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: GOVBR_REDIRECT_URI,
+    code_verifier: "meu-code-verifier-fixo-12345678901234567890123456789012", // 👈 obrigatório
+  }),
+  {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${authBase64}`,
+    },
+  }
+);
     const { access_token } = tokenResponse.data;
 
     // const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
