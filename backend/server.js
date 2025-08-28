@@ -3,7 +3,7 @@ import cors from 'cors';
 import session from 'express-session'; // 👈 importar
 import login from './routes/login.js';
 import empreendimentos from './routes/empreendimentos.js';
-import { PORT } from './config.js';
+import { loadGovbrConfig, PORT } from './config.js';
 
 const app = express();
 app.use(cors());
