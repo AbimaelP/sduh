@@ -197,13 +197,14 @@ router.post("/gov/callback", async (req, res) => {
     const authString = `${GOVBR_CLIENT_ID}:${GOVBR_CLIENT_SECRET}`;
     const authBase64 = Buffer.from(authString).toString("base64");
 
-    // envia o POST para o token
-    const tokenResponse = await axios.post(GOVBR_TOKEN_URL,
+
+    const tokenResponse = await axios.post(
+      GOVBR_TOKEN_URL,
       qs.stringify({
         grant_type: "authorization_code",
         code,
         redirect_uri: GOVBR_REDIRECT_URI,
-        code_verifier: "", // deve ter sido salvo antes do login
+        code_verifier: req.session.code_verifier, // 👈 agora pega da sessão
       }),
       {
         headers: {
@@ -212,7 +213,6 @@ router.post("/gov/callback", async (req, res) => {
         },
       }
     );
-
     const { access_token } = tokenResponse.data;
 
     // const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
