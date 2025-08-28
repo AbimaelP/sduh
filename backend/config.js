@@ -12,6 +12,7 @@ export const PORT = process.env.PORT || 3000;
 export const GOVBR_CLIENT_ID = process.env.GOV_CLIENT_ID;
 export const GOVBR_CLIENT_SECRET = process.env.GOV_CLIENT_SECRET;
 export const GOVBR_REDIRECT_URI = process.env.REDIRECT_URL_GOV;
+export const GOVRCODE_VERIFIER = process.env.CODE_VERIFIER;
 
 // Discovery endpoint do Gov.br homologação
 const DISCOVERY_URL = "https://rhsso.idp-hml.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration";

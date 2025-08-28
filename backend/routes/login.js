@@ -12,6 +12,7 @@ import {
   GOVBR_USERINFO_URL,
   APPSHEET_URL,
   APPSHEET_KEY,
+  GOVRCODE_VERIFIER
 } from "../config.js";
 
 await loadGovbrConfig();
@@ -166,7 +167,7 @@ router.get("/gov/login", (req, res) => {
   const nonce = crypto.randomBytes(16).toString("hex");
 
   // Hardcoded code_verifier
-  const code_verifier = "meu-code-verifier-fixo-12345678901234567890123456789012";
+  const code_verifier = GOVRCODE_VERIFIER;
 
   const code_challenge = base64URLEncode(sha256(code_verifier));
   const code_challenge_method = "S256";
@@ -206,7 +207,7 @@ const tokenResponse = await axios.post(
     grant_type: "authorization_code",
     code,
     redirect_uri: GOVBR_REDIRECT_URI,
-    code_verifier: "meu-code-verifier-fixo-12345678901234567890123456789012", // 👈 obrigatório
+    code_verifier: GOVRCODE_VERIFIER,
   }),
   {
     headers: {

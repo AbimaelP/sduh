@@ -6,15 +6,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 
 export default function Applications() {
-  const { user } = useAuth()
-  const [appLink, setAppLink] = useState(null)
-
-  useEffect(() => {
-    setAppLink(user.app_link)
-  }, [user])
   return (
     <LayoutClient className='layout-appshet'>
-      <iframe src={`${appLink}?platform=desktop`} className='h-full w-full iframe-appshet'></iframe>
+      <iframe src={`https://www.appsheet.com/start/52ad0add-0bbe-4112-8146-272f5494103a`} className='h-full w-full iframe-appshet'></iframe>
     </LayoutClient>
   )
 }

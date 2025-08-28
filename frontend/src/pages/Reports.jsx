@@ -18,6 +18,7 @@ import { formatDate, formatHour } from '../utils/format'
 import Checkbox from '../components/Checkbox';
 import open from '../utils/open';
 import Card from '../components/Card';
+import { useAuth } from '../contexts/AuthContext';
 export default function Reports() {
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
@@ -25,6 +26,7 @@ export default function Reports() {
   const { filters, setOptionsFromData } = useFilters();
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  const { user } = useAuth();
 
   useEffect(() => {
   const applyFilters = async () => {
@@ -79,11 +81,17 @@ export default function Reports() {
   return (
     <LayoutClient>
       <Section className='p-4 f-size-small-min table-report-screen'>
+        {/* { user && user.role == 'municipal' ?
+          <iframe
+            src="https://lookerstudio.google.com/reporting/5756095b-0b28-42b9-a27e-09de5e988aef" className='w-full h-full'>
+        </iframe>
+        : */}
         <Section className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listaEmpreendimentos.map((item, i) => (
             <Card key={i} item={item}/>
           ))}
         </Section>
+        {/* } */}
         <Section>Paginação aqui</Section>
       </Section>
       <Button className="btn btn-black btn-report-export" iconPosition="left" icon="fas fa-file-alt" onClick={() => exportPDF("tableRelatorio")}>Exportar</Button>

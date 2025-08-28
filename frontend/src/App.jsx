@@ -51,6 +51,7 @@ function AppRoutes() {
     >
       <Route index element={<Applications />} />
       <Route path="applications" element={<Applications />} />
+      <Route path="reports" element={<Reports />} />
     </Route>
     }
   </Routes>
