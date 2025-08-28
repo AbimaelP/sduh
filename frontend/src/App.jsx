@@ -9,6 +9,8 @@ import { MenuProvider } from './contexts/MenuContext';
 import Section from './components/Section';
 import Icon from './components/Icon';
 import Applications from './pages/Applications';
+import GovCallback from './pages/GovCallback';
+
 function AppRoutes() {
   const { user, loading } = useAuth();
 
@@ -20,24 +22,30 @@ function AppRoutes() {
     )
   }
 
-  return (
-    <Routes>
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" replace /> : <Login />} 
-      />
+ return (
+  <Routes>
+    <Route 
+      path="/login" 
+      element={user ? <Navigate to="/" replace /> : <Login />} 
+    />
 
-      <Route 
-        path="/" 
-        element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="applications" element={<Applications />} />
-      </Route>
-    </Routes>
-  );
+    <Route 
+      path="/autenticacao" 
+      element={<GovCallback />} 
+    />
+
+    <Route 
+      path="/" 
+      element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
+    >
+      <Route index element={<Dashboard />} />
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="reports" element={<Reports />} />
+      <Route path="applications" element={<Applications />} />
+    </Route>
+  </Routes>
+)
+
 }
 
 export default function App() {
