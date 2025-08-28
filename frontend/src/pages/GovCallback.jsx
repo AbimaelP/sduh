@@ -6,7 +6,7 @@ import { callbackGovBR } from '../services/api/api';
 import Section from '../components/Section';
 import Icon from '../components/Icon';
 
-function GovCallback() {
+export default function GovCallback() {
   const location = useLocation();
   const navigate = useNavigate();
 
