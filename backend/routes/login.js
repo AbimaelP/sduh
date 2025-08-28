@@ -222,7 +222,7 @@ const tokenResponse = await axios.post(
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    return res.json({ tokenGov: access_token });
+    return res.json({user: userInfoResponse, tokenGov: access_token });
   } catch (err) {
     console.error(err.response?.data || err.message);
     return res.status(500).json({ error: err });
