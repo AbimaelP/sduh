@@ -218,9 +218,9 @@ const tokenResponse = await axios.post(
 );
     const { access_token } = tokenResponse.data;
 
-    // const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
-    //   headers: { Authorization: `Bearer ${access_token}` },
-    // });
+    const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
 
     return res.json({ tokenGov: access_token });
   } catch (err) {
