@@ -1,5 +1,7 @@
 import express from "express";
 import axios from "axios";
+import qs from "querystring";
+import crypto from "crypto";
 import {
   GOVBR_CLIENT_ID,
   GOVBR_CLIENT_SECRET,
@@ -148,32 +150,67 @@ router.post("/login", async (req, res) => {
   }
 });
 
+function base64URLEncode(str) {
+  return str.toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function sha256(buffer) {
+  return crypto.createHash("sha256").update(buffer).digest();
+}
 
 router.get("/gov/login", (req, res) => {
-  const url = `${GOVBR_AUTH_URL()}?response_type=code&client_id=${GOVBR_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-    GOVBR_REDIRECT_URI
-  )}&scope=openid+email+profile`;
+  const state = crypto.randomBytes(16).toString("hex");
+  const nonce = crypto.randomBytes(16).toString("hex");
+  const code_verifier = crypto.randomBytes(32).toString("hex");
+
+  // agora funciona
+  req.session.state = state;
+  req.session.nonce = nonce;
+  req.session.code_verifier = code_verifier;
+
+  const code_challenge = base64URLEncode(sha256(code_verifier));
+  const code_challenge_method = "S256";
+
+const url = `${GOVBR_AUTH_URL()}?response_type=code` +
+  `&client_id=${GOVBR_CLIENT_ID}` +
+  `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
+  `&scope=openid+email+profile` + // ⬅️ só os scopes liberados
+  `&state=${state}` +
+  `&nonce=${nonce}` +
+  `&code_challenge=${code_challenge}` +
+  `&code_challenge_method=${code_challenge_method}`;
+
   res.redirect(url);
 });
 
-router.get("/gov/callback", async (req, res) => {
-  const { code } = req.query;
+router.post("/gov/callback", async (req, res) => {
+  const { code } = req.body;
   if (!code)
     return res
       .status(400)
       .json({ error: "Código de autorização não recebido" });
 
   try {
-    const tokenResponse = await axios.post(
-      GOVBR_TOKEN_URL(),
-      new URLSearchParams({
+    const authString = `${GOVBR_CLIENT_ID}:${GOVBR_CLIENT_SECRET}`;
+    const authBase64 = Buffer.from(authString).toString("base64");
+
+    // envia o POST para o token
+    const tokenResponse = await axios.post(GOVBR_TOKEN_URL,
+      qs.stringify({
         grant_type: "authorization_code",
         code,
         redirect_uri: GOVBR_REDIRECT_URI,
-        client_id: GOVBR_CLIENT_ID,
-        client_secret: GOVBR_CLIENT_SECRET,
+        code_verifier: "", // deve ter sido salvo antes do login
       }),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Basic ${authBase64}`,
+        },
+      }
     );
 
     const { access_token } = tokenResponse.data;
@@ -185,7 +222,7 @@ router.get("/gov/callback", async (req, res) => {
     return res.json({ tokenGov: access_token });
   } catch (err) {
     console.error(err.response?.data || err.message);
-    return res.status(500).json({ error: "Falha na autenticação Gov.br" });
+    return res.status(500).json({ error: err });
   }
 });
 
