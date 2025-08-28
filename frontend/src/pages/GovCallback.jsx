@@ -5,10 +5,12 @@ import axios from "axios";
 import { callbackGovBR } from '../services/api/api';
 import Section from '../components/Section';
 import Icon from '../components/Icon';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function GovCallback() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const processGovCallback = async () => {
@@ -24,11 +26,12 @@ export default function GovCallback() {
 
       try {
         const user = await callbackGovBR({ code, session_state, iss });
-        // aqui você poderia salvar no AuthContext
-        // navigate("/dashboard"); // redireciona após login
+        console.log(user)
+        login(user.preferred_username, user.preferred_username, 'gov')
+        navigate("/"); // redireciona após login
       } catch (err) {
         console.error(err);
-        // navigate("/login");
+        navigate("/login");
       }
     };
 

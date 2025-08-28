@@ -1,13 +1,23 @@
 // frontend/src/services/appsheet/api.js
 import api from './config';
 
-export async function loginAPI(email, password) {
+export async function loginAPI(identify, password, authType) {
   try {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/auth/login', { identify, password, authType });
     return response.data; // { id, name, role }
   } catch (err) {
     // pega o erro retornado pelo backend
     const message = err.response?.data?.error || 'Login falhou';
+    throw new Error(message);
+  }
+}
+
+export async function loginGOV() {
+  try {
+    const response = await api.get('/auth/gov/login'); // GET porque não há payload
+    return response.data.url;
+  } catch (err) {
+    const message = err.response?.data?.error || 'Autenticação falhou';
     throw new Error(message);
   }
 }

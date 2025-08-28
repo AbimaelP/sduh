@@ -1,14 +1,15 @@
-import Logo from '../components/Logo';
-import Button from '../components/Button';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import Logo from "../components/Logo";
+import Button from "../components/Button";
+import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { loginGOV } from "../services/api/api";
 
 export default function Login() {
-  const {user, login} = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   const [authType, setAuthType] = useState(null);
 
   const handleLogin = (authType) => {
@@ -16,6 +17,15 @@ export default function Login() {
       login(email, pass, authType);
     } catch (error) {
       console.error("Erro no login:", error);
+    }
+  };
+
+  const handleLoginGOV = async () => {
+    try {
+      const url = await loginGOV();
+      window.location.href = url;
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -44,18 +54,44 @@ export default function Login() {
 
           <div className="flex items-center justify-between mt-4">
             <div className="input-group">
-              <input type="checkbox" id="lembrar_senha" className="mr-2 f-size-small" /> 
-              <label className="f-size-small" htmlFor="lembrar_senha">Lembrar-me</label>
+              <input
+                type="checkbox"
+                id="lembrar_senha"
+                className="mr-2 f-size-small"
+              />
+              <label className="f-size-small" htmlFor="lembrar_senha">
+                Lembrar-me
+              </label>
             </div>
             <div>
-              <a href="#" className="f-size-small">Esqueceu a senha?</a>
+              <a href="#" className="f-size-small">
+                Esqueceu a senha?
+              </a>
             </div>
           </div>
 
           <div className="mt-4">
-            <Button type="button" onClick={() => handleLogin('prototipo')} className="btn-md btn-gray f-size-small">ACESSAR (Protótipo)</Button>
-            <Button type="button" onClick={() => handleLogin('gov')} className="btn-md mt-3 btn-black f-size-small">ENTRAR COM GOV.BR</Button>
-            <Button type="button" onClick={() => handleLogin('cidadao')} className="btn-md mt-3 btn-red f-size-small">ACESSE O PAINEL DO CIDADÃO</Button>
+            <Button
+              type="button"
+              onClick={() => handleLogin("prototipo")}
+              className="btn-md btn-gray f-size-small"
+            >
+              ACESSAR (Protótipo)
+            </Button>
+            <Button
+              type="button"
+              onClick={() => handleLoginGOV()}
+              className="btn-md mt-3 btn-black f-size-small"
+            >
+              ENTRAR COM GOV.BR
+            </Button>
+            <Button
+              type="button"
+              onClick={() => handleLogin("cidadao")}
+              className="btn-md mt-3 btn-red f-size-small"
+            >
+              ACESSE O PAINEL DO CIDADÃO
+            </Button>
           </div>
         </form>
 

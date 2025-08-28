@@ -7,15 +7,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // adiciona loading
 
-  const login = async (email = '', password = '', authType = 'prototipo') => {
+  const login = async (identify = '', password = '', authType = 'prototipo') => {
     let userData = {};
 
     switch (authType) {
       case 'prototipo':
-        userData = await loginAPI(email, password);
+        userData = await loginAPI(identify, password, authType);
         break;
 
       case 'gov':
+        userData = await loginAPI(identify, password, authType);
         break;
 
       case 'cidadao':

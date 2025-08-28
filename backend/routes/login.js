@@ -12,7 +12,7 @@ import {
   GOVBR_USERINFO_URL,
   APPSHEET_URL,
   APPSHEET_KEY,
-  GOVRCODE_VERIFIER
+  GOVRCODE_VERIFIER,
 } from "../config.js";
 
 await loadGovbrConfig();
@@ -23,16 +23,21 @@ function sanitizeInput(str) {
   return String(str).replace(/["'\\]/g, "");
 }
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { identify, password, authType } = req.body;
 
-  if (!email || !password) {
+  if (!identify || !password) {
     return res.status(400).json({ error: "Email e senha são obrigatórios" });
   }
 
-  const safeEmail = sanitizeInput(email);
+  const safeIdentify = sanitizeInput(identify);
   const safePass = sanitizeInput(password);
 
   try {
+    let accessVerifyFilter = `Filter(users, [email] = "${safeIdentify}")`;
+
+    if (authType === "gov") {
+      accessVerifyFilter = `Filter(users, [cpf] = "${safeIdentify}")`;
+    }
     // 🔹 Buscar usuário
     const response = await axios.post(
       `${APPSHEET_URL}/tables/users/Action`,
@@ -40,7 +45,7 @@ router.post("/login", async (req, res) => {
         Action: "Find",
         Properties: {
           Locale: "en-US",
-          Selector: `Filter(users, [email] = "${safeEmail}")`,
+          Selector: accessVerifyFilter,
         },
       },
       {
@@ -50,7 +55,13 @@ router.post("/login", async (req, res) => {
 
     const user = response.data[0];
 
-    if (!user || user.password !== safePass) {
+    if (authType === "gov" && !user) {
+      return res
+        .status(401)
+        .json({ error: "Usuário não cadastrado no sistema" });
+    }
+
+    if (authType === "prototipo" && (!user || user.password !== safePass)) {
       return res.status(401).json({ error: "Usuário ou senha incorretos" });
     }
 
@@ -74,8 +85,8 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    const municipioIds = municipiosUsersRes.data.map(
-      (item) => parseInt(item.municipio_id)
+    const municipioIds = municipiosUsersRes.data.map((item) =>
+      parseInt(item.municipio_id)
     );
 
     const municipiosRes = await axios.post(
@@ -137,7 +148,7 @@ router.post("/login", async (req, res) => {
         }
       }
     }
-    console.log(appLink)
+    console.log(appLink);
     return res.json({
       id: user.id,
       name: user.name,
@@ -152,7 +163,8 @@ router.post("/login", async (req, res) => {
 });
 
 function base64URLEncode(str) {
-  return str.toString("base64")
+  return str
+    .toString("base64")
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
@@ -177,7 +189,8 @@ router.get("/gov/login", (req, res) => {
   req.session.state = state;
   req.session.nonce = nonce;
 
-  const url = `${GOVBR_AUTH_URL()}?response_type=code` +
+  const url =
+    `${GOVBR_AUTH_URL()}?response_type=code` +
     `&client_id=${GOVBR_CLIENT_ID}` +
     `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
     `&scope=openid+email+profile` +
@@ -186,7 +199,7 @@ router.get("/gov/login", (req, res) => {
     `&code_challenge=${code_challenge}` +
     `&code_challenge_method=${code_challenge_method}`;
 
-  res.redirect(url);
+  res.json({ url });
 });
 
 router.post("/gov/callback", async (req, res) => {
@@ -200,29 +213,28 @@ router.post("/gov/callback", async (req, res) => {
     const authString = `${GOVBR_CLIENT_ID}:${GOVBR_CLIENT_SECRET}`;
     const authBase64 = Buffer.from(authString).toString("base64");
 
-
-const tokenResponse = await axios.post(
-  GOVBR_TOKEN_URL(),
-  qs.stringify({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: GOVBR_REDIRECT_URI,
-    code_verifier: GOVRCODE_VERIFIER,
-  }),
-  {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${authBase64}`,
-    },
-  }
-);
+    const tokenResponse = await axios.post(
+      GOVBR_TOKEN_URL(),
+      qs.stringify({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: GOVBR_REDIRECT_URI,
+        code_verifier: GOVRCODE_VERIFIER,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${authBase64}`,
+        },
+      }
+    );
     const { access_token } = tokenResponse.data;
 
     const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    return res.json({user: userInfoResponse.data, tokenGov: access_token });
+    return res.json({ user: userInfoResponse.data });
   } catch (err) {
     // Extrair apenas info relevante para o frontend
     const status = err.response?.status || 500;
