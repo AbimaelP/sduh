@@ -222,7 +222,7 @@ const tokenResponse = await axios.post(
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
-    return res.json({user: userInfoResponse, tokenGov: access_token });
+    return res.json({user: userInfoResponse.data, tokenGov: access_token });
   } catch (err) {
     // Extrair apenas info relevante para o frontend
     const status = err.response?.status || 500;
