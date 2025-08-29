@@ -18,7 +18,9 @@ ENV CLIENT_SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afbbdd28
 ENV REDIRECT_URL_GOV="https://homologacao.horushab.habitacao.sp.gov.br/callback"
 ENV GOV_CLIENT_ID="sduh.horus-hab"
 ENV GOV_CLIENT_SECRET="3de8bc40-b5a0-4e18-b411-de473aefc725"
+ENV SESSION_SECRET="sdasiuq231231sad"
 ENV PORT="3000" 
+ENV CODE_VERIFIER="uudliovupEodE4c7TPIYl0pXsEfGE_d0ki_09XdI9kg"
 
 # Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
 COPY package*.json ./
