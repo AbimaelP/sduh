@@ -68,7 +68,7 @@ router.post("/login", async (req, res) => {
     // Ajustar role
     if (user.role === "user") {
       user.role = "municipal";
-      user.main_role = "user";
+      user.main_role = "municipal";
     }
 
     if (user.role === "admin") {

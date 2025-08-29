@@ -23,10 +23,10 @@ export default function LayoutClient({ className, children }) {
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select
             className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 min-w-150
-              ${user?.main_role === 'admin' ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${(user?.main_role === 'admin' || user?.main_role === 'municipal') ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}
             value={user?.role || ''}
-            disabled={user?.main_role !== 'admin'}
+            disabled={user?.main_role === 'cidadao'}
             onChange={handleChangeRole}
           >
             {profiles.map((profile) => (
