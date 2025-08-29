@@ -101,9 +101,9 @@ export default function Reports() {
       const dataToExport = listaEmpreendimentos.filter((item, index) =>
         indexDataExport.includes(index)
       );
-      exportPDF(dataToExport)
+      exportPDF(dataToExport, lastUpdated)
     } else {
-      exportPDF(listaEmpreendimentos)
+      exportPDF(listaEmpreendimentos, lastUpdated)
     }
   }
 

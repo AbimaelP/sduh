@@ -1,5 +1,5 @@
-import { formatBRL, formatCEP } from "./format"
-export default function exportPDF(dataToExport = []) {
+import { formatBRL, formatCEP, formatDate, formatHour } from "./format"
+export default function exportPDF(dataToExport = [], lastUpdatedData) {
   const iframe = document.createElement("iframe");
   document.body.appendChild(iframe);
   const doc = iframe.contentWindow.document;
@@ -15,16 +15,8 @@ export default function exportPDF(dataToExport = []) {
                 Programa Casa Paulista - Carta de Crédito Imobiliário (CCI)
               </div>
               <div class="text-table-space">
-                Empreendimentos Ativos em Campinas
-              </div>
-              <div class="text-table-space">
-                Este relatório apresenta os empreendimentos na cidade de
-                Campinas que fazem parte do programa Casa Paulista, oferecendo
-                subsídios para a compra de imóveis.
-              </div>
-              <div class="text-table-space">
                 <ul class="item-list-details">
-                  <li>Atualizado em: 27 de agosto de 2025, às 11:50.</li>
+                  <li>Atualizado em: ${formatDate(lastUpdatedData)} às ${formatHour(lastUpdatedData)}.</li>
                   <li>
                     Fonte: Secretaria de Desenvolvimento Urbano e Habitação do
                     Governo do Estado de São Paulo.
