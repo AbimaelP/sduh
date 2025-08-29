@@ -18,7 +18,9 @@
 }
 
 .map-marker-icon {
-  font-size: 16px; color: #ffff;transform: rotate(45deg);
+  font-size: 16px;
+  color: #ffff;
+  transform: rotate(45deg);
 }
 
 .txt-infowindow {
@@ -26,23 +28,23 @@
 }
 
 .info-window-content-map {
-    padding: 1rem;
-    font-size: 14px;
-    line-height: 1.6;
-    min-width: 320px;
+  padding: 1rem;
+  font-size: 14px;
+  line-height: 1.6;
+  min-width: 320px;
 }
 
 .info-window-content-map h3 {
-    margin: 0 0 10px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #333;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
 }
 
 .info-window-content-map p {
-    margin: 5px 0;
+  margin: 5px 0;
 }
 
 .map-container {
@@ -53,7 +55,8 @@
   height: calc(100vh - 206px);
 }
 
-.map-cidadao, .map-municipal {
+.map-cidadao,
+.map-municipal {
   height: calc(100vh - 150px);
 }
 
@@ -67,4 +70,23 @@
   color: #000000;
   box-shadow: 1px 1px 3px 0px black;
   border-radius: 5px;
+}
+
+.item-info-title-map {
+  font-weight: 500;
+}
+
+.card-item.card-item-endereco-map {
+  height: auto;
+  overflow: visible;
+}
+
+.card-info-item-url {
+  background-color: #0775eb;
+  color: #ffff;
+  padding: 3px 15px;
+  border-radius: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
 }

@@ -89,8 +89,8 @@ input[type="checkbox"].appearance-none:checked::after {
 
 .item-info-detail {
   margin-left: 5px;
-  color: #8b8b8b;
-  font-weight: 600;
+  color: rgb(28 29 30);
+  font-weight: 400;
 }
 
 .icon-card-report-item {

@@ -11,6 +11,7 @@ import Section from './Section';
 import Icon from './Icon';
 import { formatDate, formatHour, formatBRL } from '../utils/format'
 import open from '../utils/open';
+import Loading from './Loading';
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -140,15 +141,15 @@ if (filters.dormitorios) {
           </div>
           
           <div class="card-info">
-            <div class="card-item card-item-endereco">
+            <div class="card-item ">
               <div class="flex">
                 <span class="container-icone-card-report">
                   <i class="fas fa-map-marker-alt mr-2 f-size-small icon-card-report-item" /></i>
                   </span>
                 <div class="card-info-item">
-                  <span class="item-info-title">Endereço do Empreendimento:</span>
-                  <span class="item-info-detail" title=${item.enderecoEmpreendimento}>
-                    ${item.enderecoEmpreendimento}
+                  <span class="item-info-title-map">Endereço do Empreendimento:</span>
+                  <span class="item-info-detail" title="${item.enderecoEmpreendimento}">
+                    ${item.enderecoEmpreendimento ?? 'N/A'}
                   </span>
                 </div>
               </div>
@@ -157,11 +158,11 @@ if (filters.dormitorios) {
             <div class="card-item">
               <div class="flex">
                 <span class="container-icone-card-report">
-                  <i class="fas fa-bed mr-2 f-size-small icon-card-report-item" /></i>
+                  <i class="fas fa-city mr-2 f-size-small icon-card-report-item" /></i>
                   </span>
                 <div class="card-info-item">
-                  <span class="item-info-title">Número de Dormitórios:</span>
-                  <span class="item-info-detail">${item.qtDormitorio}</span>
+                  <span class="item-info-title-map">Município:</span>
+                  <span class="item-info-detail">${item.municipio ?? 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -172,8 +173,8 @@ if (filters.dormitorios) {
                   <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
                   </span>
                 <div class="card-info-item">
-                  <span class="item-info-title">Tipologia:</span>
-                  <span class="item-info-detail">${item.tipologia}</span>
+                  <span class="item-info-title-map">Unidades Disponíveis:</span>
+                  <span class="item-info-detail">${item.unidadesSubsidiadas ?? 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -184,14 +185,38 @@ if (filters.dormitorios) {
                   <i class="fas fa-hand-holding-usd mr-2 f-size-small icon-card-report-item" /></i>
                   </span>
                 <div class="card-info-item">
-                  <span class="item-info-title">Valor do Subsídio:</span>
-                  <span class="item-info-detail">${formatBRL(item.subsidioEstadual)}</span>
+                  <span class="item-info-title-map">Valor do Benefício:</span>
+                  <span class="item-info-detail">${formatBRL(item.subsidioEstadual) ?? 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-item ">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-info-circle mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title-map">Endereço para Atendimento:</span>
+                  <span class="item-info-detail" title="${item.enderecosAtendimento}">
+                    ${item.enderecosAtendimento ?? 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-item">
+              <div class="flex">
+                <div class="card-info-item card-info-item-url">
+                  <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank" class="item-info-url">Casa Paulista - Crédito Imobiliário 
+                  <i class="fas fa-external-link-square-alt ml-1" /></i>
+                  </a>
                 </div>
               </div>
             </div>
 
             <div class="w-full flex justify-center">
-              <button class="btn btn-green font-bold-important" onclick="">
+              <button class="btn btn-green font-bold-important ${!item.contatosAtendimento && 'no-event-click btn-disabled'}" onclick="window.open('https://wa.me?phone=${item.contatosAtendimento}')">
                 Fale pelo Whatsapp
               </button>
             </div>
@@ -334,9 +359,7 @@ useEffect(() => {
 
   return (
     <>
-      { loading ? <Section className='flex w-screen h-screen items-center justify-center'>
-        <Icon className='' icon='fas fa-spinner fa-spin text-4xl text-blue-500'/>
-      </Section> : <></> }
+      { loading ? <Loading /> : <></> }
       <div>
         {user && user.role === "sduh" ? (
           <div className="p-2 flex bg-white justify-between items-center">

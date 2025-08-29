@@ -10,15 +10,14 @@ import Section from './components/Section';
 import Icon from './components/Icon';
 import Applications from './pages/Applications';
 import GovCallback from './pages/GovCallback';
+import Loading from './components/Loading';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <Section className='flex w-screen h-screen items-center justify-center'>
-        <Icon className='' icon='fas fa-spinner fa-spin text-4xl text-blue-500'/>
-      </Section>
+      <Loading />
     )
   }
 

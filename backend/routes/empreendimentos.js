@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos`, {
+    const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos?limit=100`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -36,48 +36,6 @@ router.get('/', async (req, res) => {
     return res.status(status).json({ error: message });
   }
 });
-
-router.get('/paginacao', async (req, res) => {
-  const { statusObra, token, pagina = 1 } = req.query;
-
-  if (!token) {
-    return res.status(401).json({ error: 'Token não fornecido' });
-  }
-
-  const limit = 8; // agora são 8 itens por página
-  const page = parseInt(pagina, 10) || 1;
-
-  try {
-    const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    let data = response.data.data;
-
-    if (statusObra) {
-      data = data.filter(item => item.statusObra === statusObra);
-    }
-
-    const totalItems = data.length;
-    const totalPages = Math.ceil(totalItems / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const dataPagina = data.slice(startIndex, endIndex);
-
-    return res.json({
-      data: dataPagina,
-      paginaAtual: page,
-      totalPaginas: totalPages,
-      totalItems
-    });
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    const status = err.response?.status || 500;
-    const message = err.response?.data?.error || err.message || 'Erro desconhecido';
-    return res.status(status).json({ error: message });
-  }
-});
-
 
 // GET /empreendimentos/ultima-atualizacao?token=YYY
 router.get('/ultima-atualizacao', async (req, res) => {
