@@ -78,6 +78,13 @@ export default function Login() {
             >
               ACESSAR
             </Button> */}
+             <Button
+              type="button"
+              onClick={() => handleLogin("cidadao")}
+              className="btn-md mt-3 btn-red f-size-small"
+            >
+              ACESSE O PAINEL DO CIDADÃO
+            </Button>
             <Button
               type="button"
               icon='fas fa-user'
@@ -85,13 +92,6 @@ export default function Login() {
               className="btn-md mt-3 btn-blue f-size-small"
             >
               ENTRAR COM GOV.BR
-            </Button>
-            <Button
-              type="button"
-              onClick={() => handleLogin("cidadao")}
-              className="btn-md mt-3 btn-red f-size-small"
-            >
-              ACESSE O PAINEL DO CIDADÃO
             </Button>
           </div>
         </form>
