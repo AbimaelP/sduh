@@ -23,3 +23,7 @@ export const formatBRL = (value) => {
     currency: "BRL"
   }).format(value);
 }
+
+export const formatCEP = (value) => {
+  return value
+}

@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
       user.main_role = "municipal";
     }
 
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === 'adm') {
       user.role = "municipal";
       user.main_role = "admin"
     }

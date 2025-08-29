@@ -1,29 +1,62 @@
+import { formatBRL, formatCEP } from "./format"
 export default function exportPDF(dataToExport = []) {
   const iframe = document.createElement("iframe");
   document.body.appendChild(iframe);
   const doc = iframe.contentWindow.document;
 
   const exportHTML = `
-    <table class="w-full">
+
+  <table class="w-full table-export">
       <thead>
         <tr>
           <th>
-            <div>
-              
+            <div class="header-table line-section">
+              <div class="text-table-space title-table">
+                Programa Casa Paulista - Carta de Crédito Imobiliário (CCI)
+              </div>
+              <div class="text-table-space">
+                Empreendimentos Ativos em Campinas
+              </div>
+              <div class="text-table-space">
+                Este relatório apresenta os empreendimentos na cidade de
+                Campinas que fazem parte do programa Casa Paulista, oferecendo
+                subsídios para a compra de imóveis.
+              </div>
+              <div class="text-table-space">
+                <ul class="item-list-details">
+                  <li>Atualizado em: 27 de agosto de 2025, às 11:50.</li>
+                  <li>
+                    Fonte: Secretaria de Desenvolvimento Urbano e Habitação do
+                    Governo do Estado de São Paulo.
+                  </li>
+                </ul>
+              </div>
             </div>
           </th>
         </tr>
       </thead>
       <tbody>
-        ${dataToExport.map(item => `
-          <tr>
-            <td>${item.nomeEmpreendimento}</td>
-            <td>${item.enderecoEmpreendimento}</td>
-            <td>${item.qtDormitorio}</td>
-            <td>${item.tipologia}</td>
-            <td>${item.subsidioEstadual}</td>
-          </tr>
-        `).join('')}
+      ${dataToExport.map(item => `
+        <tr>
+          <td>
+            <div class="row-table line-section">
+              <div class="text-table-space">
+                ${item.nomeEmpreendimento ?? 'N/A'}
+              </div>
+              <div class="text-table-space">
+                <ul class="item-list-details">
+                  <li>Endereço: ${item.enderecoEmpreendimento ?? 'N/A'}</li>
+                  <li> CEP: ${formatCEP(item.cep) ?? 'N/A'} </li>
+                  <li> Dormitórios: ${item.qtDormitorio ?? 'N/A'}</li>
+                  <li> Tipo de Imóvel: ${item.tipologia ?? 'N/A'} </li>
+                  <li> Unidades com Subsídio: ${formatBRL(item.subsidioEstadual) ?? 'N/A'}</li>
+                  <li> Valor do Subsídio Estadual: ${item.unidadesSubsidiadas ?? 'N/A'} </li>
+                </ul>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `).join('')}
       </tbody>
     </table>
   `;
