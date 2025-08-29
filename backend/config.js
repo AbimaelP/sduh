@@ -21,7 +21,6 @@ let _GOVBR_AUTH_URL;
 let _GOVBR_TOKEN_URL;
 let _GOVBR_USERINFO_URL;
 
-// Função para carregar as URLs dinamicamente
 export async function loadGovbrConfig() {
   try {
     const { data } = await axios.get(DISCOVERY_URL);
@@ -34,7 +33,6 @@ export async function loadGovbrConfig() {
   }
 }
 
-// Getters para usar no restante do código
 export function GOVBR_AUTH_URL() {
   return _GOVBR_AUTH_URL;
 }

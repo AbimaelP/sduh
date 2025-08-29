@@ -285,3 +285,11 @@
 .shadow-none {
     box-shadow: none !important;
 }
+
+.no-event-click {
+    pointer-events: none;
+}
+
+.btn-disabled {
+    opacity: 0.5;
+}
