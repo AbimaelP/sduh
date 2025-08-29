@@ -15,7 +15,7 @@ export const GOVBR_REDIRECT_URI = process.env.REDIRECT_URL_GOV;
 export const GOVRCODE_VERIFIER = process.env.CODE_VERIFIER;
 
 // Discovery endpoint do Gov.br homologação
-const DISCOVERY_URL = "https://rhsso.idp-hml.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration";
+const DISCOVERY_URL = "https://idp.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration";
 
 let _GOVBR_AUTH_URL;
 let _GOVBR_TOKEN_URL;
