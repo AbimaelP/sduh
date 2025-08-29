@@ -22,7 +22,7 @@ export default function LayoutClient({ className, children }) {
         <div className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select
-            className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 
+            className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 min-w-150
               ${user?.main_role === 'admin' ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}
             value={user?.role || ''}

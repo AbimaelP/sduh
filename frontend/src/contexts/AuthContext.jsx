@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         break;
 
       case 'cidadao':
-        userData = { user: 'Cidadão', role: 'cidadao' };
+        userData = { user: 'Cidadão', role: 'cidadao', main_role: 'admin' };
         break;
     }
 
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.removeItem("user");
       localStorage.setItem("user", JSON.stringify(userData));
+      window.location.href = "/";
     }
   }
 
