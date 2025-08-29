@@ -6,10 +6,6 @@ export async function loginAPI(identify, password, authType) {
     const response = await api.post('/auth/login', { identify, password, authType });
     return response.data; // { id, name, role }
   } catch (err) {
-    // pega o erro retornado pelo backend
-    const message = err.response?.data?.error || 'Login falhou';
-    throw new Error(message);
-  } finally {
     return { user: 'Cidadão', role: 'cidadao', main_role: 'cidadao' }
   }
 }
