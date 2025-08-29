@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const changeUserAccessRole = (role) => {
-    if (user.main_role === 'admin') {
+    if (user.main_role === 'admin' || user.main_role === 'municipal') {
       const userData = user;
 
       userData.role = role
