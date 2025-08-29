@@ -3,11 +3,6 @@ export default function exportPDF(dataToExport = []) {
   document.body.appendChild(iframe);
   const doc = iframe.contentWindow.document;
 
-  // inclui os estilos da página
-  const styles = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
-    .map(node => node.outerHTML)
-    .join("\n");
-
   const exportHTML = `
     <table class="w-full">
       <thead>
@@ -38,7 +33,55 @@ export default function exportPDF(dataToExport = []) {
     <html>
       <head>
         <title>Export PDF</title>
-        ${styles}
+        <style>
+      * {
+        box-sizing: border-box;
+        border-width: 0;
+        border-style: solid;
+        border-color: #e5e7eb;
+        margin: 0;
+        padding: 0;
+      }
+
+      *,
+      li,
+      a {
+        font-family: inter, sans-serif;
+      }
+
+      .header-table, .row-table {
+        text-align: start;
+        padding-bottom: 15px;
+      }
+
+      .text-table-space {
+        margin-bottom: 15px;
+      }
+
+      .line-section {
+        border-bottom: 1px solid;
+      }
+
+      .table-export {
+        padding: 50px;
+      }
+
+      .item-list-details {
+        padding-left: 35px;
+      }
+
+      .title-table {
+        font-size: 20px;
+      }
+
+      .row-table {
+        padding-top: 15px;
+      }
+
+      .row-table * {
+        font-weight: 500;
+      }
+    </style>
       </head>
       <body>
         ${exportHTML}
