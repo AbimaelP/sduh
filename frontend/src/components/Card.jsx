@@ -47,6 +47,21 @@ export default function Card({ item, checked, onChange }) {
           <Section className="flex">
             <span className="container-icone-card-report">
               <Icon
+                icon="fas fa-city"
+                className="mr-2 f-size-small icon-card-report-item"
+              />
+            </span>
+            <Section className="card-info-item">
+              <span className="item-info-title">Município:</span>
+              <span className="item-info-detail">{item.municipio}</span>
+            </Section>
+          </Section>
+        </Section>
+
+        <Section className="card-item">
+          <Section className="flex">
+            <span className="container-icone-card-report">
+              <Icon
                 icon="fas fa-bed"
                 className="mr-2 f-size-small icon-card-report-item"
               />
