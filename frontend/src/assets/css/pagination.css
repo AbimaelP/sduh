@@ -1,0 +1,18 @@
+.btn-pagination {
+  width: 20%;
+}
+
+.pagination {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination button:nth-of-type(1) {
+  margin-right: 50px;
+}
+
+.pagination button:nth-of-type(2) {
+  margin-left: 50px;
+}

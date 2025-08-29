@@ -25,15 +25,17 @@
   border-bottom: 1px solid;
 }
 
-.table-report-screen {
+.report-screen {
   height: 100%;
   padding-bottom: 66px;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .btn-report-export {
-  position: fixed;
-  bottom: 25px;
+  position: absolute;
   right: 25px;
   width: auto !important;
 }

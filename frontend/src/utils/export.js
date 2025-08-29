@@ -1,17 +1,37 @@
-export default function exportPDF(tableId) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-
-  // cria iframe temporário
+export default function exportPDF(dataToExport = []) {
   const iframe = document.createElement("iframe");
   document.body.appendChild(iframe);
-
   const doc = iframe.contentWindow.document;
 
-  // pega todos os <link rel="stylesheet"> e <style> do documento principal
+  // inclui os estilos da página
   const styles = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
     .map(node => node.outerHTML)
     .join("\n");
+
+  const exportHTML = `
+    <table class="w-full">
+      <thead>
+        <tr>
+          <th>
+            <div>
+              
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        ${dataToExport.map(item => `
+          <tr>
+            <td>${item.nomeEmpreendimento}</td>
+            <td>${item.enderecoEmpreendimento}</td>
+            <td>${item.qtDormitorio}</td>
+            <td>${item.tipologia}</td>
+            <td>${item.subsidioEstadual}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
 
   doc.open();
   doc.write(`
@@ -21,7 +41,7 @@ export default function exportPDF(tableId) {
         ${styles}
       </head>
       <body>
-        ${table.outerHTML}
+        ${exportHTML}
         <script>
           window.onload = function() {
             window.print();

@@ -170,15 +170,27 @@ if (filters.dormitorios) {
             <div class="card-item">
               <div class="flex">
                 <span class="container-icone-card-report">
-                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
+                  <i class="fas fa-bed mr-2 f-size-small icon-card-report-item" /></i>
                   </span>
                 <div class="card-info-item">
-                  <span class="item-info-title-map">Unidades Disponíveis:</span>
-                  <span class="item-info-detail">${item.unidadesSubsidiadas ?? 'N/A'}</span>
+                  <span class="item-info-title-map">Número de Dormitórios:</span>
+                  <span class="item-info-detail">${item.qtDormitorio ?? 'N/A'}</span>
                 </div>
               </div>
             </div>
 
+            <div class="card-item">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-home mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title-map">Tipologia:</span>
+                  <span class="item-info-detail">${item.tipologia ?? 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+            
             <div class="card-item">
               <div class="flex">
                 <span class="container-icone-card-report">
@@ -187,6 +199,19 @@ if (filters.dormitorios) {
                 <div class="card-info-item">
                   <span class="item-info-title-map">Valor do Benefício:</span>
                   <span class="item-info-detail">${formatBRL(item.subsidioEstadual) ?? 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="card-item">
+              <div class="flex">
+                <span class="container-icone-card-report">
+                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
+                  </span>
+                <div class="card-info-item">
+                  <span class="item-info-title-map">Unidades Disponíveis:</span>
+                  <span class="item-info-detail">${item.unidadesSubsidiadas ?? 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -301,7 +326,7 @@ if (filters.dormitorios) {
         zoom: 7,
         mapId: "a4e035e5a4e5272a", // ID do Google Cloud
         mapTypeControl: false,
-        streetViewControl: false,
+        streetViewControl: true,
         zoomControl: true,
         fullscreenControl: false,
       });
