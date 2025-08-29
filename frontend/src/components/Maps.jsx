@@ -314,17 +314,7 @@ useEffect(() => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      let municipios = [];
-
-      // Só filtra se o usuário for municipal
-      if (user?.role === 'municipal') {
-        municipios = user.municipios && user.municipios.length > 0
-          ? user.municipios
-          : [1]; // valor que não existe, retorna 0 resultados
-      }
-
-      // Chama a API passando o filtro de municípios (ou array vazio para outros roles)
-      let data = await empreendimentos('', municipios);
+      let data = await empreendimentos('');
       setOptionsFromData(data);
       let lastUpdatedData = await ultimaAtualizacao();
 
