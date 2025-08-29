@@ -2,6 +2,7 @@
 import api from './config';
 
 export async function loginAPI(identify, password, authType) {
+  console.log(`loginAPI: ${ identify, password, authType }`)
   try {
     const response = await api.post('/auth/login', { identify, password, authType });
     return response.data; // { id, name, role }

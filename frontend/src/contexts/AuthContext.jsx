@@ -9,8 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (identify = '', password = '', authType = 'prototipo') => {
     let userData = {};
-    console.log(identify, password, authType)
-
+    console.log(`loginAuth: ${ identify, password, authType }`)
     switch (authType) {
       case 'prototipo':
         userData = await loginAPI(identify, password, authType);
