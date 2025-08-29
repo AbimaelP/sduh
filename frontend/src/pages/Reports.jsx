@@ -111,14 +111,18 @@ export default function Reports() {
     <LayoutClient>
       <Section className="p-4 f-size-small-min report-screen">
         <Section className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {listaEmpreendimentos.slice(startIndex, endIndex).map((item, i) => (
-            <Card
-              key={i}
-              item={item}
-              checked={indexDataExport.includes(i)}
-              onChange={() => handleChangeDataToExport(i)}
-            />
-          ))}
+          {listaEmpreendimentos.slice(startIndex, endIndex).map((item, i) => {
+            const globalIndex = startIndex + i;
+
+            return (
+              <Card
+                key={globalIndex}
+                item={item}
+                checked={indexDataExport.includes(globalIndex)}
+                onChange={() => handleChangeDataToExport(globalIndex)}
+              />
+            );
+          })}
         </Section>
 
        <Pagination

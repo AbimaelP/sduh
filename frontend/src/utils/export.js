@@ -75,7 +75,19 @@ export default function exportPDF(dataToExport = []) {
         margin: 0;
         padding: 0;
       }
+      .row-table {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
 
+      thead {
+        display: table-row-group;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
       *,
       li,
       a {
