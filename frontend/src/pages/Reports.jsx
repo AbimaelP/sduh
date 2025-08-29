@@ -60,6 +60,11 @@ export default function Reports() {
 
       setListaEmpreendimentos(data);
       setLastUpdated(lastUpdatedData);
+
+      // 👇 reseta a página para 1 ao aplicar filtro
+      setPagina(1);
+      setStartIndex(0);
+      setEndIndex(itemsPerPage);
     };
 
     applyFilters();
@@ -99,10 +104,6 @@ export default function Reports() {
     exportPDF(dataToExport)
   }
 
-  useEffect(() => {
-    console.log("indexDataExport atualizado:", indexDataExport);
-  }, [indexDataExport]);
-
   return (
     <LayoutClient>
       <Section className="p-4 f-size-small-min report-screen">
@@ -117,24 +118,27 @@ export default function Reports() {
           ))}
         </Section>
 
-        <Pagination
-          totalItems={listaEmpreendimentos.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={({ startIndex, endIndex }) => {
-            setStartIndex(startIndex);
-            setEndIndex(endIndex);
-          }}
-          component={
-            <Button
-              className="btn btn-black btn-report-export"
-              iconPosition="left"
-              icon="fas fa-file-alt"
-              onClick={() => handleExportPDF()}
-            >
-              {!indexDataExport.length ? 'Exportar tudo' : 'Exportar selecionados' }
-            </Button>
-          }
-        />
+       <Pagination
+        totalItems={listaEmpreendimentos.length}
+        itemsPerPage={itemsPerPage}
+        currentPage={pagina} // 👈 recebe do Reports
+        onPageChange={({ startIndex, endIndex, currentPage }) => {
+          setStartIndex(startIndex);
+          setEndIndex(endIndex);
+          setPagina(currentPage);
+        }}
+        onPageChangeManual={setPagina}
+        component={
+          <Button
+            className="btn btn-black btn-report-export"
+            iconPosition="left"
+            icon="fas fa-file-alt"
+            onClick={() => handleExportPDF()}
+          >
+            {!indexDataExport.length ? "Exportar tudo" : "Exportar selecionados"}
+          </Button>
+        }
+      />
       </Section>
     </LayoutClient>
   );

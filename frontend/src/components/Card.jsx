@@ -25,7 +25,7 @@ export default function Card({ item, checked, onChange }) {
           <Section className="flex">
             <span className="container-icone-card-report">
               <Icon
-                icon="fas fa-map-marker-alt"
+                icon="fas fa-map-marker-alt text-red"
                 className="mr-2 f-size-small icon-card-report-item"
               />
             </span>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 export default function Button({
   onClick,
   className = "",
+  classNameLink = "",
   children,
   iconPosition = "left",
   icon = "",
@@ -22,5 +23,5 @@ export default function Button({
     </button>
   );
 
-  return link ? <Link to={link}>{buttonContent}</Link> : buttonContent;
+  return link ? <Link to={link} className={classNameLink}>{buttonContent}</Link> : buttonContent;
 }

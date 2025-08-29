@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
-import Section from './Section';
-import "../assets/css/pagination.css"
+import Section from "./Section";
+import "../assets/css/pagination.css";
+import Button from './Button';
 
-export default function Pagination({ totalItems, itemsPerPage, onPageChange, component }) {
-  const [currentPage, setCurrentPage] = useState(1);
+export default function Pagination({
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+  component,
+  currentPage,
+  onPageChangeManual,
+}) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  // Chama o callback sempre que a página mudar
   useEffect(() => {
     if (onPageChange) {
       const startIndex = (currentPage - 1) * itemsPerPage;
@@ -16,37 +22,45 @@ export default function Pagination({ totalItems, itemsPerPage, onPageChange, com
   }, [currentPage, itemsPerPage, onPageChange]);
 
   const handleAnterior = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
+    onPageChangeManual(Math.max(currentPage - 1, 1));
   };
 
   const handleProximo = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    onPageChangeManual(Math.min(currentPage + 1, totalPages));
   };
 
-  if (totalPages <= 1) return null;
-
   return (
-    <Section className="pagination mt-4">
-      <button
-        className="btn btn-gray btn-pagination"
-        onClick={handleAnterior}
-        disabled={currentPage === 1}
+    <Section className="mt-4 relative">
+      <Button
+        className="btn btn-gray"
+        classNameLink="btn-voltar-mapa"
+        icon='fas fa-map'
+        link="/"
       >
-        Anterior
-      </button>
+        Voltar para o Mapa
+      </Button>
 
-      <span className="font-bold">
-        {currentPage} de {totalPages}
-      </span>
+      <Section className="pagination">
+        <button
+          className={`btn btn-gray btn-pagination ${currentPage === 1 && 'btn-disabled'}`}
+          onClick={handleAnterior}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
 
-      <button
-        className="btn btn-gray btn-pagination"
-        onClick={handleProximo}
-        disabled={currentPage === totalPages}
-      >
-        Próximo
-      </button>
+        <span className="font-bold">
+          {currentPage} de {totalPages}
+        </span>
 
+        <button
+          className={`btn btn-gray btn-pagination  ${currentPage === totalPages && 'btn-disabled'}`}
+          onClick={handleProximo}
+          disabled={currentPage === totalPages}
+        >
+          Próximo
+        </button>
+      </Section>
       {component}
     </Section>
   );
