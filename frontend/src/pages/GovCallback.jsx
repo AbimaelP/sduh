@@ -10,10 +10,13 @@ import { useAuth } from '../contexts/AuthContext';
 export default function GovCallback() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
 
   useEffect(() => {
     const processGovCallback = async () => {
+      if (user) {
+        navigate("/");
+      }
       const params = new URLSearchParams(location.search);
       const code = params.get("code");
       const session_state = params.get("session_state");
@@ -26,8 +29,7 @@ export default function GovCallback() {
 
       try {
         const user = await callbackGovBR({ code, session_state, iss });
-        console.log(user)
-        login(user.preferred_username, user.preferred_username, 'gov')
+        login(user.user.preferred_username, user.user.preferred_username, 'gov')
       } catch (err) {
         console.error(err);
         navigate("/login");
@@ -35,7 +37,7 @@ export default function GovCallback() {
     };
 
     processGovCallback();
-  }, [location, navigate]);
+  }, [location, navigate, user]);
 
   return (
      <Section className='flex w-screen h-screen items-center justify-center'>
