@@ -37,7 +37,7 @@ export default function Login() {
         </div>
 
         <form className="mt-10">
-          <input
+          {/* <input
             type="text"
             placeholder="Usuário"
             className="form-input f-size-small"
@@ -50,9 +50,9 @@ export default function Login() {
             className="form-input mt-4 f-size-small"
             value={pass}
             onChange={(e) => setPass(e.target.value)}
-          />
+          /> */}
 
-          <div className="flex items-center justify-between mt-4">
+          {/* <div className="flex items-center justify-between mt-4">
             <div className="input-group">
               <input
                 type="checkbox"
@@ -68,20 +68,21 @@ export default function Login() {
                 Esqueceu a senha?
               </a>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-4">
-            <Button
+            {/* <Button
               type="button"
               onClick={() => handleLogin("prototipo")}
               className="btn-md btn-gray f-size-small"
             >
-              ACESSAR (Protótipo)
-            </Button>
+              ACESSAR
+            </Button> */}
             <Button
               type="button"
+              icon='fas fa-user'
               onClick={() => handleLoginGOV()}
-              className="btn-md mt-3 btn-black f-size-small"
+              className="btn-md mt-3 btn-blue f-size-small"
             >
               ENTRAR COM GOV.BR
             </Button>
