@@ -28,7 +28,6 @@ export default function GovCallback() {
         const user = await callbackGovBR({ code, session_state, iss });
         console.log(user)
         login(user.preferred_username, user.preferred_username, 'gov')
-        navigate("/"); // redireciona após login
       } catch (err) {
         console.error(err);
         navigate("/login");
