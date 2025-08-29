@@ -158,6 +158,7 @@ router.post("/login", async (req, res) => {
       id: user.id,
       name: user.name,
       role: user.role,
+      main_role: user.main_role,
       municipios: municipiosCodigoIbge,
       app_link: appLink,
     });
