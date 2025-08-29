@@ -97,11 +97,14 @@ export default function Reports() {
   };
 
   const handleExportPDF = () => {
-    const dataToExport = listaEmpreendimentos.filter((item, index) =>
-      indexDataExport.includes(index) // pega só os índices selecionados
-    );
-
-    exportPDF(dataToExport)
+    if(indexDataExport.length > 0) {
+      const dataToExport = listaEmpreendimentos.filter((item, index) =>
+        indexDataExport.includes(index)
+      );
+      exportPDF(dataToExport)
+    } else {
+      exportPDF(listaEmpreendimentos)
+    }
   }
 
   return (
