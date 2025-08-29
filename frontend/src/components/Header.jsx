@@ -19,11 +19,6 @@ export default function Header() {
             <Logo className="h-10" logoName="spGovernoInverted" />
           </a>
         </Section>
-        <Section>
-          <a href="https://www.habitacao.sp.gov.br/habitacao" target="_blank">
-            <Logo className="h-20" logoName="spGov" />
-          </a>
-        </Section>
       </Section>
     </Section>
   );
