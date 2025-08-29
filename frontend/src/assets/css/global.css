@@ -261,6 +261,7 @@
     height: calc(100vh - 96px);
     overflow: hidden;
     transition: margin-left 0.3s ease;
+    position: relative;
 }
 
 .layout-size-none {
