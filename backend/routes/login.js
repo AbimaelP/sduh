@@ -68,8 +68,13 @@ router.post("/login", async (req, res) => {
     // Ajustar role
     if (user.role === "user") {
       user.role = "municipal";
+      user.main_role = "user";
     }
 
+    if (user.role === "admin") {
+      user.role = "municipal";
+      user.main_role = "admin"
+    }
     // 🔹 Buscar municípios relacionados
     const municipiosUsersRes = await axios.post(
       `${APPSHEET_URL}/tables/municipios_users/Action`,

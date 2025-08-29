@@ -27,6 +27,18 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
+  const changeUserAccessRole = (role) => {
+    if (user.main_role === 'admin') {
+      const userData = user;
+
+      userData.role = role
+
+      setUser(userData);
+      localStorage.removeItem("user");
+      localStorage.setItem("user", JSON.stringify(userData));
+    }
+  }
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -49,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading, changeUserAccessRole }}>
       {children}
     </AuthContext.Provider>
   );
