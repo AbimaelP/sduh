@@ -9,7 +9,7 @@ export default function Header() {
         <Link to="/">
           <Logo className="h-10" logoName="logoInverted" />
         </Link>
-        <a href="" className="a-link text-white fweight-600 ml-5">
+        <a href="https://doe.sp.gov.br/executivo/secretaria-de-desenvolvimento-urbano-e-habitacao/resolucao-sduh-n-30-de-17-de-junho-de-2025-20250617112112201154376" target='_blank' className="a-link text-white fweight-600 ml-5">
           Plataforma de Dados Integrados
         </a>
       </Section>
