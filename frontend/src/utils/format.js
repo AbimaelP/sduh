@@ -25,5 +25,9 @@ export const formatBRL = (value) => {
 }
 
 export const formatCEP = (value) => {
-  return value
-}
+  if (!value) return "";
+  
+  const cep = value.toString().replace(/\D/g, "");
+
+  return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+};

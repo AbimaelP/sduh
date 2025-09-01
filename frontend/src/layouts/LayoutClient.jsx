@@ -1,8 +1,9 @@
+import Section from '../components/Section';
 import { useAuth } from '../contexts/AuthContext';
 import { useMenu } from '../contexts/MenuContext';
 
 export default function LayoutClient({ className, children }) {
-  const { user, changeUserAccessRole } = useAuth();
+  const { user, changeUserAccessRole, mainRolesAllowedSwitchRoles } = useAuth();
   const { isOpen } = useMenu();
 
   // Perfis possíveis
@@ -17,16 +18,16 @@ export default function LayoutClient({ className, children }) {
   };
 
   return (
-    <div className={`layout ${!isOpen && "layout-menu-collapse"} ${className}`}>
-      <div className="header-second">
-        <div className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
+    <Section className={`layout ${!isOpen && "layout-menu-collapse"} ${className}`}>
+      <Section className="header-second">
+        <Section className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select
             className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 min-w-150
-              ${(user?.main_role === 'admin' || user?.main_role === 'municipal') ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${(user && mainRolesAllowedSwitchRoles.includes(user.main_role)) ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}
             value={user?.role || ''}
-            disabled={user?.main_role === 'cidadao'}
+            disabled={!(user && mainRolesAllowedSwitchRoles.includes(user.main_role))}
             onChange={handleChangeRole}
           >
             {profiles.map((profile) => (
@@ -35,9 +36,9 @@ export default function LayoutClient({ className, children }) {
               </option>
             ))}
           </select>
-        </div>
-      </div>
+        </Section>
+      </Section>
       {children}
-    </div>
+    </Section>
   );
 }

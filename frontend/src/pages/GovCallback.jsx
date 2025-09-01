@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { callbackGovBR } from '../services/api/api';
 import Section from '../components/Section';
 import Icon from '../components/Icon';

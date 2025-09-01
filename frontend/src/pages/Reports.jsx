@@ -1,25 +1,18 @@
 import LayoutClient from "../layouts/LayoutClient";
 import Button from "../components/Button";
 import "../assets/css/report.css";
-import Table from "../components/Table";
-import Thead from "../components/Thead";
-import Tbody from "../components/Tbody";
-import Tr from "../components/Tr";
-import Td from "../components/Td";
 import Section from "../components/Section";
 import Logo from "../components/Logo";
-import Th from "../components/Th";
-import Icon from "../components/Icon";
 import { useEffect, useState } from "react";
 import { empreendimentos, ultimaAtualizacao } from "../services/api/api";
 import { useFilters } from "../contexts/FiltersContext";
 import exportPDF from "../utils/export";
-import { formatDate, formatHour } from "../utils/format";
-import Checkbox from "../components/Checkbox";
-import open from "../utils/open";
 import Card from "../components/Card";
 import { useAuth } from "../contexts/AuthContext";
 import Pagination from "../components/Pagination";
+import Icon from '../components/Icon';
+import DropDownItem from '../components/DropDownItem';
+import ButtonGroup from '../components/ButtonGroup';
 export default function Reports() {
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
@@ -60,8 +53,6 @@ export default function Reports() {
 
       setListaEmpreendimentos(data);
       setLastUpdated(lastUpdatedData);
-
-      // 👇 reseta a página para 1 ao aplicar filtro
       setPagina(1);
       setStartIndex(0);
       setEndIndex(itemsPerPage);
@@ -109,7 +100,43 @@ export default function Reports() {
 
   return (
     <LayoutClient>
-      <Section className="p-4 f-size-small-min report-screen">
+      <Section>
+          <ButtonGroup
+            defaultActive="TODOS"
+            className='space-now-nowrap p-4 pb-0'
+            onButtonClick={(status) => {
+              switch (status) {
+                case "TODOS":
+                  setIndexDataExport(listaEmpreendimentos.map((_, i) => i));
+                  break;
+                case "NENHUM":
+                  setIndexDataExport([]);
+                  break;
+                case "TODOS NESSA PAGINA":
+                  setIndexDataExport((prev) => [
+                    ...new Set([...prev, ...Array.from({ length: endIndex - startIndex }, (_, i) => startIndex + i)])
+                  ]);
+                  break;
+                case "NENHUM NESSA PAGINA":
+                  setIndexDataExport((prev) =>
+                    prev.filter((i) => i < startIndex || i >= endIndex)
+                  );
+                  break;
+                default:
+                  break;
+              }
+            }}
+            >
+            <Button status="TODOS" className="btn btn-white">Marcar Todos</Button>
+            <Button status="NENHUM" className="btn btn-white ml-2">Desmarcar Todos</Button>
+            <Button status="TODOS NESSA PAGINA" className="btn btn-white ml-2">Marcar Todos Nessa Página</Button>
+            <Button status="NENHUM NESSA PAGINA" className="btn btn-white ml-2">Desmarcar Todos Nessa Página</Button>
+          </ButtonGroup>
+      </Section>
+      <Section className="p-4 pt-8 f-size-small-min report-screen relative">
+        <Section className='info-report' title='Selecione os empreendimentos que deseja exportar'>
+          <Icon icon='fas fa-info-circle'></Icon>
+        </Section>
         <Section className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listaEmpreendimentos.slice(startIndex, endIndex).map((item, i) => {
             const globalIndex = startIndex + i;
@@ -128,7 +155,7 @@ export default function Reports() {
        <Pagination
         totalItems={listaEmpreendimentos.length}
         itemsPerPage={itemsPerPage}
-        currentPage={pagina} // 👈 recebe do Reports
+        currentPage={pagina}
         onPageChange={({ startIndex, endIndex, currentPage }) => {
           setStartIndex(startIndex);
           setEndIndex(endIndex);
@@ -136,12 +163,7 @@ export default function Reports() {
         }}
         onPageChangeManual={setPagina}
         component={
-          <Button
-            className="btn btn-black btn-report-export"
-            iconPosition="left"
-            icon="fas fa-file-alt"
-            onClick={() => handleExportPDF()}
-          >
+          <Button className="btn btn-black btn-report-export" iconPosition="left" icon="fas fa-file-alt" onClick={() => handleExportPDF()}>
             {!indexDataExport.length ? "Exportar tudo" : "Exportar selecionados"}
           </Button>
         }

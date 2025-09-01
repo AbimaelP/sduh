@@ -26,7 +26,7 @@
 }
 
 .report-screen {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 224px);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -38,6 +38,15 @@
   right: 25px;
   top: 0;
   width: auto !important;
+  z-index: 2;
+}
+
+.btn-report-export-options {
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
+  width: auto !important;
+  z-index: 1;
 }
 
 .card-container {
@@ -45,7 +54,6 @@
   box-shadow: 1px 1px 3px 0px black;
   background-color: #ffff;
   overflow: hidden;
-  /* font-size: 14px !important; */
 }
 
 .card-header {
@@ -104,4 +112,13 @@ input[type="checkbox"].appearance-none:checked::after {
   min-width: 25px;
   max-width: 25px;
   text-align: center;
+}
+
+.info-report {
+  position: absolute;
+  font-size: 20px;
+  right: 15px;
+  top: 0;
+  color: rgb(220 38 38 / 1) !important;
+  cursor: help;
 }
