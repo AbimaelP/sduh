@@ -121,7 +121,8 @@ useEffect(() => {
 
       Promise.all(
         data.map((item) => {
-          const address = `${item.cep}, ${item.municipio}`;
+          const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
+          console.log(address)
           return geocoder
             .geocode({ address })
             .then((res) => {
@@ -152,7 +153,7 @@ useEffect(() => {
   const geocoder = new window.google.maps.Geocoder();
   const promises = empreendimentosData.map(async (item) => {
     const { cep, municipio, tipologia, qtDormitorio, enderecoEmpreendimento, unidadesSubsidiadas, subsidioEstadual, nomeEmpreendimento } = item;
-    const address = `${cep}, ${municipio}`;
+    const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
 
     try {
       const result = await geocoder.geocode({ address });
