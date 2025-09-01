@@ -122,7 +122,6 @@ useEffect(() => {
       Promise.all(
         data.map((item) => {
           const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
-          console.log(address)
           return geocoder
             .geocode({ address })
             .then((res) => {
