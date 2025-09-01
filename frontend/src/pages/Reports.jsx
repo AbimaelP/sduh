@@ -101,14 +101,42 @@ export default function Reports() {
   return (
     <LayoutClient>
       <Section>
-          <ButtonGroup defaultActive="TODOS">
+          <ButtonGroup
+            defaultActive="TODOS"
+            className='space-now-nowrap p-4 pb-0'
+            onButtonClick={(status) => {
+              switch (status) {
+                case "TODOS":
+                  setIndexDataExport(listaEmpreendimentos.map((_, i) => i));
+                  break;
+                case "NENHUM":
+                  setIndexDataExport([]);
+                  break;
+                case "TODOS NESSA PAGINA":
+                  setIndexDataExport((prev) => [
+                    ...new Set([...prev, ...Array.from({ length: endIndex - startIndex }, (_, i) => startIndex + i)])
+                  ]);
+                  break;
+                case "NENHUM NESSA PAGINA":
+                  setIndexDataExport((prev) =>
+                    prev.filter((i) => i < startIndex || i >= endIndex)
+                  );
+                  break;
+                default:
+                  break;
+              }
+            }}
+            >
             <Button status="TODOS" className="btn btn-white">Marcar Todos</Button>
             <Button status="NENHUM" className="btn btn-white ml-2">Desmarcar Todos</Button>
             <Button status="TODOS NESSA PAGINA" className="btn btn-white ml-2">Marcar Todos Nessa Página</Button>
             <Button status="NENHUM NESSA PAGINA" className="btn btn-white ml-2">Desmarcar Todos Nessa Página</Button>
           </ButtonGroup>
       </Section>
-      <Section className="p-4 f-size-small-min report-screen">
+      <Section className="p-4 pt-8 f-size-small-min report-screen relative">
+        <Section className='info-report' title='Selecione os empreendimentos que deseja exportar'>
+          <Icon icon='fas fa-info-circle'></Icon>
+        </Section>
         <Section className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listaEmpreendimentos.slice(startIndex, endIndex).map((item, i) => {
             const globalIndex = startIndex + i;

@@ -90,3 +90,7 @@
   display: flex;
   align-items: center;
 }
+
+.bg-street-view {
+  background-color: #fdbf2d !important;
+}

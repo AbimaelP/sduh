@@ -315,3 +315,15 @@
     left: 25px;
     z-index: 1;
 }
+
+.space-now-nowrap {
+    white-space: nowrap;
+}
+
+.mw-20px {
+    min-width: 20px;
+}
+
+.mh-20px {
+    min-height: 20px;
+}

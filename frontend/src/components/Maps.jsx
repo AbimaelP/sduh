@@ -267,6 +267,20 @@ useEffect(() => {
               </div>
             </div>
 
+            <div class="card-item">
+              <div class="flex">
+                <div class="card-info-item card-info-item-url bg-street-view">
+                  <button
+                    class="item-info-url item-street-view"
+                    id="streetview-btn"
+                  >
+                    Ver no Street View 
+                    <i class="fas fa-street-view ml-1"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div class="w-full flex justify-center">
               <button class="btn btn-green font-bold-important ${!item.contatosAtendimento && 'no-event-click btn-disabled'}" onclick="window.open('https://wa.me?phone=${item.contatosAtendimento}')">
                 Fale pelo Whatsapp
@@ -301,6 +315,18 @@ useEffect(() => {
 
         const panes = this.getPanes();
         panes.overlayMouseTarget.appendChild(div);
+
+        window.google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+          const btn = document.getElementById("streetview-btn");
+          if (btn) {
+            btn.addEventListener("click", () => {
+              const streetView = mapInstance.current.getStreetView();
+              streetView.setPosition(position);
+              streetView.setPov({ heading: 100, pitch: 0 });
+              streetView.setVisible(true);
+            });
+          }
+        });
       };
 
       overlay.draw = function () {
