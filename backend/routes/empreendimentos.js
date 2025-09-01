@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos`, {
+    const response = await axios.get(`${API_URL}/empreendimentos/listaempreendimentos?limit=200`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 

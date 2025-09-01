@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import Filters from "./Filters";
 import { useMenu } from "../contexts/MenuContext";
 import { useNavigate } from "react-router-dom";
+import Section from './Section';
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
@@ -117,7 +118,7 @@ export default function Menu() {
       className={`menu-y h-full ${!isOpen && "collapsed"}`}
       onTransitionEnd={handleTransitionEnd}
     >
-      <div className="menu-title">
+      <Section className="menu-title">
         <h1
           className={`text-gray f-size-6 font-bold ${
             hideContent && "collapsed-display"
@@ -129,12 +130,12 @@ export default function Menu() {
           className="fas fa-bars expand-bars-icon"
           onClick={handleStatusSidebar}
         ></i>
-      </div>
+      </Section>
 
-      <div className={`p-4 ${hideContent && "collapsed-display"}`}>
+      <Section className={`p-4 ${hideContent && "collapsed-display"}`}>
         {user && roleConfig[user.role]}
 
-        <div className="mt-6">
+        <Section className="mt-6">
           <Button
             className="btn btn-light"
             iconPosition="left"
@@ -143,8 +144,8 @@ export default function Menu() {
           >
             Sair
           </Button>
-        </div>
-      </div>
+        </Section>
+      </Section>
     </aside>
   );
 }

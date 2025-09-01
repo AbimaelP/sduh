@@ -4,6 +4,7 @@ import { loginAPI } from '../services/api/api';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const mainRolesAllowedSwitchRoles = [ 'admin' , 'municipal']
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // adiciona loading
 
@@ -25,10 +26,11 @@ export const AuthProvider = ({ children }) => {
 
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    return true;
   };
 
   const changeUserAccessRole = (role) => {
-    if (user.main_role === 'admin' || user.main_role === 'municipal') {
+    if (mainRolesAllowedSwitchRoles.includes(user.main_role)) {
       const userData = user;
 
       userData.role = role
@@ -62,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading, changeUserAccessRole }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading, changeUserAccessRole, mainRolesAllowedSwitchRoles }}>
       {children}
     </AuthContext.Provider>
   );

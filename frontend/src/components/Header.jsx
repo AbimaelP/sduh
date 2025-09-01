@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import '../assets/css/header.css'
 import Section from './Section';
 
 export default function Header() {

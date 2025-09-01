@@ -1,4 +1,5 @@
 import { useFilters } from "../contexts/FiltersContext";
+import Section from './Section';
 
 export default function Filters() {
   const { filters, setFilters, options } = useFilters();
@@ -7,8 +8,8 @@ export default function Filters() {
     d === 3 ? "3+ dormitórios" : `${d} dormitório${d > 1 ? "s" : ""}`;
 
   return (
-    <div>
-      <div>
+    <Section>
+      <Section>
         <label htmlFor="search" className='form-label'>Busca</label>
         <input
           type="text"
@@ -18,9 +19,9 @@ export default function Filters() {
           onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
           className='form-input-min'
         />
-      </div>
+      </Section>
 
-      <div className='mt-4'>
+      <Section className='mt-4'>
         <label className='form-label'>Tipo de Imóvel</label>
         <select
           value={filters.tipoImovel}
@@ -32,9 +33,9 @@ export default function Filters() {
             <option key={tipo} value={tipo}>{tipo}</option>
           ))}
         </select>
-      </div>
+      </Section>
 
-      <div className='mt-4'>
+      <Section className='mt-4'>
         <label className='form-label'>Quantidade de Dormitórios</label>
         <select
           value={filters.dormitorios}
@@ -46,7 +47,7 @@ export default function Filters() {
             <option key={d} value={d}>{formatDormLabel(Number(d))}</option>
           ))}
         </select>
-      </div>
-    </div>
+      </Section>
+    </Section>
   );
 }

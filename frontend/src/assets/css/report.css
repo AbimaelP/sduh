@@ -38,6 +38,15 @@
   right: 25px;
   top: 0;
   width: auto !important;
+  z-index: 2;
+}
+
+.btn-report-export-options {
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
+  width: auto !important;
+  z-index: 1;
 }
 
 .card-container {
@@ -45,7 +54,6 @@
   box-shadow: 1px 1px 3px 0px black;
   background-color: #ffff;
   overflow: hidden;
-  /* font-size: 14px !important; */
 }
 
 .card-header {
