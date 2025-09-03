@@ -6,7 +6,7 @@ export async function loginAPI(identify, password, authType) {
     const response = await api.post('/auth/login', { identify, password, authType });
     return response.data; // { id, name, role }
   } catch (err) {
-    return { user: 'Cidadão', role: 'cidadao', main_role: 'cidadao' }
+    return { } //user: 'Cidadão', role: 'cidadao', main_role: 'cidadao'
   }
 }
 
