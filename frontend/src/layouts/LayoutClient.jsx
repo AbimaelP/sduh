@@ -9,7 +9,7 @@ export default function LayoutClient({ className, children }) {
   // Perfis possíveis
   const profiles = [
     { value: 'municipal', label: 'Municipal' },
-    { value: 'cidadao', label: 'Cidadão' },
+    // { value: 'cidadao', label: 'Cidadão' },
   ];
 
   const handleChangeRole = (e) => {
