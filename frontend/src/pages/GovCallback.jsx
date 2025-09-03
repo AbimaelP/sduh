@@ -28,7 +28,11 @@ export default function GovCallback() {
 
       try {
         const user = await callbackGovBR({ code, session_state, iss });
-        login(user.user.preferred_username, user.user.preferred_username, 'gov')
+        await login(user.user.preferred_username, user.user.preferred_username, 'gov')
+
+        if (!user) {
+          navigate("/login");
+        }
       } catch (err) {
         console.error(err);
         navigate("/login");
