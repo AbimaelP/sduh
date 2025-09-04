@@ -51,9 +51,9 @@ export default function Card({ item, checked, onChange }) {
                 className="mr-2 f-size-small icon-card-report-item"
               />
             </span>
-            <Section className="card-info-item">
+            <Section className="card-info-item card-info-item-nowrap">
               <span className="item-info-title">Município:</span>
-              <span className="item-info-detail">{item.municipio}</span>
+              <span className="item-info-detail" title={item.municipio}>{item.municipio}</span>
             </Section>
           </Section>
         </Section>

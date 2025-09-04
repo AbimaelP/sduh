@@ -31,3 +31,13 @@ export const formatCEP = (value) => {
 
   return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
 };
+
+
+export const normalize = (str) =>
+  str
+    ?.toLowerCase()
+    .normalize("NFD")               // separa acentos
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .replace(/\s+/g, " ")            // transforma vários espaços em 1
+    .replace(/[.,]/g, "")            // (opcional) remove vírgula/ponto
+    .trim();

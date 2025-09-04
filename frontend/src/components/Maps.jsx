@@ -11,6 +11,7 @@ import Section from './Section';
 import Icon from './Icon';
 import { formatDate, formatHour, formatBRL } from '../utils/format'
 import open from '../utils/open';
+import { normalize } from '../utils/format';
 import Loading from './Loading';
 
 const iconsMap = {
@@ -68,13 +69,6 @@ export default function Maps() {
     .catch(() => console.error("Erro ao carregar Google Maps"));
 }, []);
 
-const normalize = (str) =>
-  str
-    ?.toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-
 const debouncedCreateMarkers = useRef(
   debounce(async (data) => {
     try {
@@ -115,28 +109,51 @@ useEffect(() => {
   setListaEmpreendimentos(data);
   debouncedCreateMarkers(data);
 
-    if (mapInstance.current && data.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      const geocoder = new window.google.maps.Geocoder();
+    if (filters.search || filters.tipoImovel || filters.dormitorios) {
+  if (mapInstance.current) {
+    const geocoder = new window.google.maps.Geocoder();
+    let address = `SÃO PAULO, SP, Brazil`;
 
-      Promise.all(
-        data.map((item) => {
-          const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
-          return geocoder
-            .geocode({ address })
-            .then((res) => {
-              if (res.results[0]) {
-                bounds.extend(res.results[0].geometry.location);
-              }
-            })
-            .catch(() => null);
-        })
-      ).then(() => {
-        if (!bounds.isEmpty()) {
-          mapInstance.current.fitBounds(bounds);
+    if (data.length > 0) {
+      if (filters.search) {
+        if (data.length > 1) {
+          address = `${data[0].municipio}, SP, Brazil`;
+        } else {
+          address = `${data[0].cep ?? ""} ${data[0].enderecoEmpreendimento ?? ""}, ${data[0].municipio}, SP, Brazil`;
         }
+      }
+    }
+
+    geocoder
+      .geocode({ address })
+      .then((res) => {
+        if (res.results[0]) {
+          mapInstance.current.setCenter(res.results[0].geometry.location);
+          mapInstance.current.setZoom(11);
+        }
+      })
+      .catch((err) => {
+        console.error("Erro ao geocodificar município:", err);
       });
   }
+} else {
+  // nenhum filtro -> usa localização do usuário
+  if (mapInstance.current && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        mapInstance.current.setCenter({ lat: latitude, lng: longitude });
+        mapInstance.current.setZoom(10);
+      },
+      (err) => {
+        console.warn("Erro ao obter localização do usuário:", err);
+        // fallback: centro de SP
+        mapInstance.current.setCenter({ lat: -23.55052, lng: -46.633308 });
+        mapInstance.current.setZoom(10);
+      }
+    );
+  }
+}
 }, [filters, allEmpreendimentos]);
 
   const createMarkers = async (empreendimentosData) => {
@@ -359,34 +376,53 @@ useEffect(() => {
   return results.filter(Boolean);
 };
 
-  useEffect(() => {
-    if (!mapsLoaded) return;
-    
-    async function initializeApp() {
-      if (!window.google) {
-        console.error("Google Maps script não carregado!");
-        return;
-      }
+useEffect(() => {
+  if (!mapsLoaded) return;
 
-      const { Map } = await window.google.maps.importLibrary("maps");
-      const { HeatmapLayer } = await window.google.maps.importLibrary(
-        "visualization"
-      );
+  async function initializeApp() {
+    if (!window.google) return console.error("Google Maps script não carregado!");
 
-      // cria o mapa
+    const { Map } = await window.google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
+
+    const initMap = (position) => {
       mapInstance.current = new Map(mapRef.current, {
-        center: { lat: -22.5, lng: -48.5 },
-        zoom: 7,
-        mapId: "a4e035e5a4e5272a", // ID do Google Cloud
+        center: position,
+        zoom: 10,
+        mapId: "a4e035e5a4e5272a",
         mapTypeControl: false,
         streetViewControl: true,
         zoomControl: true,
         fullscreenControl: false,
       });
-    }
 
-    initializeApp();
-  }, [mapsLoaded]);
+      // marcador do usuário customizado
+      const userDiv = document.createElement("div");
+      userDiv.innerHTML = `
+        <div class="custom-marker-icon bg-user-map">
+          <i class="fas fa-user map-marker-icon"></i>
+        </div>
+      `;
+
+      new AdvancedMarkerElement({
+        map: mapInstance.current,
+        position,
+        content: userDiv,
+        title: "Você está aqui!",
+      });
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (err) => {
+        console.warn("Não foi possível obter localização, usando fallback:", err);
+        initMap({ lat: -22.5, lng: -48.5 });
+      }
+    );
+  }
+
+  initializeApp();
+}, [mapsLoaded]);
 
 useEffect(() => {
   const fetchData = async () => {

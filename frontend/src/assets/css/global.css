@@ -312,7 +312,7 @@
     position: absolute;
     top: 0;
     width: auto;
-    left: 25px;
+    left: 1rem;
     z-index: 1;
 }
 
@@ -326,4 +326,8 @@
 
 .mh-20px {
     min-height: 20px;
+}
+
+.bg-user-map {
+    background-color: #f14040 !important
 }

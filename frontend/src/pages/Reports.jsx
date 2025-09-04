@@ -13,6 +13,7 @@ import Pagination from "../components/Pagination";
 import Icon from '../components/Icon';
 import DropDownItem from '../components/DropDownItem';
 import ButtonGroup from '../components/ButtonGroup';
+import { normalize } from '../utils/format';
 export default function Reports() {
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
@@ -30,14 +31,15 @@ export default function Reports() {
     const applyFilters = async () => {
       let data = [...allEmpreendimentos];
 
-      if (filters.search) {
-        const term = filters.search.toLowerCase();
-        data = data.filter(
-          (item) =>
-            item.enderecoEmpreendimento?.toLowerCase().includes(term) ||
-            item.municipio?.toLowerCase().includes(term)
-        );
-      }
+  if (filters.search) {
+    const term = normalize(filters.search);
+    data = data.filter((item) => {
+      const endereco = normalize(item.enderecoEmpreendimento || "");
+      const municipio = normalize(item.municipio || "");
+
+      return municipio.includes(term) || endereco.includes(term);
+    });
+  }
 
       if (filters.tipoImovel) {
         data = data.filter((item) => item.tipologia === filters.tipoImovel);
@@ -100,6 +102,22 @@ export default function Reports() {
 
   return (
     <LayoutClient>
+      <Pagination
+        totalItems={listaEmpreendimentos.length}
+        itemsPerPage={itemsPerPage}
+        currentPage={pagina}
+        onPageChange={({ startIndex, endIndex, currentPage }) => {
+          setStartIndex(startIndex);
+          setEndIndex(endIndex);
+          setPagina(currentPage);
+        }}
+        onPageChangeManual={setPagina}
+        component={
+          <Button className="btn btn-black btn-report-export" iconPosition="left" icon="fas fa-file-alt" onClick={() => handleExportPDF()}>
+            {!indexDataExport.length ? "Exportar tudo" : "Exportar selecionados"}
+          </Button>
+        }
+      />
       <Section>
           <ButtonGroup
             defaultActive="TODOS"
@@ -151,23 +169,6 @@ export default function Reports() {
             );
           })}
         </Section>
-
-       <Pagination
-        totalItems={listaEmpreendimentos.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={pagina}
-        onPageChange={({ startIndex, endIndex, currentPage }) => {
-          setStartIndex(startIndex);
-          setEndIndex(endIndex);
-          setPagina(currentPage);
-        }}
-        onPageChangeManual={setPagina}
-        component={
-          <Button className="btn btn-black btn-report-export" iconPosition="left" icon="fas fa-file-alt" onClick={() => handleExportPDF()}>
-            {!indexDataExport.length ? "Exportar tudo" : "Exportar selecionados"}
-          </Button>
-        }
-      />
       </Section>
     </LayoutClient>
   );

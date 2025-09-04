@@ -35,19 +35,12 @@
 
 .btn-report-export {
   position: absolute;
-  right: 25px;
+  right: 1rem;
   top: 0;
   width: auto !important;
   z-index: 2;
 }
 
-.btn-report-export-options {
-  position: absolute;
-  right: 25px;
-  bottom: 25px;
-  width: auto !important;
-  z-index: 1;
-}
 
 .card-container {
   border-radius: 10px;
@@ -121,4 +114,11 @@ input[type="checkbox"].appearance-none:checked::after {
   top: 0;
   color: rgb(220 38 38 / 1) !important;
   cursor: help;
+}
+
+.card-info-item-nowrap {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
