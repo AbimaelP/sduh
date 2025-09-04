@@ -6,12 +6,6 @@ export default function LayoutClient({ className, children }) {
   const { user, changeUserAccessRole, mainRolesAllowedSwitchRoles } = useAuth();
   const { isOpen } = useMenu();
 
-  // Perfis possíveis
-  const profiles = [
-    { value: 'municipal', label: 'Municipal' },
-    // { value: 'cidadao', label: 'Cidadão' },
-  ];
-
   const handleChangeRole = (e) => {
     const newRole = e.target.value;
     changeUserAccessRole(newRole);
@@ -30,7 +24,7 @@ export default function LayoutClient({ className, children }) {
             disabled={!(user && mainRolesAllowedSwitchRoles.includes(user.main_role))}
             onChange={handleChangeRole}
           >
-            {profiles.map((profile) => (
+            {user && user.profiles.map((profile) => (
               <option key={profile.value} value={profile.value}>
                 {profile.label}
               </option>

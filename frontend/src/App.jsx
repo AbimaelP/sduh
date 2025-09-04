@@ -11,6 +11,7 @@ import Icon from './components/Icon';
 import Applications from './pages/Applications';
 import GovCallback from './pages/GovCallback';
 import Loading from './components/Loading';
+import AcessoCidadao from './pages/AcessoCidadao';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -31,6 +32,11 @@ function AppRoutes() {
     <Route 
       path="/callback" 
       element={<GovCallback />} 
+    />
+
+    <Route 
+      path="/acesso-cidadao" 
+      element={<AcessoCidadao />} 
     />
 
     {user && user.role != 'municipal' ? 

@@ -65,15 +65,25 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Usuário ou senha incorretos" });
     }
 
+    user.profiles = [];
+
+    const profileMunicipal = { value: 'municipal', label: 'Municipal' };
+    const profileCidadao = { value: 'cidadao', label: 'Cidadão' };
+    const profilesSDUH = { value: 'sduh', label: 'SDUH (Gestão Estadual)' };
     // Ajustar role
     if (user.role === "user") {
       user.role = "municipal";
       user.main_role = "municipal";
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
     }
 
     if (user.role === "admin" || user.role === 'adm') {
       user.role = "municipal";
       user.main_role = "admin"
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      // user.profiles.push(profilesSDUH);
     }
 
     if (user && !user.role) {
@@ -165,6 +175,7 @@ router.post("/login", async (req, res) => {
       main_role: user.main_role,
       municipios: municipiosCodigoIbge,
       app_link: appLink,
+      profiles: user.profiles
     });
   } catch (err) {
     console.error(err.response?.data || err.message);

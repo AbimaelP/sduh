@@ -25,7 +25,9 @@ export const AuthProvider = ({ children }) => {
           break;
 
         case "cidadao":
-          userData = { user: "Cidadão", role: "cidadao", main_role: "cidadao" };
+          userData = { user: "Cidadão", role: "cidadao", main_role: "cidadao" , profiles: [
+            { value: 'cidadao', label: 'Cidadão' }
+          ]};
           break;
       }
 
