@@ -109,51 +109,51 @@ useEffect(() => {
   setListaEmpreendimentos(data);
   debouncedCreateMarkers(data);
 
-    if (filters.search || filters.tipoImovel || filters.dormitorios) {
-  if (mapInstance.current) {
-    const geocoder = new window.google.maps.Geocoder();
-    let address = `SÃO PAULO, SP, Brazil`;
+  if ((filters.search || filters.tipoImovel || filters.dormitorios) && data.length > 0) {
+    if (mapInstance.current) {
+      const geocoder = new window.google.maps.Geocoder();
+      let address = `SÃO PAULO, SP, Brazil`;
 
-    if (data.length > 0) {
-      if (filters.search) {
-        if (data.length > 1) {
-          address = `${data[0].municipio}, SP, Brazil`;
-        } else {
-          address = `${data[0].cep ?? ""} ${data[0].enderecoEmpreendimento ?? ""}, ${data[0].municipio}, SP, Brazil`;
+      if (data.length > 0) {
+        if (filters.search) {
+          if (data.length > 1) {
+            address = `${data[0].municipio}, SP, Brazil`;
+          } else {
+            address = `${data[0].cep ?? ""} ${data[0].enderecoEmpreendimento ?? ""}, ${data[0].municipio}, SP, Brazil`;
+          }
         }
       }
+
+      geocoder
+        .geocode({ address })
+        .then((res) => {
+          if (res.results[0]) {
+            mapInstance.current.setCenter(res.results[0].geometry.location);
+            mapInstance.current.setZoom(11);
+          }
+        })
+        .catch((err) => {
+          console.error("Erro ao geocodificar município:", err);
+        });
     }
-
-    geocoder
-      .geocode({ address })
-      .then((res) => {
-        if (res.results[0]) {
-          mapInstance.current.setCenter(res.results[0].geometry.location);
-          mapInstance.current.setZoom(11);
+    } else {
+    // nenhum filtro -> usa localização do usuário
+    if (mapInstance.current && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          mapInstance.current.setCenter({ lat: latitude, lng: longitude });
+          mapInstance.current.setZoom(10);
+        },
+        (err) => {
+          console.warn("Erro ao obter localização do usuário:", err);
+          // fallback: centro de SP
+          mapInstance.current.setCenter({ lat: -23.55052, lng: -46.633308 });
+          mapInstance.current.setZoom(10);
         }
-      })
-      .catch((err) => {
-        console.error("Erro ao geocodificar município:", err);
-      });
+      );
+    }
   }
-} else {
-  // nenhum filtro -> usa localização do usuário
-  if (mapInstance.current && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        mapInstance.current.setCenter({ lat: latitude, lng: longitude });
-        mapInstance.current.setZoom(10);
-      },
-      (err) => {
-        console.warn("Erro ao obter localização do usuário:", err);
-        // fallback: centro de SP
-        mapInstance.current.setCenter({ lat: -23.55052, lng: -46.633308 });
-        mapInstance.current.setZoom(10);
-      }
-    );
-  }
-}
 }, [filters, allEmpreendimentos]);
 
   const createMarkers = async (empreendimentosData) => {
