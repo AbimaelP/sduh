@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }) => {
 
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
-      console.log('não deu erro')
       return true;
     } catch (error) {
       const message = err.response?.data?.error || "Autenticação falhou";
