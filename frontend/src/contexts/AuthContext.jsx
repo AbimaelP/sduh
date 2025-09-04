@@ -1,46 +1,57 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { loginAPI } from '../services/api/api';
+import { loginAPI } from "../services/api/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const mainRolesAllowedSwitchRoles = [ 'admin' , 'municipal']
+  const mainRolesAllowedSwitchRoles = ["admin", "municipal"];
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // adiciona loading
 
-  const login = async (identify = '', password = '', authType = 'prototipo') => {
-    let userData = {};
-    switch (authType) {
-      case 'prototipo':
-        userData = await loginAPI(identify, password, authType);
-        break;
+  const login = async (
+    identify = "",
+    password = "",
+    authType = "prototipo"
+  ) => {
+    try {
+      let userData = {};
+      switch (authType) {
+        case "prototipo":
+          userData = await loginAPI(identify, password, authType);
+          break;
 
-      case 'gov':
-        userData = await loginAPI(identify, password, authType);
-        break;
+        case "gov":
+          userData = await loginAPI(identify, password, authType);
+          break;
 
-      case 'cidadao':
-        userData = { user: 'Cidadão', role: 'cidadao', main_role: 'cidadao' };
-        break;
+        case "cidadao":
+          userData = { user: "Cidadão", role: "cidadao", main_role: "cidadao" };
+          break;
+      }
+
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+      console.log('não deu erro')
+      return true;
+    } catch (error) {
+      const message = err.response?.data?.error || "Autenticação falhou";
+      console.log('deu erro aqui')
+      throw new Error(message);
     }
-
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-    return true;
   };
 
   const changeUserAccessRole = (role) => {
     if (mainRolesAllowedSwitchRoles.includes(user.main_role)) {
       const userData = user;
 
-      userData.role = role
+      userData.role = role;
 
       setUser(userData);
       localStorage.removeItem("user");
       localStorage.setItem("user", JSON.stringify(userData));
       window.location.href = "/";
     }
-  }
+  };
 
   const logout = () => {
     setUser(null);
@@ -48,12 +59,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const onLoading = () => {
-    setLoading(true)
-  }
+    setLoading(true);
+  };
 
   const offLoading = () => {
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -64,7 +75,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, onLoading, offLoading, changeUserAccessRole, mainRolesAllowedSwitchRoles }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        loading,
+        onLoading,
+        offLoading,
+        changeUserAccessRole,
+        mainRolesAllowedSwitchRoles,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

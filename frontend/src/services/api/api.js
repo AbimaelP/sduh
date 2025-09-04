@@ -4,9 +4,10 @@ import api from './config';
 export async function loginAPI(identify, password, authType) {
   try {
     const response = await api.post('/auth/login', { identify, password, authType });
-    return response.data; // { id, name, role }
+    return response.data ; // { id, name, role }
   } catch (err) {
-    return { } //user: 'Cidadão', role: 'cidadao', main_role: 'cidadao'
+    const message = err.response?.data?.error || 'Autenticação falhou';
+    throw new Error(message); //user: 'Cidadão', role: 'cidadao', main_role: 'cidadao'
   }
 }
 
