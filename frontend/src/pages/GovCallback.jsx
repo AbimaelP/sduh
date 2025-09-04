@@ -34,7 +34,6 @@ export default function GovCallback() {
           navigate("/login");
         }
       } catch (err) {
-        console.error(err);
         navigate("/login");
       }
     };
