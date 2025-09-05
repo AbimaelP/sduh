@@ -103,8 +103,8 @@ export default function Menu() {
   // 🔑 Configuração por papel (sem duplicação de código)
   const roleConfig = {
     cidadao: [components.relatorios, components.filtros],
-    municipal: [components.aplicativos],
-    sduh: [
+    municipio_user: [components.aplicativos],
+    sduh_mgr: [
       components.relatorios,
       components.aplicativos,
       components.totalizadores,

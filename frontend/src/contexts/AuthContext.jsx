@@ -30,13 +30,12 @@ export const AuthProvider = ({ children }) => {
           ]};
           break;
       }
-
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
       return true;
     } catch (error) {
       const message = err.response?.data?.error || "Autenticação falhou";
-      console.log('deu erro aqui')
+      console.log('deu erro aqui 2')
       throw new Error(message);
     }
   };

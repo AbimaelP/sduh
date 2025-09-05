@@ -72,7 +72,7 @@ router.post("/login", async (req, res) => {
     const profilesSDUH = { value: 'sduh_user', label: 'SDUH' };
     const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)' };
     // Ajustar role
-    if (user.role === "municipio_user") {
+    if (user.role === "municipio_user" || user.role === "user") {
       user.role = "municipio_user";
       user.main_role = "municipio_user";
       user.profiles.push(profileMunicipal);
@@ -187,7 +187,6 @@ router.post("/login", async (req, res) => {
         }
       }
     }
-    console.log(appLink);
     return res.json({
       id: user.id,
       name: user.name,

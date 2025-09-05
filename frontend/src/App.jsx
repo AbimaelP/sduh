@@ -39,7 +39,7 @@ function AppRoutes() {
       element={<AcessoCidadao />} 
     />
 
-    {user && user.role != 'municipal' ? 
+    {user && user.role != 'municipio_user' ? 
     <Route 
       path="/" 
       element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
