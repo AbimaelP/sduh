@@ -69,7 +69,8 @@ router.post("/login", async (req, res) => {
 
     const profileMunicipal = { value: 'municipio_user', label: 'Municipal' };
     const profileCidadao = { value: 'cidadao', label: 'Cidadão' };
-    const profilesSDUH = { value: 'sduh', label: 'SDUH (Gestão Estadual)' };
+    const profilesSDUH = { value: 'sduh_user', label: 'SDUH' };
+    const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)' };
     // Ajustar role
     if (user.role === "municipio_user") {
       user.role = "municipio_user";
@@ -78,12 +79,31 @@ router.post("/login", async (req, res) => {
       user.profiles.push(profileCidadao);
     }
 
+    if (user.role === 'sduh_user') {
+      user.role = "sduh_user";
+      user.main_role = "sduh_user"
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.profiles.push(profilesSDUH);
+    }
+
+    if (user.role === 'sduh_mgr') {
+      user.role = "sduh_mgr";
+      user.main_role = "sduh_mgr"
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.profiles.push(profilesSDUH);
+      user.profiles.push(profilesGestaoSDUH);
+    }
+
+    
     if (user.role === "admin" || user.role === 'adm') {
       user.role = "municipio_user";
       user.main_role = "admin"
       user.profiles.push(profileMunicipal);
       user.profiles.push(profileCidadao);
-      // user.profiles.push(profilesSDUH);
+      user.profiles.push(profilesSDUH);
+      user.profiles.push(profilesGestaoSDUH);
     }
 
     if (user && !user.role) {
