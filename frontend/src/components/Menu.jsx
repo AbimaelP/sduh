@@ -104,7 +104,15 @@ export default function Menu() {
   const roleConfig = {
     cidadao: [components.relatorios, components.filtros],
     municipio_user: [components.aplicativos],
+    sduh_user: [components.aplicativos],
     sduh_mgr: [
+      components.relatorios,
+      components.aplicativos,
+      components.totalizadores,
+      components.filtrosSimples,
+      components.indicadores,
+    ],
+    admin: [
       components.relatorios,
       components.aplicativos,
       components.totalizadores,

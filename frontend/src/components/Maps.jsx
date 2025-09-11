@@ -3,6 +3,7 @@ import debounce from "lodash/debounce";
 import DropDownItem from "./DropDownItem";
 import { empreendimentos, ultimaAtualizacao } from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
+import Button from "./Button";
 import "../assets/css/maps.css";
 import "../assets/css/report.css";
 import { useAuth } from "../contexts/AuthContext";
@@ -111,30 +112,38 @@ useEffect(() => {
 
   if ((filters.search || filters.tipoImovel || filters.dormitorios) && data.length > 0) {
     if (mapInstance.current) {
-      const geocoder = new window.google.maps.Geocoder();
       let address = `SÃO PAULO, SP, Brazil`;
-
+      let position = null;
       if (data.length > 0) {
         if (filters.search) {
           if (data.length > 1) {
             address = `${data[0].municipio}, SP, Brazil`;
           } else {
             address = `${data[0].cep ?? ""} ${data[0].enderecoEmpreendimento ?? ""}, ${data[0].municipio}, SP, Brazil`;
+            if (data[0].latitude && data[0].longitude) {
+              position = new window.google.maps.LatLng(data[0].latitude, data[0].longitude);
+            }
           }
         }
       }
 
-      geocoder
-        .geocode({ address })
-        .then((res) => {
-          if (res.results[0]) {
-            mapInstance.current.setCenter(res.results[0].geometry.location);
-            mapInstance.current.setZoom(11);
-          }
-        })
-        .catch((err) => {
-          console.error("Erro ao geocodificar município:", err);
-        });
+      if (position) {
+        mapInstance.current.setCenter(position);
+        mapInstance.current.setZoom(11);
+      } else {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder
+          .geocode({ address })
+          .then((res) => {
+            if (res.results[0]) {
+              mapInstance.current.setCenter(res.results[0].geometry.location);
+              mapInstance.current.setZoom(11);
+            }
+          })
+          .catch((err) => {
+            console.error("Erro ao geocodificar município:", err);
+          });
+      }
     }
     } else {
     // nenhum filtro -> usa localização do usuário
@@ -166,16 +175,14 @@ useEffect(() => {
   });
   markerDivs.current = [];
 
-  const geocoder = new window.google.maps.Geocoder();
   const promises = empreendimentosData.map(async (item) => {
     const { cep, municipio, tipologia, qtDormitorio, enderecoEmpreendimento, unidadesSubsidiadas, subsidioEstadual, nomeEmpreendimento } = item;
     const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
 
     try {
-      const result = await geocoder.geocode({ address });
-      if (!result.results[0]) return null;
+      if (!item.latitude || !item.longitude) return null;
 
-      const position = result.results[0].geometry.location;
+      const position = new window.google.maps.LatLng(item.latitude, item.longitude);
 
       const infoWindow = new window.google.maps.InfoWindow({
         content: `
@@ -465,14 +472,20 @@ useEffect(() => {
     <>
       { loading ? <Loading /> : <></> }
       <Section>
-        {user && user.role === "sduh" ? (
+        {user && user.role === "sduh_mgr" ? (
           <Section className="p-2 flex bg-white justify-between items-center">
             <Section className="flex items-center">
               <ButtonGroup
-                onButtonClick={handleClick}
-                activeButton={activeButton}
-                setActiveButton={setActiveButton}
-              />
+                defaultActive="Alertas"
+                className='space-now-nowrap'
+                onButtonClick={(status) => { handleClick(status) }}
+                >
+                <Button status="EM PLANTA" className="btn btn-white">Planejamento</Button>
+                <Button status="LANÇAMENTO" className="btn btn-white ml-2">Licitação</Button>
+                <Button status="EM CONSTRUÇÃO" className="btn btn-white ml-2">Em Andamento</Button>
+                <Button status="CONSTRUÍDO" className="btn btn-white ml-2">Entregues</Button>
+                <Button status="Alertas" className="btn btn-red ml-2">Alertas</Button>
+              </ButtonGroup>
             </Section>
             <DropDownItem
               title="Camadas"

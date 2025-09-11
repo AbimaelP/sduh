@@ -59,6 +59,9 @@
 .map-municipal {
   height: calc(100vh - 150px);
 }
+.map-sduh_mgr {
+  height: calc(100vh - 209px);
+}
 
 .container-last-updated-map {
   position: absolute;
