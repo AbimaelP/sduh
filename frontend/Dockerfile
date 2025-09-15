@@ -13,10 +13,10 @@ RUN npm install
 
 COPY . .
 
-ENV VITE_API_URL="https://horushab.habitacao.sp.gov.br/public"
+ENV VITE_API_URL="https://empreendimentos-api-914565622949.southamerica-east1.run.app/public"
 ENV VITE_CLIENT_ID="horushab"
-ENV VITE_CLIENT_SECRET="dnYFc6f2txBs3Ug2LK62GqDQyZr9dBuq6AbmLug5Z2wQN5iuvVH4nVCVXRbARGCa"
-ENV VITE_APP_BACKEND_URL="https://sduh-backend-177524997383.southamerica-east1.run.app"
+ENV VITE_CLIENT_SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afbbdd28113"
+ENV VITE_APP_BACKEND_URL="https://sduh-backend-914565622949.southamerica-east1.run.app"
 ENV VITE_GOOGLE_MAPS_API_KEY="AIzaSyCK1WTYiu5zg8Sw0E79aubZQ_HZ1dbLf8I"
 ENV VITE_GOOGLE_MAPS_API_KEY_DEV="AIzaSyCVUn13ipUTxghQqg9j8PiooToVqRqIGP8I"
 
