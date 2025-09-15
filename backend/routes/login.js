@@ -52,7 +52,7 @@ router.post("/login", async (req, res) => {
         headers: { ApplicationAccessKey: APPSHEET_KEY },
       }
     );
-    return res.json(response)
+    return res.json(response.data)
     const user = response.data[0];
 
     if (authType === "gov" && !user) {
