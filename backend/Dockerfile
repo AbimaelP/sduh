@@ -26,7 +26,7 @@ ENV CODE_VERIFIER="uudliovupEodE4c7TPIYl0pXsEfGE_d0ki_09XdI9kg"
 ENV DB_NAME="appsheet"
 ENV DB_USER="besolution"
 ENV DB_PASSWORD="P<x8k&lq5K+3<k##"
-ENV DB_HOST="localhost"
+ENV DB_HOST="/cloudsql/sduh-hom:southamerica-east1:geoserver"
 ENV DB_PORT="5432"
 
 # Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
