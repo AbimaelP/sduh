@@ -31,7 +31,7 @@ router.post("/login", async (req, res) => {
 
   const safeIdentify = sanitizeInput(identify);
   const safePass = sanitizeInput(password);
-  return res.json({message: 'funciona'})
+
   try {
     let accessVerifyFilter = `Filter(users, [email] = "${safeIdentify}")`;
 
@@ -52,7 +52,7 @@ router.post("/login", async (req, res) => {
         headers: { ApplicationAccessKey: APPSHEET_KEY },
       }
     );
-
+  return res.json({message: 'funciona'})
     const user = response.data[0];
 
     if (authType === "gov" && !user) {
