@@ -23,6 +23,11 @@ ENV GOV_CLIENT_SECRET="3de8bc40-b5a0-4e18-b411-de473aefc725"
 ENV SESSION_SECRET="sdasiuq231231sad"
 ENV PORT="3000" 
 ENV CODE_VERIFIER="uudliovupEodE4c7TPIYl0pXsEfGE_d0ki_09XdI9kg"
+ENV DB_NAME="appsheet"
+ENV DB_USER="besolution"
+ENV DB_PASSWORD="P<x8k&lq5K+3<k##"
+ENV DB_HOST="localhost"
+ENV DB_PORT="5432"
 
 # Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
 COPY package*.json ./
