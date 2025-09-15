@@ -403,18 +403,9 @@ useEffect(() => {
         fullscreenControl: false,
       });
 
-      // marcador do usuário customizado
-      const userDiv = document.createElement("div");
-      userDiv.innerHTML = `
-        <div class="custom-marker-icon bg-user-map">
-          <i class="fas fa-user map-marker-icon"></i>
-        </div>
-      `;
-
       new AdvancedMarkerElement({
         map: mapInstance.current,
         position,
-        content: userDiv,
         title: "Você está aqui!",
       });
     };
