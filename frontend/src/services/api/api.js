@@ -31,30 +31,57 @@ export async function callbackGovBR(data) {
   }
 }
 
-// services/appsheet/api.js
 export async function empreendimentos(statusObra = '', municipios = []) {
   try {
-    let url = '/empreendimentos';
+    const cacheKey = "empreendimentosData";
+    const cacheTimestampKey = "empreendimentosTimestamp";
+
+    // Pega dados do cache
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
+
+    // Horário base do dia (08:00:00 local)
+    const now = new Date();
+    const today8h = new Date();
+    today8h.setHours(8, 0, 0, 0);
+
+    let isCacheValid = false;
+    if (cachedData && cachedTimestamp) {
+      const lastFetch = new Date(Number(cachedTimestamp));
+
+      if (lastFetch >= today8h) {
+        isCacheValid = true;
+      }
+    }
+
+    if (isCacheValid) {
+      return JSON.parse(cachedData);
+    }
+
+    let url = "/empreendimentos";
     const params = [];
 
     if (statusObra) {
       params.push(`statusObra=${encodeURIComponent(statusObra)}`);
     }
     if (municipios.length > 0) {
-      params.push(`municipios=${municipios.join(',')}`);
+      params.push(`municipios=${municipios.join(",")}`);
     }
-
     if (params.length > 0) {
-      url += `?${params.join('&')}`;
+      url += `?${params.join("&")}`;
     }
 
     const response = await api.get(url);
+
+    localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    localStorage.setItem(cacheTimestampKey, Date.now().toString());
+
     return response.data;
   } catch (err) {
     if (err.response?.status === 401) {
-      throw new Error('Token inválido');
+      throw new Error("Token inválido");
     } else {
-      const message = err.response?.data?.error || 'Falhou';
+      const message = err.response?.data?.error || "Falhou";
       throw new Error(message);
     }
   }
