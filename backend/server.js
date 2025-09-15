@@ -4,6 +4,11 @@ import session from 'express-session'; // 👈 importar
 import login from './routes/login.js';
 import empreendimentos from './routes/empreendimentos.js';
 import { loadGovbrConfig, PORT } from './config.js';
+import { testConnection } from './db.js';
+import "./models/User.js";
+import "./models/Role.js";
+import "./models/UserRole.js";
+import "./models/associations.js";
 
 const app = express();
 app.use(cors());
@@ -22,12 +27,13 @@ app.use('/empreendimentos', empreendimentos);
 
 (async () => {
   try {
-    await loadGovbrConfig(); // 👈 carrega endpoints antes de iniciar
+    await loadGovbrConfig();
+    await testConnection(); // ⬅️ testa a conexão com o banco
     app.listen(PORT, () => {
       console.log(`Backend rodando na porta ${PORT}`);
     });
   } catch (err) {
-    console.error("Erro ao inicializar GovBR config:", err.message);
+    console.error("Erro ao inicializar:", err.message);
     process.exit(1);
   }
 })();

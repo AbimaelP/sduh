@@ -2,6 +2,8 @@ import express from "express";
 import axios from "axios";
 import qs from "querystring";
 import crypto from "crypto";
+import { User } from "../models/User.js";
+import { Role } from "../models/Role.js";
 import {
   GOVBR_CLIENT_ID,
   GOVBR_CLIENT_SECRET,
@@ -23,179 +25,97 @@ function sanitizeInput(str) {
   return String(str).replace(/["'\\]/g, "");
 }
 router.post("/login", async (req, res) => {
-  const { identify, password, authType } = req.body;
+    const { identify, password, authType } = req.body;
 
-  if (!identify || !password) {
-    return res.status(400).json({ error: "Email e senha são obrigatórios" });
-  }
-
-  const safeIdentify = sanitizeInput(identify);
-  const safePass = sanitizeInput(password);
-
-  try {
-    let accessVerifyFilter = `Filter(users, [email] = "${safeIdentify}")`;
-
-    if (authType === "gov") {
-      accessVerifyFilter = `Filter(users, [cpf] = "${safeIdentify}")`;//`Filter(users, [cpf] = "${safeIdentify}")`;
+    if (!identify || !password) {
+      return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
-    // 🔹 Buscar usuário
-    const response = await axios.post(
-      `${APPSHEET_URL}/tables/users/Action`,
-      {
-        Action: "Find",
-        Properties: {
-          Locale: "en-US",
-          Selector: accessVerifyFilter,
-        },
-      },
-      {
-        headers: { ApplicationAccessKey: APPSHEET_KEY },
+
+    const safeIdentify = sanitizeInput(identify);
+    const safePass = sanitizeInput(password);
+
+    try {
+      let whereClause = {};
+
+      if (authType === "gov") {
+        whereClause.cpf = safeIdentify;
+      } else {
+        whereClause.email = safeIdentify;
       }
-    );
-    return res.json(response.data)
-    const user = response.data[0];
 
-    if (authType === "gov" && !user) {
-      return res
-        .status(401)
-        .json({ error: "Usuário não cadastrado no sistema" });
-    }
+      const user = await User.findOne({
+        where: whereClause,
+        include: [
+          {
+            model: Role,
+            through: { attributes: [] } // oculta os campos da tabela pivot
+          }
+        ]
+      });
 
-    if (authType === "prototipo" && (!user || user.password !== safePass)) {
-      return res.status(401).json({ error: "Usuário ou senha incorretos" });
-    }
-
-    user.profiles = [];
-
-    const profileMunicipal = { value: 'municipio_user', label: 'Municipal' };
-    const profileCidadao = { value: 'cidadao', label: 'Cidadão' };
-    const profilesSDUH = { value: 'sduh_user', label: 'SDUH' };
-    const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)' };
-    // Ajustar role
-    if (user.role === "municipio_user" || user.role === "user") {
-      user.role = "municipio_user";
-      user.main_role = "municipio_user";
-      user.profiles.push(profileMunicipal);
-      user.profiles.push(profileCidadao);
-    }
-
-    if (user.role === 'sduh_user') {
-      user.role = "sduh_user";
-      user.main_role = "sduh_user"
-      user.profiles.push(profileMunicipal);
-      user.profiles.push(profileCidadao);
-      user.profiles.push(profilesSDUH);
-    }
-
-    if (user.role === 'sduh_mgr') {
-      user.role = "sduh_mgr";
-      user.main_role = "sduh_mgr"
-      user.profiles.push(profileMunicipal);
-      user.profiles.push(profileCidadao);
-      user.profiles.push(profilesSDUH);
-      user.profiles.push(profilesGestaoSDUH);
-    }
-
-    
-    if (user.role === "admin" || user.role === 'adm') {
-      user.role = "municipio_user";
-      user.main_role = "admin"
-      user.profiles.push(profileMunicipal);
-      user.profiles.push(profileCidadao);
-      user.profiles.push(profilesSDUH);
-      user.profiles.push(profilesGestaoSDUH);
-    }
-
-    if (user && !user.role) {
-      return res.json({})
-    }
-    // 🔹 Buscar municípios relacionados
-    const municipiosUsersRes = await axios.post(
-      `${APPSHEET_URL}/tables/municipios_users/Action`,
-      {
-        Action: "Find",
-        Properties: {
-          Locale: "en-US",
-          Selector: `Filter(municipios_users, [user_id] = "${user.id}")`,
-        },
-      },
-      {
-        headers: { ApplicationAccessKey: APPSHEET_KEY },
+      if (authType === "gov" && !user) {
+        return res
+          .status(401)
+          .json({ error: "Usuário não cadastrado no sistema" });
       }
-    );
 
-    const municipioIds = municipiosUsersRes.data.map((item) =>
-      parseInt(item.municipio_id)
-    );
-
-    const municipiosRes = await axios.post(
-      `${APPSHEET_URL}/tables/municipios/Action`,
-      {
-        Action: "Find",
-        Properties: {
-          Locale: "en-US",
-          Selector: `Filter(municipios, true)`,
-        },
-      },
-      { headers: { ApplicationAccessKey: APPSHEET_KEY } }
-    );
-
-    const municipiosCodigoIbge = municipiosRes.data
-      .filter((m) => municipioIds.includes(parseInt(m.id)))
-      .map((m) => parseInt(m.codibge));
-
-    // 🔹 Buscar app relacionado (tabela users_app → app)
-    const usersAppRes = await axios.post(
-      `${APPSHEET_URL}/tables/users_app/Action`,
-      {
-        Action: "Find",
-        Properties: {
-          Locale: "en-US",
-          Selector: `Filter(users_app, [user_id] = "${user.id}")`,
-        },
-      },
-      {
-        headers: { ApplicationAccessKey: APPSHEET_KEY },
+      if (authType === "prototipo" && (!user || user.password !== safePass)) {
+        return res.status(401).json({ error: "Usuário ou senha incorretos" });
       }
-    );
 
-    let appLink = null;
+      user.role = user.Roles[0].name
+      user.profiles = [];
 
-    if (usersAppRes.data.length > 0) {
-      const appId = usersAppRes.data[0].app_id;
-
-      const appRes = await axios.post(
-        `${APPSHEET_URL}/tables/app/Action`,
-        {
-          Action: "Find",
-          Properties: {
-            Locale: "en-US",
-            Selector: `Filter(app, [id] = "${appId}")`,
-          },
-        },
-        {
-          headers: { ApplicationAccessKey: APPSHEET_KEY },
-        }
-      );
-
-      if (appRes.data.length > 0) {
-        try {
-          const parsed = JSON.parse(appRes.data[0].app_link);
-          appLink = parsed.Url; // ou parsed.LinkText
-        } catch (e) {
-          appLink = appRes.data[0].app_link; // fallback se não for JSON válido
-        }
+      const profileMunicipal = { value: 'municipio_user', label: 'Municipal' };
+      const profileCidadao = { value: 'cidadao', label: 'Cidadão' };
+      const profilesSDUH = { value: 'sduh_user', label: 'SDUH' };
+      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)' };
+      // Ajustar role
+      if (user.role === "municipio_user" || user.role === "user") {
+        user.role = "municipio_user";
+        user.main_role = "municipio_user";
+        user.profiles.push(profileMunicipal);
+        user.profiles.push(profileCidadao);
       }
-    }
-    return res.json({
-      id: user.id,
-      name: user.name,
-      role: user.role,
-      main_role: user.main_role,
-      municipios: municipiosCodigoIbge,
-      app_link: appLink,
-      profiles: user.profiles
-    });
+
+      if (user.role === 'sduh_user') {
+        user.role = "sduh_user";
+        user.main_role = "sduh_user"
+        user.profiles.push(profileMunicipal);
+        user.profiles.push(profileCidadao);
+        user.profiles.push(profilesSDUH);
+      }
+
+      if (user.role === 'sduh_mgr') {
+        user.role = "sduh_mgr";
+        user.main_role = "sduh_mgr"
+        user.profiles.push(profileMunicipal);
+        user.profiles.push(profileCidadao);
+        user.profiles.push(profilesSDUH);
+        user.profiles.push(profilesGestaoSDUH);
+      }
+
+      
+      if (user.role === "admin" || user.role === 'adm') {
+        user.role = "municipio_user";
+        user.main_role = "admin"
+        user.profiles.push(profileMunicipal);
+        user.profiles.push(profileCidadao);
+        user.profiles.push(profilesSDUH);
+        user.profiles.push(profilesGestaoSDUH);
+      }
+
+      if (user && !user.role) {
+        return res.status(400).json({ error: "Usuário não possui nível de acesso definido" });
+      }
+
+      return res.json({
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        main_role: user.main_role,
+        profiles: user.profiles
+      });
   } catch (err) {
     console.error(err.response?.data || err.message);
     return res.status(500).json({ error: "Erro interno no servidor" });
