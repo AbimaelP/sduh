@@ -11,7 +11,7 @@ WORKDIR /usr/src/app
 
 # Define as variáveis de ambiente para a aplicação
 
-ENV GOV_OPENID_CONFIGURATION="https://idp.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration"
+ENV GOV_OPENID_CONFIGURATION="https://rhsso.idp-hml.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration"
 ENV APP_SHEET_URL="https://api.appsheet.com/api/v2/apps/52ad0add-0bbe-4112-8146-272f5494103a"
 ENV APP_SHEET_KEY="V2-xBhdP-ga0B7-nZiek-ACxio-SE1aF-YifT8-wRGfu-i6LeE"
 ENV API_URL="https://empreendimentos-api-914565622949.southamerica-east1.run.app/public"
