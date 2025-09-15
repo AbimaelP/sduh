@@ -8,7 +8,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-;
 
 // Adiciona o token em todas as requisições
 api.interceptors.request.use((config) => {
