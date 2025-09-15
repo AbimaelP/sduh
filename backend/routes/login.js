@@ -31,12 +31,12 @@ router.post("/login", async (req, res) => {
 
   const safeIdentify = sanitizeInput(identify);
   const safePass = sanitizeInput(password);
-
+  return res.json({message: 'funciona'})
   try {
     let accessVerifyFilter = `Filter(users, [email] = "${safeIdentify}")`;
 
     if (authType === "gov") {
-      accessVerifyFilter = `Filter(users, true")`;//`Filter(users, [cpf] = "${safeIdentify}")`;
+      accessVerifyFilter = `Filter(users, [cpf] = "${safeIdentify}")`;//`Filter(users, [cpf] = "${safeIdentify}")`;
     }
     // 🔹 Buscar usuário
     const response = await axios.post(
@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
     );
 
     const user = response.data[0];
-return res.json(user)
+
     if (authType === "gov" && !user) {
       return res
         .status(401)
