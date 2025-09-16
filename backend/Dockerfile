@@ -23,7 +23,11 @@ ENV GOV_CLIENT_SECRET="1e0fb1a8-ae7f-4795-9406-8ff536b1e4bc"
 ENV SESSION_SECRET="1e0fb1a8-ae7f-4795-9406-8ff536b1e4bc"
 ENV CODE_VERIFIER="uudliovupEodE4c7TPIYl0pXsEfGE_d0ki_09XdI9kg"
 ENV PORT=3000
-
+ENV DB_NAME="appsheet"
+ENV DB_USER="be_postgres"
+ENV DB_PASSWORD="7C793>)-U3Y^p_sg"
+ENV DB_HOST="/cloudsql/sduh-prod:southamerica-east1:geoserver"
+ENV DB_PORT="5432"
 # Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
 COPY package*.json ./
 
