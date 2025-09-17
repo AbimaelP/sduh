@@ -5,7 +5,7 @@ export default function Applications() {
   const { user } = useAuth();
   return (
     <LayoutClient className='layout-appshet'>
-      <iframe src={`${appLink}?platform=desktop`} className='h-full w-full iframe-appshet'></iframe>
+      <iframe src={`${user.appLink}?platform=desktop`} className='h-full w-full iframe-appshet'></iframe>
     </LayoutClient>
   )
 }
