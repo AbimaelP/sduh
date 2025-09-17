@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useMenu } from '../contexts/MenuContext';
 
 export default function LayoutClient({ className, children }) {
-  const { user, changeUserAccessRole, mainRolesAllowedSwitchRoles } = useAuth();
+  const { user, changeUserAccessRole } = useAuth();
   const { isOpen } = useMenu();
 
   const handleChangeRole = (e) => {
@@ -18,10 +18,10 @@ export default function LayoutClient({ className, children }) {
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select
             className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 min-w-150
-              ${(user && mainRolesAllowedSwitchRoles.includes(user.main_role)) ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${(user.profiles.length > 1) ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}
             value={user?.role || ''}
-            disabled={!(user && mainRolesAllowedSwitchRoles.includes(user.main_role))}
+            disabled={(user.profiles.length == 1)}
             onChange={handleChangeRole}
           >
             {user && user.profiles.map((profile) => (
