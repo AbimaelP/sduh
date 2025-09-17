@@ -59,17 +59,17 @@ export async function empreendimentos(statusObra = '', municipios = []) {
     }
 
     let url = "/empreendimentos";
-    const params = [];
+    // const params = [];
 
-    if (statusObra) {
-      params.push(`statusObra=${encodeURIComponent(statusObra)}`);
-    }
-    if (municipios.length > 0) {
-      params.push(`municipios=${municipios.join(",")}`);
-    }
-    if (params.length > 0) {
-      url += `?${params.join("&")}`;
-    }
+    // if (statusObra) {
+    //   params.push(`statusObra=${encodeURIComponent(statusObra)}`);
+    // }
+    // if (municipios.length > 0) {
+    //   params.push(`municipios=${municipios.join(",")}`);
+    // }
+    // if (params.length > 0) {
+    //   url += `?${params.join("&")}`;
+    // }
 
     const response = await api.get(url);
 
