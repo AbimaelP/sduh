@@ -75,9 +75,10 @@ export async function empreendimentos(statusObra = '', municipios = []) {
 
     localStorage.setItem(cacheKey, JSON.stringify(response.data));
     localStorage.setItem(cacheTimestampKey, Date.now().toString());
-
+    console.log(response.data)
     return response.data;
   } catch (err) {
+    console.log(err)
     if (err.response?.status === 401) {
       throw new Error("Token inválido");
     } else {
