@@ -118,7 +118,7 @@ router.post("/login", async (req, res) => {
         name: user.name,
         role: user.role,
         main_role: user.main_role,
-        profiles: user.profiles
+        profiles: user.profiles,
         appLink: user.appLink
       });
   } catch (err) {
