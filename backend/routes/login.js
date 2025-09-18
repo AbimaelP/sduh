@@ -85,7 +85,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileMunicipal);
         user.profiles.push(profileCidadao);
         user.profiles.push(profilesSDUH);
-        user.appLink = ''
+        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
       }
 
       if (user.role === 'sduh_mgr') {
