@@ -407,6 +407,7 @@ useEffect(() => {
         map: mapInstance.current,
         position,
         title: "Você está aqui!",
+        zIndex: 9999
       });
     };
 
