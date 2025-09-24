@@ -37,6 +37,7 @@ export default function Maps() {
   const { filters, setOptionsFromData } = useFilters();
   const openInfoWindowRef = useRef(null);
   const [lastUpdated, setLastUpdated] = useState(null)
+  const [statusObra, setStatusObra] = useState(null);
 
  useEffect(() => {
   const loadGoogleMapsScript = () => {
@@ -85,6 +86,11 @@ const debouncedCreateMarkers = useRef(
 useEffect(() => {
   setLoading(true)
   let data = [...allEmpreendimentos];
+  if (statusObra) {
+    data = data.filter(
+      (item) => item.statusObra === statusObra
+    );
+  }
 
   if (filters.search) {
     const term = normalize(filters.search);
@@ -163,7 +169,7 @@ useEffect(() => {
       );
     }
   }
-}, [filters, allEmpreendimentos]);
+}, [filters, allEmpreendimentos, statusObra]);
 
   const createMarkers = async (empreendimentosData) => {
   if (!mapInstance.current || !window.google) return [];
@@ -447,17 +453,8 @@ useEffect(() => {
   }
 }, [user, mapsLoaded]);
 
-  const handleClick = async (status) => {
-    setLoading(true);
-    try {
-      let data = await empreendimentos(status);
-      setAllEmpreendimentos(data);
-      await createMarkers(data);
-    } catch (err) {
-      console.error("Erro ao buscar empreendimentos:", err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleClick = (status) => {
+    setStatusObra(status);
   };
 
   return (
@@ -479,11 +476,6 @@ useEffect(() => {
                 <Button status="Alertas" className="btn btn-red ml-2">Alertas</Button>
               </ButtonGroup>
             </Section>
-            <DropDownItem
-              title="Camadas"
-              classNameHeader="btn-dropdown-maps"
-              icon="fas fa-layer-group mr-2"
-            />
           </Section>
         ) : (
           <></>
