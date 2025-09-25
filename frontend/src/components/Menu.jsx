@@ -9,6 +9,7 @@ import { useMenu } from "../contexts/MenuContext";
 import { useNavigate } from "react-router-dom";
 import Section from "./Section";
 import { empreendimentos } from "../services/api/api";
+import Performance from './Performance';
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
@@ -159,6 +160,7 @@ export default function Menu() {
         key="indicadores"
         title="Indicadores de Desempenho"
         className="mt-2"
+        // ExpandedComponent={<Performance />}
       />
     ),
   };
