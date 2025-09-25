@@ -60,6 +60,34 @@ router.get('/ultima-atualizacao', async (req, res) => {
   }
 });
 
+// GET /empreendimentos/lista-orcamento
+router.get('/lista-orcamento', async (req, res) => {
+  const { statusObra, token } = req.query;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token não fornecido' });
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/orcamento/listaorcamento`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    let data = response.data.data;
+
+    if (statusObra) {
+      data = data.filter(item => item.statusObra === statusObra);
+    }
+
+    return res.json(data);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    const status = err.response?.status || 500;
+    const message = err.response?.data?.error || err.message || 'Erro desconhecido';
+    return res.status(status).json({ error: message });
+  }
+});
+
 // GET /empreendimentos/token
 router.get('/token', async (req, res) => {
   try {

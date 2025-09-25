@@ -1,9 +1,13 @@
 import { useFilters } from "../contexts/FiltersContext";
 import Section from './Section';
+import Button from "./Button";
 
 export default function Filters() {
   const { filters, setFilters, options } = useFilters();
 
+  const handleCleanFilters = () => {
+    setFilters({search: "", tipoImovel: "", dormitorios: ""})
+  }
   const formatDormLabel = (d) =>
     d === 3 ? "3+ dormitórios" : `${d} dormitório${d > 1 ? "s" : ""}`;
 
@@ -48,6 +52,17 @@ export default function Filters() {
           ))}
         </select>
       </Section>
+
+      <Section className="mt-4">
+          <Button
+            className="btn btn-light"
+            iconPosition="left"
+            icon="fas fa-sync-alt"
+            onClick={handleCleanFilters}
+          >
+            Limpar Filtros
+          </Button>
+        </Section>
     </Section>
   );
 }

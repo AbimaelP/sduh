@@ -4,7 +4,6 @@ import { loginAPI } from "../services/api/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const mainRolesAllowedSwitchRoles = ["admin", "municipal"];
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // adiciona loading
 
@@ -41,7 +40,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const changeUserAccessRole = (role) => {
-    if (mainRolesAllowedSwitchRoles.includes(user.main_role)) {
       const userData = user;
 
       userData.role = role;
@@ -50,7 +48,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("user");
       localStorage.setItem("user", JSON.stringify(userData));
       window.location.href = "/";
-    }
   };
 
   const logout = () => {
@@ -84,7 +81,6 @@ export const AuthProvider = ({ children }) => {
         onLoading,
         offLoading,
         changeUserAccessRole,
-        mainRolesAllowedSwitchRoles,
       }}
     >
       {children}

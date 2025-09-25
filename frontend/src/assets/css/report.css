@@ -122,3 +122,7 @@ input[type="checkbox"].appearance-none:checked::after {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.gm-style-iw.gm-style-iw-c {
+  max-width: 485px !important;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import "../assets/css/menu.css";
 import "../assets/css/sidebar.css";
 import Button from "./Button";
@@ -7,13 +7,89 @@ import { useAuth } from "../contexts/AuthContext";
 import Filters from "./Filters";
 import { useMenu } from "../contexts/MenuContext";
 import { useNavigate } from "react-router-dom";
-import Section from './Section';
+import Section from "./Section";
+import { empreendimentos } from "../services/api/api";
+import Performance from './Performance';
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
   const [hideContent, setHideContent] = useState(false);
   const { user, logout } = useAuth();
+  const [mapsLoaded, setMapsLoaded] = useState(false);
+  const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let data = await empreendimentos("");
+        setAllEmpreendimentos(data);
+      } catch (err) {
+        console.error("Erro ao carregar empreendimentos:", err.message);
+      }
+    };
+
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
+
+  const totalizadores = useMemo(() => {
+    if (!allEmpreendimentos.length) return [];
+
+    const counts = allEmpreendimentos.reduce(
+      (acc, item) => {
+        acc.total++;
+        switch (item.statusObra) {
+          case "EM PLANTA":
+            acc.planejamento++;
+            break;
+          case "LANÇAMENTO":
+            acc.licitacao++;
+            break;
+          case "EM CONSTRUÇÃO":
+            acc.andamento++;
+            break;
+          case "CONSTRUÍDO":
+            acc.entregues++;
+            break;
+          default:
+            break;
+        }
+
+        // se tiver um campo que identifique alerta:
+        if (item.alerta) acc.alertas++;
+
+        return acc;
+      },
+      {
+        planejamento: 0,
+        licitacao: 0,
+        andamento: 0,
+        entregues: 0,
+        total: 0,
+        alertas: 0,
+      }
+    );
+
+    return [
+      { label: "Planejamento", value: counts.planejamento },
+      { label: "Licitação", value: counts.licitacao },
+      { label: "Em Andamento", value: counts.andamento },
+      { label: "Entregues", value: counts.entregues },
+      {
+        label: "Total",
+        value: counts.total,
+        labelClass: "font-bold text-black",
+      },
+      {
+        label: "Alertas",
+        value: counts.alertas,
+        labelClass: "font-bold text-red",
+        valueClass: "font-bold bg-red text-red",
+      },
+    ];
+  }, [allEmpreendimentos]);
 
   const handleStatusSidebar = () => {
     if (isOpen) {
@@ -60,24 +136,12 @@ export default function Menu() {
       </Button>
     ),
     totalizadores: (
-      <DropDownItem
+       <DropDownItem
         key="totalizadores"
         title="Totalizadores"
         isInfoOnly={true}
         className="mt-6"
-        data={[
-          { label: "Planejamento", value: 16284 },
-          { label: "Licitação", value: 8300 },
-          { label: "Em Andamento", value: 12450 },
-          { label: "Entregues", value: 5432 },
-          { label: "Total", value: 30547, labelClass: "font-bold text-black" },
-          {
-            label: "Alertas",
-            value: 15,
-            labelClass: "font-bold text-red",
-            valueClass: "font-bold bg-red text-red",
-          },
-        ]}
+        data={totalizadores}
       />
     ),
     filtros: (
@@ -96,6 +160,7 @@ export default function Menu() {
         key="indicadores"
         title="Indicadores de Desempenho"
         className="mt-2"
+        // ExpandedComponent={<Performance />}
       />
     ),
   };
@@ -109,14 +174,14 @@ export default function Menu() {
       components.relatorios,
       components.aplicativos,
       components.totalizadores,
-      components.filtrosSimples,
+      components.filtros,
       components.indicadores,
     ],
     admin: [
       components.relatorios,
       components.aplicativos,
       components.totalizadores,
-      components.filtrosSimples,
+      components.filtros,
       components.indicadores,
     ],
   };

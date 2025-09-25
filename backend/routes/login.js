@@ -76,6 +76,7 @@ router.post("/login", async (req, res) => {
         user.main_role = "municipio_user";
         user.profiles.push(profileMunicipal);
         user.profiles.push(profileCidadao);
+        user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
       }
 
       if (user.role === 'sduh_user') {
@@ -84,6 +85,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileMunicipal);
         user.profiles.push(profileCidadao);
         user.profiles.push(profilesSDUH);
+        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
       }
 
       if (user.role === 'sduh_mgr') {
@@ -93,6 +95,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileCidadao);
         user.profiles.push(profilesSDUH);
         user.profiles.push(profilesGestaoSDUH);
+        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
       }
 
       
@@ -103,6 +106,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileCidadao);
         user.profiles.push(profilesSDUH);
         user.profiles.push(profilesGestaoSDUH);
+        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
       }
 
       if (user && !user.role) {
@@ -114,7 +118,8 @@ router.post("/login", async (req, res) => {
         name: user.name,
         role: user.role,
         main_role: user.main_role,
-        profiles: user.profiles
+        profiles: user.profiles,
+        appLink: user.appLink
       });
   } catch (err) {
     console.error(err.response?.data || err.message);

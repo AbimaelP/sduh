@@ -59,25 +59,15 @@ export async function empreendimentos(statusObra = '', municipios = []) {
     }
 
     let url = "/empreendimentos";
-    const params = [];
-
-    if (statusObra) {
-      params.push(`statusObra=${encodeURIComponent(statusObra)}`);
-    }
-    if (municipios.length > 0) {
-      params.push(`municipios=${municipios.join(",")}`);
-    }
-    if (params.length > 0) {
-      url += `?${params.join("&")}`;
-    }
 
     const response = await api.get(url);
 
     localStorage.setItem(cacheKey, JSON.stringify(response.data));
     localStorage.setItem(cacheTimestampKey, Date.now().toString());
-
+    console.log(response.data)
     return response.data;
   } catch (err) {
+    console.log(err)
     if (err.response?.status === 401) {
       throw new Error("Token inválido");
     } else {
@@ -90,6 +80,21 @@ export async function empreendimentos(statusObra = '', municipios = []) {
 export async function ultimaAtualizacao(statusObra = '') {
   try {
     let url = '/empreendimentos/ultima-atualizacao';
+    const response = await api.get(url);
+    return response.data; 
+  } catch (err) {
+    if (err.response?.status === 401) {
+      throw new Error('Token inválido');
+    } else {
+      const message = err.response?.data?.error || 'Falhou';
+      throw new Error(message);
+    }
+  }
+}
+
+export async function listaOrcamento() {
+  try {
+    let url = '/empreendimentos/lista-orcamento';
     const response = await api.get(url);
     return response.data; 
   } catch (err) {
