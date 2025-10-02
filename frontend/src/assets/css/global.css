@@ -169,6 +169,13 @@
     background-color: #ac1f1f;
 }
 
+.bg-red-dark {
+    background-color: #ac1f1f;
+}
+
+.text-red-dark {
+    color: #ac1f1f;
+}
 .btn-white {
     border: 1px solid #ddd;
     color: #374151;
@@ -288,8 +295,16 @@
     height: calc(100% - 96px - 1rem);
 }
 
+.font-bold {
+  font-weight: 600;
+}
+
 .font-bold-important {
     font-weight: bold !important;
+}
+
+.font-bold-hard {
+    font-weight: 700;
 }
 
 .shadow-none {
@@ -330,4 +345,28 @@
 
 .bg-user-map {
     background-color: #f14040 !important
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.bg-blue-39 {
+  background-color: rgb(38 99 234);
+}
+
+.bg-green-23 {
+  background-color: rgb(23 163 74);
+}
+
+.text-blue-39 {
+  color: rgb(38 99 234);
+}
+
+.text-green-23 {
+  color: rgb(23 163 74);
+}
+
+.flex-none {
+    display: none;
 }

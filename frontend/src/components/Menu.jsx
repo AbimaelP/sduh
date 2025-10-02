@@ -160,7 +160,7 @@ export default function Menu() {
         key="indicadores"
         title="Indicadores de Desempenho"
         className="mt-2"
-        // ExpandedComponent={<Performance />}
+        ExpandedComponent={<Performance />}
       />
     ),
   };
