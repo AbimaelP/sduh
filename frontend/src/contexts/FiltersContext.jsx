@@ -19,7 +19,7 @@ export function FiltersProvider({ children }) {
   });
 
   const setOptionsFromData = useCallback((items = []) => {
-    if (user && user.role === "sduh_mgr") {
+    if (user && user.role !== "sduh_mgr") {
       const tiposImovel = Array.from(
         new Set(items.map((i) => i?.tipologia).filter(Boolean))
       ).sort();
@@ -40,14 +40,14 @@ export function FiltersProvider({ children }) {
         ...(tem3ouMais ? [3] : []),
       ];
 
+
       setOptions({ tiposImovel, dormitorios });
     }
-  }, []);
+    
+  }, [user]);
 
   return (
-    <FiltersContext.Provider
-      value={{ filters, setFilters, options, setOptionsFromData }}
-    >
+    <FiltersContext.Provider value={{ filters, setFilters, options, setOptionsFromData }} >
       {children}
     </FiltersContext.Provider>
   );

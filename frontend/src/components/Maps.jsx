@@ -58,7 +58,6 @@ export default function Maps() {
 
   const createMarkers = async (empreendimentosData) => {
     if (!mapInstance.current || !window.google) return [];
-
     // limpa marcadores antigos
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
@@ -544,9 +543,8 @@ export default function Maps() {
 
         const lastUpdatedData = await ultimaAtualizacao();
 
-        setOptionsFromData(rawData);
+        setOptionsFromData(rawData.atendimentos);
         setLastUpdated(lastUpdatedData);
-
         await createMarkers(rawData.atendimentos);
       } catch (err) {
         console.error("Erro ao inicializar o mapa:", err);
@@ -562,9 +560,7 @@ export default function Maps() {
     if (!rawData) return;
     let data = [];
 
-    if (user && user.role !== "sduh_mgr") {
-      data = Array.isArray(rawData) ? [...rawData] : [];
-    } else {
+    if (user) {
       data = Array.isArray(rawData.atendimentos)
         ? [...rawData.atendimentos]
         : [];
@@ -706,7 +702,6 @@ export default function Maps() {
         );
       }
     }
-
   }, [filters, rawData, statusObra, mapInstance]);
 
   const handleClick = async (status) => {

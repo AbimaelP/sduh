@@ -33,7 +33,7 @@ export default function Menu() {
           chargeData(data);
         } else {
           data = await empreendimentos("");
-          chargeData(data);
+          chargeData({ atendimentos: data });
         }
       } catch (err) {
         console.error("Erro ao carregar empreendimentos:", err.message);
