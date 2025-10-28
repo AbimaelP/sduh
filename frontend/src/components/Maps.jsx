@@ -58,6 +58,7 @@ export default function Maps() {
 
   const createMarkers = async (empreendimentosData) => {
     if (!mapInstance.current || !window.google) return [];
+    console.log('chegou aqui')
     // limpa marcadores antigos
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
@@ -459,8 +460,8 @@ export default function Maps() {
   };
 
   useEffect(() => {
-    if (!user || !rawData?.atendimentos?.length) return;
-
+    if (!user || !rawData) return;
+    
     executedRef.current = true;
 
     async function initializeApp() {
