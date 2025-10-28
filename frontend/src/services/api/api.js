@@ -75,6 +75,55 @@ export async function empreendimentos(statusObra = '', municipios = []) {
       throw new Error(message);
     }
   }
+
+}
+export async function atendimentos( statusFilter = '' ) {
+  try {
+    // const cacheKey = "atendimentosData";
+    // const cacheTimestampKey = "atendimentosTimestamp";
+
+    // // Pega dados do cache
+    // const cachedData = localStorage.getItem(cacheKey);
+    // const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
+
+    // // Horário base do dia (08:00:00 local)
+    // const now = new Date();
+    // const today8h = new Date();
+    // today8h.setHours(8, 0, 0, 0);
+
+    // let isCacheValid = false;
+    // if (cachedData && cachedTimestamp) {
+    //   const lastFetch = new Date(Number(cachedTimestamp));
+
+    //   if (lastFetch >= today8h) {
+    //     isCacheValid = true;
+    //   }
+    // }
+
+    // if (isCacheValid) {
+    //   return JSON.parse(cachedData);
+    // }
+
+    let url = `/orcamentos/atendimentos?`;
+
+    if (statusFilter) {
+      url += `statusFilter=${statusFilter}`
+    }
+    const response = await api.get(url, {statusFilter});
+
+    // localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    // localStorage.setItem(cacheTimestampKey, Date.now().toString());
+    // console.log(response.data)
+    return response.data;
+  } catch (err) {
+    console.log(err)
+    if (err.response?.status === 401) {
+      throw new Error("Token inválido");
+    } else {
+      const message = err.response?.data?.error || "Falhou";
+      throw new Error(message);
+    }
+  }
 }
 
 export async function ultimaAtualizacao(statusObra = '') {

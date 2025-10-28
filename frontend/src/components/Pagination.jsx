@@ -37,7 +37,7 @@ export default function Pagination({
         icon='fas fa-map'
         link="/"
       >
-        Voltar para o Mapa
+        Voltar
       </Button>
 
       <Section className="pagination">

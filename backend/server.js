@@ -3,6 +3,7 @@ import cors from 'cors';
 import session from 'express-session'; // 👈 importar
 import login from './routes/login.js';
 import empreendimentos from './routes/empreendimentos.js';
+import orcamentos from './routes/atendimentosEorcamentos.js';
 import { loadGovbrConfig, PORT } from './config.js';
 import { testConnection } from './db.js';
 import "./models/User.js";
@@ -24,6 +25,7 @@ app.use(session({
 
 app.use('/auth', login);
 app.use('/empreendimentos', empreendimentos);
+app.use('/orcamentos', orcamentos);
 
 (async () => {
   try {

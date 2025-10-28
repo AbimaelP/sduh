@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import "../assets/css/menu.css";
 import "../assets/css/sidebar.css";
 import Button from "./Button";
@@ -8,22 +8,33 @@ import Filters from "./Filters";
 import { useMenu } from "../contexts/MenuContext";
 import { useNavigate } from "react-router-dom";
 import Section from "./Section";
-import { empreendimentos } from "../services/api/api";
-import Performance from './Performance';
+import { empreendimentos, atendimentos } from "../services/api/api";
+import Performance from "./Performance";
+import { useData } from "../contexts/DataContext";
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
+  const { rawData, chargeData } = useData();
   const [hideContent, setHideContent] = useState(false);
   const { user, logout } = useAuth();
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const navigate = useNavigate();
+  const executedRef = useRef(false);
 
   useEffect(() => {
+    if (executedRef.current) return; // evita múltiplas execuções
+    executedRef.current = true;
+
     const fetchData = async () => {
       try {
-        let data = await empreendimentos("");
-        setAllEmpreendimentos(data);
+        let data = {};
+        if (user.role === "sduh_mgr") {
+          data = await atendimentos();
+          chargeData(data);
+        } else {
+          data = await empreendimentos("");
+          chargeData(data);
+        }
       } catch (err) {
         console.error("Erro ao carregar empreendimentos:", err.message);
       }
@@ -34,62 +45,42 @@ export default function Menu() {
     }
   }, [user]);
 
+  const totalizadoresData = rawData?.totalizadores || {
+    planejamento: 0,
+    licitacao: 0,
+    em_andamento: 0,
+    entregues: 0,
+    total: 0,
+    alertas: 0,
+  };
+
   const totalizadores = useMemo(() => {
-    if (!allEmpreendimentos.length) return [];
+    if (!rawData || !rawData.totalizadores) return [];
 
-    const counts = allEmpreendimentos.reduce(
-      (acc, item) => {
-        acc.total++;
-        switch (item.statusObra) {
-          case "EM PLANTA":
-            acc.planejamento++;
-            break;
-          case "LANÇAMENTO":
-            acc.licitacao++;
-            break;
-          case "EM CONSTRUÇÃO":
-            acc.andamento++;
-            break;
-          case "CONSTRUÍDO":
-            acc.entregues++;
-            break;
-          default:
-            break;
-        }
+    const totalizadoresData = rawData.totalizadores;
 
-        // se tiver um campo que identifique alerta:
-        if (item.alerta) acc.alertas++;
-
-        return acc;
-      },
-      {
-        planejamento: 0,
-        licitacao: 0,
-        andamento: 0,
-        entregues: 0,
-        total: 0,
-        alertas: 0,
-      }
-    );
-
-    return [
-      { label: "Planejamento", value: counts.planejamento },
-      { label: "Licitação", value: counts.licitacao },
-      { label: "Em Andamento", value: counts.andamento },
-      { label: "Entregues", value: counts.entregues },
+    const items = [
+      { label: "Planejamento", value: totalizadoresData.planejamento },
+      { label: "Licitação", value: totalizadoresData.licitacao },
+      { label: "Em Andamento", value: totalizadoresData.em_andamento },
+      { label: "Entregues", value: totalizadoresData.entregues },
       {
         label: "Total",
-        value: counts.total,
+        value: totalizadoresData.total,
         labelClass: "font-bold text-black",
       },
       {
         label: "Alertas",
-        value: counts.alertas,
+        value: totalizadoresData.alertas,
         labelClass: "font-bold text-red",
         valueClass: "font-bold bg-red text-red",
       },
     ];
-  }, [allEmpreendimentos]);
+
+    return items.filter(
+      (item) => item.value !== undefined && item.value > 0
+    );
+  }, [rawData]);
 
   const handleStatusSidebar = () => {
     if (isOpen) {
@@ -136,7 +127,7 @@ export default function Menu() {
       </Button>
     ),
     totalizadores: (
-       <DropDownItem
+      <DropDownItem
         key="totalizadores"
         title="Totalizadores"
         isInfoOnly={true}
@@ -160,7 +151,7 @@ export default function Menu() {
         key="indicadores"
         title="Indicadores de Desempenho"
         className="mt-2"
-        ExpandedComponent={<Performance />}
+        ExpandedComponent={<Performance performanceData={rawData.desempenho}/>}
       />
     ),
   };
