@@ -26,7 +26,7 @@ export default function Reports() {
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage);
   const [indexDataExport, setIndexDataExport] = useState([]);
-  const [expandFilters, setExpandFilters] = useState(false);
+  const [expandFilters, setExpandFilters] = useState(true);
   useEffect(() => {
     const applyFilters = async () => {
       let data = [...allEmpreendimentos];
