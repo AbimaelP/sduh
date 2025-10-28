@@ -459,9 +459,7 @@ export default function Maps() {
   };
 
   useEffect(() => {
-    if (!user) return; // só roda se houver usuário
-    if (executedRef.current) return; // evita múltiplas execuções
-    if (!rawData || Object.keys(rawData).length === 0) return; // espera carregar o rawData
+    if (!user || !rawData?.atendimentos?.length) return;
 
     executedRef.current = true;
 
