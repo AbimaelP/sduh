@@ -43,6 +43,9 @@ export const AuthProvider = ({ children }) => {
       const userData = user;
 
       userData.role = role;
+      const selectedProfile = userData.profiles.filter((item) => { return item.value === role})[0]
+
+      userData.appLink = selectedProfile.appLink//atribuir app link correspondente
 
       setUser(userData);
       localStorage.removeItem("user");
