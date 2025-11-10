@@ -331,6 +331,14 @@
   z-index: 1;
 }
 
+.btn-voltar-gestao {
+  position: absolute;
+  top: 68px;
+  width: auto;
+  left: 1rem;
+  z-index: 2;
+}
+
 .space-now-nowrap {
   white-space: nowrap;
 }
@@ -388,15 +396,85 @@
 }
 
 .filters-reports-content {
-    overflow: hidden;
-    height: 0;
-    transition: height 0.3s ease;
+  overflow: hidden;
+  height: 0;
+  transition: height 0.3s ease;
 }
 
 .expanded-filters .expand-filters-reports {
-    transform: rotate(0deg);
+  transform: rotate(0deg);
 }
 
 .expanded-filters .filters-reports-content {
-    height: auto;
+  height: auto;
+}
+
+.gm-style-iw.gm-style-iw-c {
+  padding: 0 !important;
+}
+
+.gm-style-iw-chr {
+  display: flex;
+  align-items: center;
+  background-color: #000000;
+  color: #ffff;
+  padding: 0.5rem;
+  height: 52px;
+}
+
+.gm-ui-hover-effect {
+  color: #ffff !important;
+}
+
+.gm-style-iw-ch {
+  padding: 0 !important;
+}
+
+.gm-ui-hover-effect > span {
+  width: 17.5px !important;
+  height: 17.5px !important;
+  margin: 9px !important;
+}
+
+.gm-ui-hover-effect {
+  color: #ffff !important;
+  background-color: #ffff !important;
+  border-radius: 17.5px !important;
+  width: 35px !important;
+  height: 35px !important;
+}
+
+.tab-nav {
+  cursor: pointer;
+}
+.tab-nav.active {
+  cursor: auto !important;
+  border: 2px solid;
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: #ffff;
+  position: relative;
+  top: 2px;
+  height: 35px;
+}
+
+.card-info-map {
+  border: 2px solid;
+}
+
+.card-info-map.active-left {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.card-info-map.active-right {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-left-radius: 8px;
+}
+
+.card-info-map {
+  padding: 0.5rem !important;
 }

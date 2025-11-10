@@ -104,10 +104,10 @@ export async function atendimentos( statusFilter = '' ) {
     //   return JSON.parse(cachedData);
     // }
 
-    let url = `/orcamentos/atendimentos?`;
+    let url = `/orcamentos/atendimentos`;
 
     if (statusFilter) {
-      url += `statusFilter=${statusFilter}`
+      url += `?statusFilter=${statusFilter}`
     }
     const response = await api.get(url, {statusFilter});
 

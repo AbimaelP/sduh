@@ -15,7 +15,7 @@ import { useFilters } from "../contexts/FiltersContext";
 import { useData } from "../contexts/DataContext";
 import Section from "./Section";
 import Icon from "./Icon";
-import { formatDate, formatHour, formatBRL } from "../utils/format";
+import { formatDate, formatHour, formatBRL, formatWhats } from "../utils/format";
 import open from "../utils/open";
 import { normalize } from "../utils/format";
 import Loading from "./Loading";
@@ -58,8 +58,13 @@ export default function Maps() {
 
   const createMarkers = async (empreendimentosData) => {
     if (!mapInstance.current || !window.google) return [];
-    console.log('chegou aqui')
-    // limpa marcadores antigos
+    if (!empreendimentosData || !Array.isArray(empreendimentosData)) {
+      console.warn(
+        "⚠️ Nenhum dado válido recebido em createMarkers:",
+        empreendimentosData
+      );
+      return [];
+    }
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
       if (div && div.parentNode) div.parentNode.removeChild(div);
@@ -125,118 +130,108 @@ export default function Maps() {
         //       celular: "(19) 99123-4455",
         //     },
         //   ]);
-        const contatosList = ``;
+        const contatosList = `<div class="mb-4">
+                    <div class="font-bold">Entre em contato com a incorporadora:</div>
+                    <div class="flex justify-center mt-2">
+                    ${
+                        item.contatosAtendimento &&
+                        item.contatosAtendimento.length > 0
+                          ? item.contatosAtendimento
+                              .map(
+                                (contato, index) => `
+                                <button type="button" class="btn btn-green w-auto mr-2" onclick="window.open('${formatWhats(contato.celular)}')"><i class="fab fa-whatsapp"></i>Whatsapp ${index+1}</button>`
+                              )
+                              .join(" ")
+                          : "N/A"
+                      }  
+                      
+                    </div>
+                  </div>`;
 
         const enderecosAtendimento = `
-            <div class="mt-2">
-            <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-info-circle mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Endereços para Atendimento:</span>
-                  ${
-                    item.enderecosAtendimento &&
-                    item.enderecosAtendimento.length > 0
-                      ? item.enderecosAtendimento
-                          .map(
-                            (enderecoAtendimento, index) => `
-                        <span class="item-info-detail" title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}">
-                          ${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero} 
-                        </span>`
-                          )
-                          .join(", ")
-                      : "N/A"
-                  }
-                </div>
-            </div>
-            </div>`;
+                  <div>
+                    <div class="font-bold">Endereços de atendimento:</div>
+                    <div class="mt-2">
+                      ${
+                        item.enderecosAtendimento &&
+                        item.enderecosAtendimento.length > 0
+                          ? item.enderecosAtendimento
+                              .map(
+                                (enderecoAtendimento, index) => `
+                            <div class="item-endereco-map mb-2 title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}"">
+                              <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
+                              <span>${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero} </span>
+                            </div>`
+                              )
+                              .join(" ")
+                          : "N/A"
+                      }                      
+                    </div>
+                  </div>`;
 
         const infoWindow = new window.google.maps.InfoWindow(
           user.role === "sduh_mgr"
             ? {
                 content: `
-          <div class="card-container p-4 bg-white rounded-2xl shadow shadow-none">
-          <div class="card-header flex items-center">
-            <div class="font-bold">${item.atendimentoHabitacional}</div>
+        <div class="card-container p-2 bg-white rounded-2xl shadow shadow-none">
+          <div class="card-nav-tab flex font-bold justify-between">
+              <div class="tab-nav w-50 text-center p-2 active">Atendimento</div>
           </div>
-          
-          <div class="card-info">
-            <div class="card-item ">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-map-marker-alt mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Gerencia Regional:</span>
-                  <span class="item-info-detail" title="${
-                    item.gerenciaRegional
-                  }">
-                    ${item.gerenciaRegional ?? "N/A"}
-                  </span>
+          <div class="tab-1 card-info-map active-left p-2">
+            <div class="card-map-infos mb-2">
+              <div class="card-map-item mr-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-map-marker-alt mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">Gerencia Regional</div>
+                  <div class="label">${item.gerenciaRegional ?? "N/A"}</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-map-infos mb-2">
+              <div class="card-map-item mr-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-city mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">Município</div>
+                  <div class="label">${item.municipio ?? "N/A"}</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-map-infos mb-2">
+              <div class="card-map-item mr-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">Região de Governo</div>
+                  <div class="label">${item.regiaoDeGoverno ?? "N/A"}</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-map-infos mb-2">
+              <div class="card-map-item mr-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-home mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">Região Administrativa</div>
+                  <div class="label">${item.regiaoAdministrativa ?? "N/A"}</div>
                 </div>
               </div>
             </div>
 
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-city mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Município:</span>
-                  <span class="item-info-detail">${
-                    item.municipio ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Região de Governo:</span>
-                  <span class="item-info-detail">${
-                    item.regiaoDeGoverno ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-home mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Região Administrativa:</span>
-                  <span class="item-info-detail">${
-                    item.regiaoAdministrativa ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-hand-holding-usd mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Investimento Entregue:</span>
-                  <span class="item-info-detail">${
-                    formatBRL(item.investEntregue) ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <div class="card-info-item card-info-item-url bg-street-view">
+            <div class="card-map-infos mt-4">
+              <div class="card-map-infos-more">
+                <div class="font-bold">Casa Paulista - Crédito Imobiliário</div>
+                <div class="label">INVESTIMENTO ENTREGUE</div>
+                <div class="value">${
+                  formatBRL(item.investEntregue) ?? "N/A"
+                }</div>
+               <div class="flex justify-end mt-2">
+                    <div class="card-info-item card-info-item-url bg-street-view">
                   <button
                     class="item-info-url item-street-view"
                     id="streetview-btn"
@@ -245,6 +240,7 @@ export default function Maps() {
                     <i class="fas fa-street-view ml-1"></i>
                   </button>
                 </div>
+               </div>
               </div>
             </div>
           </div>
@@ -253,116 +249,59 @@ export default function Maps() {
               }
             : {
                 content: `
-          <div class="card-container p-4 bg-white rounded-2xl shadow shadow-none">
-          <div class="card-header flex items-center">
-            <div class="font-bold">${item.nomeEmpreendimento}</div>
+          <div class="card-container p-2 bg-white rounded-2xl shadow shadow-none">
+          <div class="card-nav-tab flex font-bold justify-between">
+              <div class="tab-nav w-50 text-center p-2 active" id="empreendimento">Empreendimento</div>
+              <div class="tab-nav w-50 text-center p-2" id="incorporadora">Incorporadora</div>
           </div>
-          
-          <div class="card-info">
-            <div class="card-item ">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-map-marker-alt mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Endereço do Empreendimento:</span>
-                  <span class="item-info-detail" title="${
-                    item.enderecoEmpreendimento
-                  }">
-                    ${item.enderecoEmpreendimento ?? "N/A"}
-                  </span>
+          <div class="tab-1 card-info-map active-left p-2">
+            <div class="card-map-infos">
+              <div class="card-map-item mr-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">TIPO</div>
+                  <div class="value">${item.tipologia ?? "N/A"}</div>
+                </div>
+              </div>
+              <div class="card-map-item">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-bed mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">DORMITÓRIOS</div>
+                  <div class="value">${item.qtDormitorio ?? "N/A"}</div>
+                </div>
+              </div>
+              <div class="card-map-item ml-2">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">DISPONÍVEIS</div>
+                  <div class="value">${item.unidadesSubsidiadas ?? "N/A"}</div>
                 </div>
               </div>
             </div>
 
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-city mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Município:</span>
-                  <span class="item-info-detail">${
-                    item.municipio ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
+            <div class="card-map-infos mt-4">
+              <div class="card-map-infos-more">
+                <div class="font-bold">Casa Paulista - Crédito Imobiliário</div>
+                <div class="label">VALOR DO BENEFÍCIO</div>
+                <div class="value">${
+                  formatBRL(item.subsidioEstadual) ?? "N/A"
+                }</div>
 
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-bed mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Número de Dormitórios:</span>
-                  <span class="item-info-detail">${
-                    item.qtDormitorio ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-home mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Tipologia:</span>
-                  <span class="item-info-detail">${
-                    item.tipologia ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-hand-holding-usd mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Valor do Benefício:</span>
-                  <span class="item-info-detail">${
-                    formatBRL(item.subsidioEstadual) ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Unidades Disponíveis:</span>
-                  <span class="item-info-detail">${
-                    item.unidadesSubsidiadas ?? "N/A"
-                  }</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item ">
-                  ${enderecosAtendimento}
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <div class="card-info-item card-info-item-url">
-                  <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank" class="item-info-url">Casa Paulista - Crédito Imobiliário 
+               <div class="flex justify-end mt-2">
+                <span class="card-info-item card-info-item-url">
+                  <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank" class="item-info-url">Clique para ir ao site do programa
                   <i class="fas fa-external-link-square-alt ml-1" /></i>
                   </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <div class="card-info-item card-info-item-url bg-street-view">
+                </span>
+               </div>
+               <div class="flex justify-end mt-2">
+                    <div class="card-info-item card-info-item-url bg-street-view">
                   <button
                     class="item-info-url item-street-view"
                     id="streetview-btn"
@@ -371,13 +310,14 @@ export default function Maps() {
                     <i class="fas fa-street-view ml-1"></i>
                   </button>
                 </div>
+               </div>
               </div>
             </div>
-
-            <div class="w-full">
-              ${contatosList}
-            </div>
           </div>
+            <div class="tab-2 card-info-map active-right p-2">
+                  ${contatosList}
+                  ${enderecosAtendimento}
+              </div>
         </div>
         `,
               }
@@ -404,6 +344,7 @@ export default function Maps() {
             if (openInfoWindowRef.current) {
               openInfoWindowRef.current.close();
             }
+
             infoWindow.setPosition(position);
             infoWindow.open({ map: mapInstance.current, anchor: null });
             openInfoWindowRef.current = infoWindow; // atualiza a referência
@@ -424,6 +365,29 @@ export default function Maps() {
                   streetView.setPov({ heading: 100, pitch: 0 });
                   streetView.setVisible(true);
                 });
+              }
+
+              const headInfoWindow = document.querySelector(".gm-style-iw-ch");
+
+              if (user.role != "sduh_mgr") {
+                headInfoWindow.innerHTML = `<div class="font-bold">${item.nomeEmpreendimento}</div>`;
+
+                const empreendimento = document.getElementById("empreendimento")
+                const incorporadora = document.getElementById("incorporadora")
+                empreendimento.addEventListener('click', (event) => {
+                  empreendimento.classList.add('active')
+                  incorporadora.classList.remove('active')
+                  document.querySelector(".tab-2").style.display = 'none'
+                  document.querySelector(".tab-1").style.display = 'block'
+                })
+                incorporadora.addEventListener('click', (event) => {
+                  empreendimento.classList.remove('active')
+                  incorporadora.classList.add('active')
+                  document.querySelector(".tab-1").style.display = 'none'
+                  document.querySelector(".tab-2").style.display = 'block'
+                })
+              } else {
+                headInfoWindow.innerHTML = `<div class="font-bold">${item.atendimentoHabitacional}</div>`;
               }
             }
           );
@@ -461,7 +425,7 @@ export default function Maps() {
 
   useEffect(() => {
     if (!user || !rawData) return;
-    
+
     executedRef.current = true;
 
     async function initializeApp() {
@@ -656,7 +620,7 @@ export default function Maps() {
         }
       }
 
-      debouncedCreateMarkers(data);
+      debouncedCreateMarkers(data || []);
       if (
         filters.search ||
         filters.tipoImovel ||

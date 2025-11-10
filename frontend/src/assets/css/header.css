@@ -11,8 +11,33 @@
   position: relative;
   z-index: 0;
 }
+@media (max-width: 625px) {
+  .map-sduh_mgr {
+    height: calc(100vh - (209px + 90px)) !important;
+  }
+
+}
 
 @media (max-width: 1345px) {
+  .header {
+    flex-direction: column-reverse;
+    height: calc(96px + 40px) !important;
+  }
+
+  .layout {
+    height: calc(100vh - (96px + 40px)) !important;
+  }
+  .layout-appshet {
+    height: calc(100vh - (150px + 40px)) !important;
+  }
+  .h-default {
+    height: calc(100% - (96px + 40px) - 1rem) !important;
+  }
+
+  .map-sduh_mgr {
+    height: calc(100vh - (209px + 45px));
+  }
+
   .menu-y {
     z-index: 10 !important;
   }
@@ -72,6 +97,7 @@
   }
 
   .gm-style-iw.gm-style-iw-c {
-    max-width: 355px !important;
+    max-width: 400px !important;
+    width: 100%;
   }
 }
