@@ -54,7 +54,7 @@
 
 @media (max-width: 1345px) {
   .menu-y {
-    height: calc(100% - 96px);
+    height: calc(100% - 96px) !important;
   }
   .menu-y {
     z-index: 10 !important;
