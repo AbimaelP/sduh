@@ -187,8 +187,24 @@
   background-color: #f2efef;
 }
 
+.btn-red-alert {
+  border: 1px solid #ddd;
+  color: #374151;
+  background-color: #ffff;
+}
+
+.btn-red-alert:hover {
+  background-color: #dc2626;
+  color: #ffff;
+}
+
 .activated.btn-white {
   background-color: #000000;
+  color: #ffff;
+}
+
+.activated.btn-red-alert {
+  background-color: #b51f1f;
   color: #ffff;
 }
 
@@ -333,10 +349,15 @@
 
 .btn-voltar-gestao {
   position: absolute;
-  top: 68px;
+  top: 5px;
   width: auto;
-  left: 1rem;
+  left: 8px;
   z-index: 2;
+}
+
+.btn-voltar-gestao button {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .space-now-nowrap {

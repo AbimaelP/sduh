@@ -8,13 +8,13 @@ import Filters from "./Filters";
 import { useMenu } from "../contexts/MenuContext";
 import { useNavigate } from "react-router-dom";
 import Section from "./Section";
-import { empreendimentos, atendimentos } from "../services/api/api";
+import { empreendimentos, atendimentos, ultimaAtualizacao } from "../services/api/api";
 import Performance from "./Performance";
 import { useData } from "../contexts/DataContext";
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
-  const { rawData, chargeData } = useData();
+  const { rawData, chargeData, setLastUpdatedData } = useData();
   const [hideContent, setHideContent] = useState(false);
   const { user, logout } = useAuth();
   const [mapsLoaded, setMapsLoaded] = useState(false);
@@ -28,6 +28,8 @@ export default function Menu() {
     const fetchData = async () => {
       try {
         let data = {};
+        const lastUpdated = await ultimaAtualizacao()
+        setLastUpdatedData(lastUpdated)
         if (user.role === "sduh_mgr") {
           data = await atendimentos();
           chargeData(data);

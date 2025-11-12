@@ -95,7 +95,6 @@ router.get('/token', async (req, res) => {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET
     });
-
     const data = response.data.access_token;
     return res.json(data);
   } catch (err) {

@@ -11,6 +11,7 @@ export function FiltersProvider({ children }) {
     gerenciaRegional: "",
     regiaoAdministrativa: "",
     regiaoDeGoverno: "",
+    municipio: ""
   });
 
   const [options, setOptions] = useState({

@@ -13,12 +13,16 @@ export const GOVBR_CLIENT_ID = process.env.GOV_CLIENT_ID;
 export const GOVBR_CLIENT_SECRET = process.env.GOV_CLIENT_SECRET;
 export const GOVBR_REDIRECT_URI = process.env.REDIRECT_URL_GOV;
 export const GOVRCODE_VERIFIER = process.env.CODE_VERIFIER;
+export const GOVAPI_URL = process.env.GOVAPI_URL;
 
 export const DB_HOST = process.env.DB_HOST;
 export const DB_NAME = process.env.DB_NAME;
 export const DB_USER = process.env.DB_USER;
 export const DB_PASS = process.env.DB_PASSWORD;
 
+export const REDIS_HOST = process.env.REDIS_HOST;
+
+export const GOVBR_JWK_URL = process.env.GOVBR_JWK_URL;
 // Discovery endpoint do Gov.br homologação
 const DISCOVERY_URL = process.env.GOV_OPENID_CONFIGURATION;
 

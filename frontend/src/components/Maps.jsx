@@ -32,9 +32,9 @@ export default function Maps() {
   const { user } = useAuth();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const executedRef = useRef(false);
+  const initializedRef = useRef(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const { rawData, chargeData } = useData();
+  const { rawData, chargeData, lastFilterStatus, statusFiltered } = useData();
   const [loading, setLoading] = useState(false);
   const [activeButton, setActiveButton] = useState(null);
   const [markers, setMarkers] = useState([]);
@@ -43,6 +43,7 @@ export default function Maps() {
   const openInfoWindowRef = useRef(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [statusObra, setStatusObra] = useState(null);
+  const executedMarkersRef = useRef(false);
 
   const debouncedCreateMarkers = useRef(
     debounce(async (data) => {
@@ -57,14 +58,8 @@ export default function Maps() {
   ).current;
 
   const createMarkers = async (empreendimentosData) => {
+    console.log('chamou create markers')
     if (!mapInstance.current || !window.google) return [];
-    if (!empreendimentosData || !Array.isArray(empreendimentosData)) {
-      console.warn(
-        "⚠️ Nenhum dado válido recebido em createMarkers:",
-        empreendimentosData
-      );
-      return [];
-    }
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
       if (div && div.parentNode) div.parentNode.removeChild(div);
@@ -160,7 +155,7 @@ export default function Maps() {
                                 (enderecoAtendimento, index) => `
                             <div class="item-endereco-map mb-2 title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}"">
                               <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
-                              <span>${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero} </span>
+                              <span>${enderecoAtendimento.tipoLogradouro || ""} ${enderecoAtendimento.logradouro || ""} N° ${enderecoAtendimento.numero || "N/A"} </span>
                             </div>`
                               )
                               .join(" ")
@@ -423,104 +418,103 @@ export default function Maps() {
     return results.filter(Boolean);
   };
 
-  useEffect(() => {
-    if (!user || !rawData) return;
+ useEffect(() => {
+  // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
+  if (initializedRef.current) return;
+  if (!rawData || !rawData.atendimentos?.length) return;
 
-    executedRef.current = true;
+  async function initializeApp() {
+    initializedRef.current = true; // 🔒 trava pra nunca mais rodar
+    console.log("Iniciando mapa com rawData:", rawData);
 
-    async function initializeApp() {
-      setLoading(true);
-      try {
-        // Garante que o script do Google Maps seja carregado
-        await new Promise((resolve, reject) => {
-          if (window.google && window.google.maps) {
-            resolve();
-            return;
-          }
-
-          // Verifica se já existe script em carregamento
-          const existingScript = document.querySelector(
-            `script[src*="maps.googleapis.com/maps/api/js"]`
-          );
-
-          if (existingScript) {
-            existingScript.addEventListener("load", resolve);
-            existingScript.addEventListener("error", reject);
-            return;
-          }
-
-          const script = document.createElement("script");
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${
-            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-          }&libraries=marker,geometry,visualization`;
-          script.defer = true;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-
-        setMapsLoaded(true);
-
-        if (!window.google || !window.google.maps) {
-          console.error("Google Maps script não carregado!");
+    setLoading(true);
+    try {
+      // Garante que o script do Google Maps seja carregado
+      await new Promise((resolve, reject) => {
+        if (window.google && window.google.maps) {
+          resolve();
           return;
         }
 
-        // Importa as bibliotecas
-        const { Map } = await window.google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement } =
-          await window.google.maps.importLibrary("marker");
-
-        // Inicializa o mapa com localização do usuário (ou fallback)
-        const initMap = (position) => {
-          mapInstance.current = new Map(mapRef.current, {
-            center: position,
-            zoom: 10,
-            mapId: "a4e035e5a4e5272a",
-            mapTypeControl: false,
-            streetViewControl: true,
-            zoomControl: true,
-            fullscreenControl: false,
-          });
-
-          new AdvancedMarkerElement({
-            map: mapInstance.current,
-            position,
-            title: "Você está aqui!",
-            zIndex: 9999,
-          });
-        };
-
-        // Pega localização atual
-        navigator.geolocation.getCurrentPosition(
-          (pos) =>
-            initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-          (err) => {
-            console.warn(
-              "Não foi possível obter localização, usando fallback:",
-              err
-            );
-            initMap({ lat: -22.5, lng: -48.5 });
-          }
+        const existingScript = document.querySelector(
+          `script[src*="maps.googleapis.com/maps/api/js"]`
         );
 
-        const lastUpdatedData = await ultimaAtualizacao();
+        if (existingScript) {
+          existingScript.addEventListener("load", resolve);
+          existingScript.addEventListener("error", reject);
+          return;
+        }
 
-        setOptionsFromData(rawData.atendimentos);
-        setLastUpdated(lastUpdatedData);
-        await createMarkers(rawData.atendimentos);
-      } catch (err) {
-        console.error("Erro ao inicializar o mapa:", err);
-      } finally {
-        setLoading(false);
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${
+          import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+        }&libraries=marker,geometry,visualization`;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+
+      if (!window.google || !window.google.maps) {
+        console.error("Google Maps script não carregado!");
+        return;
       }
-    }
 
-    initializeApp();
-  }, [user, rawData]);
+      const { Map } = await window.google.maps.importLibrary("maps");
+      const { AdvancedMarkerElement } =
+        await window.google.maps.importLibrary("marker");
+
+      // Inicializa o mapa com localização do usuário (ou fallback)
+      const initMap = (position) => {
+        mapInstance.current = new Map(mapRef.current, {
+          center: position,
+          zoom: 10,
+          mapId: "a4e035e5a4e5272a",
+          mapTypeControl: false,
+          streetViewControl: true,
+          zoomControl: true,
+          fullscreenControl: false,
+        });
+
+        new AdvancedMarkerElement({
+          map: mapInstance.current,
+          position,
+          title: "Você está aqui!",
+          zIndex: 9999,
+        });
+
+        // ⚡ Quando o mapa for criado, cria os marcadores uma única vez
+        debouncedCreateMarkers(rawData.atendimentos || []);
+      };
+
+      // Pega localização atual
+      navigator.geolocation.getCurrentPosition(
+        (pos) =>
+          initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => {
+          console.warn(
+            "Não foi possível obter localização, usando fallback:",
+            err
+          );
+          initMap({ lat: -22.5, lng: -48.5 });
+        }
+      );
+
+      setOptionsFromData(rawData.atendimentos);
+    } catch (err) {
+      console.error("Erro ao inicializar o mapa:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  initializeApp();
+}, [rawData]);
 
   useEffect(() => {
-    if (!rawData) return;
+    if (!mapInstance.current || !rawData?.atendimentos?.length) return;
+
     let data = [];
 
     if (user) {
@@ -529,6 +523,7 @@ export default function Maps() {
         : [];
     }
 
+    debouncedCreateMarkers(data || []);
     if (user && user.role !== "sduh_mgr") {
       if (filters.search) {
         const term = normalize(filters.search);
@@ -552,6 +547,16 @@ export default function Maps() {
         );
       }
     } else {
+      if (filters.municipio) {
+        const term = normalize(filters.municipio);
+
+        data = data.filter((item) => {
+          const municipio = normalize(item.municipio || "");
+
+          return municipio.includes(term);
+        });
+      }
+
       if (filters.gerenciaRegional) {
         const term = normalize(filters.gerenciaRegional);
 
@@ -627,7 +632,8 @@ export default function Maps() {
         filters.dormitorios ||
         filters.gerenciaRegional ||
         filters.regiaoAdministrativa ||
-        filters.regiaoDeGoverno
+        filters.regiaoDeGoverno ||
+        filters.municipio
       ) {
         if (position) {
           mapInstance.current.setCenter(position);
@@ -665,7 +671,7 @@ export default function Maps() {
         );
       }
     }
-  }, [filters, rawData, statusObra, mapInstance]);
+  }, [filters, statusObra]);
 
   const handleClick = async (status) => {
     setLoading(true);
@@ -674,6 +680,7 @@ export default function Maps() {
         const data = await atendimentos(status);
         chargeData(data);
       }
+      lastFilterStatus(status)
       setStatusObra(status);
     } catch (error) {
       console.log(error);
@@ -696,19 +703,19 @@ export default function Maps() {
                   handleClick(status);
                 }}
               >
-                <Button status="planejamento" className="btn btn-white">
+                <Button status="planejamento" className={`btn btn-white ${statusFiltered === 'planejamento' ? 'activated': ''}`}>
                   Planejamento
                 </Button>
-                <Button status="licitacao" className="btn btn-white ml-2">
+                <Button status="licitacao" className={`btn btn-white ml-2 ${statusFiltered === 'licitacao' ? 'activated': ''}`}>
                   Licitação
                 </Button>
-                <Button status="em_andamento" className="btn btn-white ml-2">
+                <Button status="em_andamento" className={`btn btn-white ml-2 ${statusFiltered === 'em_andamento' ? 'activated': ''}`}>
                   Em Andamento
                 </Button>
-                <Button status="entregues" className="btn btn-white ml-2">
+                <Button status="entregues" className={`btn btn-white ml-2 ${statusFiltered === 'entregues' ? 'activated': ''}`}>
                   Entregues
                 </Button>
-                <Button status="alertas" className="btn btn-red ml-2">
+                <Button status="alertas" className={`btn btn-red-alert ml-2 ${statusFiltered === 'alertas' ? 'activated': ''}`}>
                   Alertas
                 </Button>
               </ButtonGroup>
@@ -718,14 +725,14 @@ export default function Maps() {
           <></>
         )}
         <Section className="font-normal f-size-small-nano container-last-updated-map">
-          {lastUpdated ? (
+          {/* {lastUpdated ? (
             <>
               Atualizado em {formatDate(lastUpdated)} às{" "}
               {formatHour(lastUpdated)}
             </>
           ) : (
             <>Carregando...</>
-          )}
+          )} */}
         </Section>
       </Section>
       <div

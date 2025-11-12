@@ -11,6 +11,7 @@ export default function Filters() {
   const handleCleanFilters = () => {
     setFilters({
       search: "",
+      municipio: "",
       tipoImovel: "",
       dormitorios: "",
       gerenciaRegional: "",
@@ -26,12 +27,31 @@ export default function Filters() {
       {user && user.role === "sduh_mgr" ? (
         <>
           <Section>
-            <label htmlFor="gerenciaRegional" className="form-label">
-              Busca
+            <label htmlFor="municipio" className="form-label">
+              Município
             </label>
             <input
               type="text"
-              placeholder={`Gerencia Regional`}
+              placeholder={`Busque por Município`}
+              title="Município"
+              value={filters.municipio}
+              id="municipio"
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  municipio: e.target.value,
+                }))
+              }
+              className="form-input-min"
+            />
+          </Section>
+          <Section>
+            <label htmlFor="gerenciaRegional" className="form-label">
+              Gerencia Regional
+            </label>
+            <input
+              type="text"
+              placeholder={`Busque por Gerencia Regional`}
               title="Gerencia Regional"
               value={filters.gerenciaRegional}
               id="gerenciaRegional"
@@ -46,11 +66,11 @@ export default function Filters() {
           </Section>
           <Section>
             <label htmlFor="regiaoAdministrativa" className="form-label">
-              Busca
+              Região Administrativa
             </label>
             <input
               type="text"
-              placeholder={`Região Administrativa`}
+              placeholder={`Busque por Região Administrativa`}
               title="Região Administrativa"
               value={filters.regiaoAdministrativa}
               id="regiaoAdministrativa"
@@ -65,11 +85,11 @@ export default function Filters() {
           </Section>
           <Section>
             <label htmlFor="regiaoDeGoverno" className="form-label">
-              Busca
+              Região de Governo
             </label>
             <input
               type="text"
-              placeholder={`Região de Governo`}
+              placeholder={`Busque por Região de Governo`}
               title="Região de Governo"
               value={filters.regiaoDeGoverno}
               id="regiaoDeGoverno"

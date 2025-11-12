@@ -1,6 +1,7 @@
-import Section from '../components/Section';
-import { useAuth } from '../contexts/AuthContext';
-import { useMenu } from '../contexts/MenuContext';
+import Section from "../components/Section";
+import Button from "../components/Button";
+import { useAuth } from "../contexts/AuthContext";
+import { useMenu } from "../contexts/MenuContext";
 
 export default function LayoutClient({ className, children }) {
   const { user, changeUserAccessRole } = useAuth();
@@ -12,23 +13,38 @@ export default function LayoutClient({ className, children }) {
   };
 
   return (
-    <Section className={`layout ${!isOpen && "layout-menu-collapse"} ${className}`}>
+    <Section
+      className={`layout ${!isOpen && "layout-menu-collapse"} ${className}`}
+    >
       <Section className="header-second">
         <Section className="flex justify-end p-4 bg-white shadow-md items-center z-20 relative">
+          <Button
+            className="btn btn-gray"
+            classNameLink="btn-voltar-mapa btn-voltar-gestao"
+            icon="fas fa-map"
+            link="/"
+          >
+            Início
+          </Button>
           <span className="text-sm font-medium text-gray-700">Perfil:</span>
           <select
             className={`rounded-md border-gray-200 bg-gray-100 text-gray-700 shadow-sm focus:ring-0 focus:outline-none sm:text-sm ml-2 min-w-150
-              ${(user.profiles.length > 1) ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${
+                user.profiles.length > 1
+                  ? "cursor-pointer"
+                  : "cursor-not-allowed"
+              }
             `}
-            value={user?.role || ''}
-            disabled={(user.profiles.length == 1)}
+            value={user?.role || ""}
+            disabled={user.profiles.length == 1}
             onChange={handleChangeRole}
           >
-            {user && user.profiles.map((profile) => (
-              <option key={profile.value} value={profile.value}>
-                {profile.label}
-              </option>
-            ))}
+            {user &&
+              user.profiles.map((profile) => (
+                <option key={profile.value} value={profile.value}>
+                  {profile.label}
+                </option>
+              ))}
           </select>
         </Section>
       </Section>

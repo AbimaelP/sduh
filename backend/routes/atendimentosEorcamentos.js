@@ -17,6 +17,7 @@ router.get("/atendimentos", async (req, res) => {
       execucao: { valor: 0, total: 0, porcentagem: 0 },
       metas: { valor: 0, total: 0, porcentagem: 0 },
       obrasForaMandato: { valor: 0, porcentagem: 0 },
+      intercorrencias: { valor: 0, porcentagem: 0 },
     };
 
     let totalizadores = {
@@ -26,6 +27,8 @@ router.get("/atendimentos", async (req, res) => {
       entregues: 0,
       alertas: 0,
     };
+
+    let totalizadoresFiltred = { ...totalizadores }
 
     const responseAtendimentos = await axios.get(`${API_URL}/atendimentos/`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -38,7 +41,7 @@ router.get("/atendimentos", async (req, res) => {
         uhNucleoBenProducao: item.uhNucleoBenProducao,
         uhNucleoBenEntregues: item.uhNucleoBenEntregues,
         uhNucleoBenConcluido: item.uhNucleoBenConcluido,
-        houveAlerta: item.houveAlerta,
+        qtdAlerta: item.qtdAlerta,
         investEntregue: item.investEntregue,
         dataTerminoReprogramada: item.dataTerminoReprogramada,
         atendimentoHabitacional: item.atendimentoHabitacional,
@@ -62,12 +65,11 @@ router.get("/atendimentos", async (req, res) => {
         case "entregues":
           return item.uhNucleoBenEntregues > 0 || item.uhNucleoBenConcluido > 0;
         case "alertas":
-          return item.houveAlerta; // ajuste conforme seu campo de alerta real
+          return item.qtdAlerta; // ajuste conforme seu campo de alerta real
         default:
           return true;
       }
     });
-
     atendimentos.forEach((item) => {
       desempenho.execucao.valor += parseInt(item.investEntregue);
 
@@ -102,11 +104,16 @@ router.get("/atendimentos", async (req, res) => {
         desempenho.desembolso.valor += parseInt(item.investEntregue);
       }
 
+      if ( item.qtdAlerta > 0  ) {
+        desempenho.intercorrencias.valor += parseInt(item.qtdAlerta);
+      }
+
       totalizadores.planejamento += item.uhNucleoBenViabilizados;
       totalizadores.licitacao += item.uhNucleoBenLicitacao;
       totalizadores.em_andamento += item.uhNucleoBenProducao;
       totalizadores.entregues += item.uhNucleoBenEntregues;
       totalizadores.entregues += item.uhNucleoBenConcluido;
+      totalizadores.alertas += item.qtdAlerta;
     });
 
     const responseOrcamentos = await axios.get(
@@ -117,11 +124,9 @@ router.get("/atendimentos", async (req, res) => {
     );
 
     responseOrcamentos.data.data.forEach((item) => {
-      (desempenho.execucao.total += parseInt(item.valorTotalOrcamento)),
-        (desempenho.metas.total += item.ultimaMeta),
-        (desempenho.desembolso.total += parseInt(item.valorTotalOrcamento));
+      (desempenho.execucao.total += parseInt(item.valorTotalOrcamento)), (desempenho.metas.total += item.ultimaMeta), (desempenho.desembolso.total += parseInt(item.valorTotalOrcamento));
     });
-
+    desempenho.intercorrencias.total = responseOrcamentos.data.cache_stats.total_empreendimentos
     desempenho.desembolso.porcentagem =
       desempenho.desembolso.total > 0
         ? parseFloat(
@@ -146,17 +151,40 @@ router.get("/atendimentos", async (req, res) => {
             ((desempenho.metas.valor / desempenho.metas.total) * 100).toFixed(2)
           )
         : 0;
+    desempenho.intercorrencias.porcentagem =
+      desempenho.intercorrencias.total > 0
+        ? parseFloat(
+            ((desempenho.intercorrencias.valor / desempenho.intercorrencias.total) * 100).toFixed(2)
+          )
+        : 0;
 
-    totalizadores.total =
-      totalizadores.planejamento +
-      totalizadores.licitacao +
-      totalizadores.em_andamento +
-      totalizadores.entregues +
-      totalizadores.entregues;
+    switch (statusFilter) {
+      case "planejamento":
+        totalizadoresFiltred.planejamento = totalizadores.planejamento;
+        break;
+      case "licitacao":
+        totalizadoresFiltred.licitacao = totalizadores.licitacao;
+        break;
+      case "em_andamento":
+        totalizadoresFiltred.em_andamento = totalizadores.em_andamento;
+        break;
+      case "entregues":
+        totalizadoresFiltred.entregues = totalizadores.entregues;
+        break;
+      case "alertas":
+        totalizadoresFiltred.alertas = totalizadores.alertas;
+        break;
+      default:
+        totalizadoresFiltred.alertas = totalizadores.alertas;
+        break;
+    }
+  
+    console.log(totalizadoresFiltred)
+    totalizadoresFiltred.total = totalizadoresFiltred.planejamento + totalizadoresFiltred.licitacao + totalizadoresFiltred.em_andamento + totalizadoresFiltred.entregues + totalizadoresFiltred.alertas;
 
     return res.json({
       desempenho,
-      totalizadores,
+      totalizadores: totalizadoresFiltred,
       atendimentos: atendimentos,
     });
   } catch (err) {

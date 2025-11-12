@@ -64,7 +64,6 @@ export async function empreendimentos(statusObra = '', municipios = []) {
 
     localStorage.setItem(cacheKey, JSON.stringify(response.data));
     localStorage.setItem(cacheTimestampKey, Date.now().toString());
-    console.log(response.data)
     return response.data;
   } catch (err) {
     console.log(err)
@@ -77,7 +76,7 @@ export async function empreendimentos(statusObra = '', municipios = []) {
   }
 
 }
-export async function atendimentos( statusFilter = '' ) {
+export async function atendimentos( statusFilter = 'alertas' ) {
   try {
     // const cacheKey = "atendimentosData";
     // const cacheTimestampKey = "atendimentosTimestamp";

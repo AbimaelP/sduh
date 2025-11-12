@@ -7,7 +7,7 @@ import '../assets/css/performance.css'
 export default function Performance({ performanceData }) {
   return (
     <Section>
-      <PercentBar percent={40} labelPercentBar='Registro de Intercorrências' className='f-size-performance' classNameBar="bg-red-dark" classNamePercent="text-red-dark"/>
+      <PercentBar percent={performanceData.intercorrencias.porcentagem} labelPercentBar='Registro de Intercorrências' className='f-size-performance' classNameBar="bg-red-dark" classNamePercent="text-red-dark"/>
       <Section className='f-size-performance font-bold flex justify-between mt-4'><span>Obras fora do Mandato {`(>${2026})`}</span> <span className="performance-value-2">{ performanceData.obrasForaMandato.valor }</span></Section>
       <Section className='f-size-performance font-bold mt-4'>
         <Section>Desembolso vs. Execução</Section>

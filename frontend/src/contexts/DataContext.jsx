@@ -5,6 +5,8 @@ const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
   const [rawData, setRawData] = useState([]);
+  const [lastUpdatedData, setLastUpdatedData] = useState([]);
+  const [statusFiltered, setStatusFiltered] = useState("alertas");
 
   const chargeData = (dataCharge) => {
     setRawData(dataCharge);
@@ -14,12 +16,20 @@ export const DataProvider = ({ children }) => {
     setRawData([]);
   };
 
+  const lastFilterStatus = (status) => {
+    setStatusFiltered(status)
+  }
+
   return (
     <DataContext.Provider
       value={{
         chargeData,
         unChargeData,
-        rawData
+        rawData,
+        lastFilterStatus,
+        statusFiltered,
+        setLastUpdatedData,
+        lastUpdatedData
       }}
     >
       {children}

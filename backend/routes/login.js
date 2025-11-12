@@ -69,7 +69,7 @@ router.post("/login", async (req, res) => {
       const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f' };
       const profileCidadao = { value: 'cidadao', label: 'Cidadão', appLink: "" };
       const profilesSDUH = { value: 'sduh_user', label: 'SDUH', appLink: 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176' };
-      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)', appLink: "" };
+      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)', appLink: "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176" };
       // Ajustar role
       if (user.role === "municipio_user" || user.role === "user") {
         user.role = "municipio_user";
@@ -194,7 +194,11 @@ router.post("/gov/callback", async (req, res) => {
       }
     );
     const { access_token } = tokenResponse.data;
+    
+    const tokenPayload = await verifyGovbrToken(access_token);
 
+    console.log(tokenPayload)
+    
     const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
       headers: { Authorization: `Bearer ${access_token}` },
     });
