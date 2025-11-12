@@ -16,7 +16,6 @@ import {
   APPSHEET_KEY,
   GOVRCODE_VERIFIER,
 } from "../config.js";
-import { verifyGovbrToken } from '../utils/tokens.js';
 
 await loadGovbrConfig();
 
@@ -195,11 +194,7 @@ router.post("/gov/callback", async (req, res) => {
       }
     );
     const { access_token } = tokenResponse.data;
-    
-    const tokenPayload = await verifyGovbrToken(access_token);
 
-    console.log(tokenPayload)
-    
     const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
       headers: { Authorization: `Bearer ${access_token}` },
     });
