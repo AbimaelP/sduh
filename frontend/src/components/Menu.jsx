@@ -14,7 +14,7 @@ import { useData } from "../contexts/DataContext";
 
 export default function Menu() {
   const { isOpen, setIsOpen } = useMenu();
-  const { rawData, chargeData, setLastUpdatedData } = useData();
+  const { rawData, chargeData, setLastUpdatedData, unChargeData } = useData();
   const [hideContent, setHideContent] = useState(false);
   const { user, logout } = useAuth();
   const [mapsLoaded, setMapsLoaded] = useState(false);
@@ -100,6 +100,7 @@ export default function Menu() {
   };
 
   const handleLogout = () => {
+    unChargeData()
     logout();
     navigate("/login");
   };

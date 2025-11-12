@@ -34,19 +34,19 @@ export default function Maps() {
   const mapInstance = useRef(null);
   const initializedRef = useRef(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const { rawData, chargeData, lastFilterStatus, statusFiltered } = useData();
+  const { rawData, chargeData, lastFilterStatus, statusFiltered, lastUpdatedData } = useData();
   const [loading, setLoading] = useState(false);
   const [activeButton, setActiveButton] = useState(null);
   const [markers, setMarkers] = useState([]);
   const markerDivs = useRef([]);
   const { filters, setOptionsFromData } = useFilters();
   const openInfoWindowRef = useRef(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
   const [statusObra, setStatusObra] = useState(null);
   const executedMarkersRef = useRef(false);
 
   const debouncedCreateMarkers = useRef(
     debounce(async (data) => {
+      setLoading(true);
       try {
         await createMarkers(data);
       } catch (error) {
@@ -421,13 +421,14 @@ export default function Maps() {
  useEffect(() => {
   // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
   if (initializedRef.current) return;
+  
+  setLoading(true);
   if (!rawData || !rawData.atendimentos?.length) return;
 
   async function initializeApp() {
     initializedRef.current = true; // 🔒 trava pra nunca mais rodar
     console.log("Iniciando mapa com rawData:", rawData);
 
-    setLoading(true);
     try {
       // Garante que o script do Google Maps seja carregado
       await new Promise((resolve, reject) => {
@@ -725,14 +726,14 @@ export default function Maps() {
           <></>
         )}
         <Section className="font-normal f-size-small-nano container-last-updated-map">
-          {/* {lastUpdated ? (
+          {lastUpdatedData ? (
             <>
-              Atualizado em {formatDate(lastUpdated)} às{" "}
-              {formatHour(lastUpdated)}
+              Atualizado em {formatDate(lastUpdatedData)} às{" "}
+              {formatHour(lastUpdatedData)}
             </>
           ) : (
             <>Carregando...</>
-          )} */}
+          )}
         </Section>
       </Section>
       <div
