@@ -24,28 +24,6 @@
     height: calc(96px + 40px) !important;
   }
 
-  .layout {
-    height: calc(100vh - (96px + 40px)) !important;
-  }
-  .layout-appshet {
-    height: calc(100vh - (150px + 40px)) !important;
-  }
-  .h-default {
-    height: calc(100% - (96px + 40px) - 1rem) !important;
-  }
-
-  .map-sduh_mgr {
-    height: calc(100vh - (209px + 45px));
-  }
-
-  .map-cidadao, .map-municipal {
-    height: calc(100vh - (150px + 40px));
-  }
-
-  .menu-y {
-    height: calc(100% - 136px) !important;
-  }
-
   .menu-y.collapsed {
     height: auto !important;
   }
