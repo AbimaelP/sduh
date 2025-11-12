@@ -452,17 +452,21 @@
 }
 
 .gm-ui-hover-effect > span {
-  width: 17.5px !important;
-  height: 17.5px !important;
-  margin: 9px !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin: 6px !important;
+}
+
+.gm-style-iw-d {
+  overflow: auto !important;
 }
 
 .gm-ui-hover-effect {
   color: #ffff !important;
   background-color: #ffff !important;
   border-radius: 17.5px !important;
-  width: 35px !important;
-  height: 35px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 .tab-nav {
@@ -497,5 +501,5 @@
 }
 
 .card-info-map {
-  padding: 0.5rem !important;
+  padding: 1rem !important;
 }

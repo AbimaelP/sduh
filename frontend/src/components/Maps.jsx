@@ -137,7 +137,7 @@ export default function Maps() {
                                 <button type="button" class="btn btn-green w-auto mr-2" onclick="window.open('${formatWhats(contato.celular)}')"><i class="fab fa-whatsapp"></i>Whatsapp ${index+1}</button>`
                               )
                               .join(" ")
-                          : "N/A"
+                          : "Indisponível"
                       }  
                       
                     </div>
@@ -159,7 +159,7 @@ export default function Maps() {
                             </div>`
                               )
                               .join(" ")
-                          : "N/A"
+                          : "Indisponível"
                       }                      
                     </div>
                   </div>`;
@@ -174,7 +174,7 @@ export default function Maps() {
           </div>
           <div class="tab-1 card-info-map active-left p-2">
             <div class="card-map-infos mb-2">
-              <div class="card-map-item mr-2">
+              <div class="card-map-item">
                 <span class="container-icone-card-map">
                   <i class="fas fa-map-marker-alt mr-2 icon-card-report-item" /></i>
                 </span>
@@ -185,7 +185,7 @@ export default function Maps() {
               </div>
             </div>
             <div class="card-map-infos mb-2">
-              <div class="card-map-item mr-2">
+              <div class="card-map-item">
                 <span class="container-icone-card-map">
                   <i class="fas fa-city mr-2 icon-card-report-item" /></i>
                 </span>
@@ -196,7 +196,7 @@ export default function Maps() {
               </div>
             </div>
             <div class="card-map-infos mb-2">
-              <div class="card-map-item mr-2">
+              <div class="card-map-item">
                 <span class="container-icone-card-map">
                   <i class="fas fa-building mr-2 icon-card-report-item" /></i>
                 </span>
@@ -207,7 +207,7 @@ export default function Maps() {
               </div>
             </div>
             <div class="card-map-infos mb-2">
-              <div class="card-map-item mr-2">
+              <div class="card-map-item">
                 <span class="container-icone-card-map">
                   <i class="fas fa-home mr-2 icon-card-report-item" /></i>
                 </span>
@@ -251,7 +251,7 @@ export default function Maps() {
           </div>
           <div class="tab-1 card-info-map active-left p-2">
             <div class="card-map-infos">
-              <div class="card-map-item mr-2">
+              <div class="card-map-item mr-4">
                 <span class="container-icone-card-map">
                   <i class="fas fa-building mr-2 icon-card-report-item" /></i>
                 </span>
@@ -269,7 +269,7 @@ export default function Maps() {
                   <div class="value">${item.qtDormitorio ?? "N/A"}</div>
                 </div>
               </div>
-              <div class="card-map-item ml-2">
+              <div class="card-map-item ml-4">
                 <span class="container-icone-card-map">
                   <i class="fas fa-building mr-2 icon-card-report-item" /></i>
                 </span>
