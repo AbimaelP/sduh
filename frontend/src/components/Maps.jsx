@@ -153,7 +153,7 @@ export default function Maps() {
                           ? item.enderecosAtendimento
                               .map(
                                 (enderecoAtendimento, index) => `
-                            <div class="item-endereco-map mb-2 title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}"">
+                            <div class="item-endereco-map mb-2 title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}">
                               <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
                               <span>${enderecoAtendimento.tipoLogradouro || ""} ${enderecoAtendimento.logradouro || ""} N° ${enderecoAtendimento.numero || "N/A"} </span>
                             </div>`
@@ -163,6 +163,26 @@ export default function Maps() {
                       }                      
                     </div>
                   </div>`;
+
+      const detalhesAlertas = `
+        <div class="mb-2 alerta-item">
+          ${
+            item.alertasDetalhados && item.qtdAlerta > 0
+              ? item.alertasDetalhados
+                  .map(
+                    alerta => `
+                      <div class="item-alerta-map mb-2" title="${alerta.descricaoAlerta || ""}">
+                        <i class="fas fa-triangle-exclamation mr-2 icon-card-report-item"></i>
+                        <div>Descrição: ${alerta.descricaoAlerta || "Sem descrição"}</div>
+                        <div>Severidade: ${alerta.severidade || "Não informada"}</div>
+                        <div>Data: ${formatDate(alerta.dataAlerta) || "Sem data"}</div>
+                      </div>
+                    `
+                  )
+                  .join("")
+              : "<div>Indisponível</div>"
+          }
+        </div>`
 
         const infoWindow = new window.google.maps.InfoWindow(
           user.role === "sduh_mgr"
@@ -238,6 +258,10 @@ export default function Maps() {
                </div>
               </div>
             </div>
+            <div class="mt-3">
+                <div class="font-bold">Alertas:</div>
+                ${detalhesAlertas}
+            </div>
           </div>
         </div>
         `,
@@ -250,6 +274,26 @@ export default function Maps() {
               <div class="tab-nav w-50 text-center p-2" id="incorporadora">Incorporadora</div>
           </div>
           <div class="tab-1 card-info-map active-left p-2">
+            <div class="card-map-infos mb-4">
+              <div class="card-map-item">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">ENDEREÇO</div>
+                  <div class="value">${item.enderecoEmpreendimento ?? "N/A"}</div>
+                </div>
+                 <div class="flex justify-end mt-2">
+                  <button
+                    class="item-info-url item-street-view bg-street-view"
+                    id="streetview-btn"
+                  >
+                    <i class="fas fa-street-view ml-1"></i>
+                    Street View
+                  </button>
+               </div>
+              </div>
+            </div>
             <div class="card-map-infos">
               <div class="card-map-item mr-4">
                 <span class="container-icone-card-map">
@@ -294,17 +338,6 @@ export default function Maps() {
                   <i class="fas fa-external-link-square-alt ml-1" /></i>
                   </a>
                 </span>
-               </div>
-               <div class="flex justify-end mt-2">
-                    <div class="card-info-item card-info-item-url bg-street-view">
-                  <button
-                    class="item-info-url item-street-view"
-                    id="streetview-btn"
-                  >
-                    Ver no Street View 
-                    <i class="fas fa-street-view ml-1"></i>
-                  </button>
-                </div>
                </div>
               </div>
             </div>

@@ -51,25 +51,10 @@ router.get("/atendimentos", async (req, res) => {
         regiaoDeGoverno: item.regiaoDeGoverno,
         latitude: item.latitude,
         longitude: item.longitude,
+        alertasDetalhados: item.alertasDetalhados,
       };
     });
 
-    atendimentos = atendimentos.filter((item) => {
-      switch (statusFilter) {
-        case "planejamento":
-          return item.uhNucleoBenViabilizados > 0;
-        case "licitacao":
-          return item.uhNucleoBenLicitacao > 0;
-        case "em_andamento":
-          return item.uhNucleoBenProducao > 0;
-        case "entregues":
-          return item.uhNucleoBenEntregues > 0 || item.uhNucleoBenConcluido > 0;
-        case "alertas":
-          return item.qtdAlerta; // ajuste conforme seu campo de alerta real
-        default:
-          return true;
-      }
-    });
     atendimentos.forEach((item) => {
       desempenho.execucao.valor += parseInt(item.investEntregue);
 
@@ -179,9 +164,26 @@ router.get("/atendimentos", async (req, res) => {
         break;
     }
   
-    console.log(totalizadoresFiltred)
+    totalizadoresFiltred = totalizadores
     totalizadoresFiltred.total = totalizadoresFiltred.planejamento + totalizadoresFiltred.licitacao + totalizadoresFiltred.em_andamento + totalizadoresFiltred.entregues + totalizadoresFiltred.alertas;
 
+    atendimentos = atendimentos.filter((item) => {
+      switch (statusFilter) {
+        case "planejamento":
+          return item.uhNucleoBenViabilizados > 0;
+        case "licitacao":
+          return item.uhNucleoBenLicitacao > 0;
+        case "em_andamento":
+          return item.uhNucleoBenProducao > 0;
+        case "entregues":
+          return item.uhNucleoBenEntregues > 0 || item.uhNucleoBenConcluido > 0;
+        case "alertas":
+          return item.qtdAlerta; // ajuste conforme seu campo de alerta real
+        default:
+          return true;
+      }
+    });
+    
     return res.json({
       desempenho,
       totalizadores: totalizadoresFiltred,
