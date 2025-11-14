@@ -158,11 +158,11 @@ export async function listaOrcamento() {
   }
 }
 
-export async function totalizadoresEDesempenho(municipio = "", gerenciaRegional = "", regiaoAdministrativa = "", regiaoDeGoverno = "" ) {
+export async function totalizadoresEDesempenho(municipio = "", gerenciaRegional = "", regiaoAdministrativa = "", regiaoDeGoverno = "", subprograma = "" ) {
   try {
     let url = `/orcamentos/totalizadores-desempenho`;
 
-    const response = await api.post(url, { municipio, gerenciaRegional, regiaoAdministrativa, regiaoDeGoverno });
+    const response = await api.post(url, { municipio, gerenciaRegional, regiaoAdministrativa, regiaoDeGoverno, subprograma });
     
     return response.data;
   } catch (err) {

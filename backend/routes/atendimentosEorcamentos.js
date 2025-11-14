@@ -44,7 +44,7 @@ router.get("/atendimentos", async (req, res) => {
         qtdAlerta: item.qtdAlerta,
         investEntregue: item.investEntregue,
         dataTerminoReprogramada: item.dataTerminoReprogramada,
-        atendimentoHabitacional: item.atendimentoHabitacional,
+        subprograma: item.atendimentoHabitacional,
         municipio: item.municipio,
         gerenciaRegional: item.gerenciaRegional,
         regiaoAdministrativa: item.regiaoAdministrativa,
@@ -221,7 +221,7 @@ const normalize = (str) =>
 
 router.post("/totalizadores-desempenho", async (req, res) => {
   const { token } = req.query;
-  const { municipio, gerenciaRegional, regiaoAdministrativa, regiaoDeGoverno } = req.body;
+  const { municipio, gerenciaRegional, regiaoAdministrativa, regiaoDeGoverno, subprograma } = req.body;
   if (!token) {
     return res.status(401).json({ error: "Token não fornecido" });
   }
@@ -259,7 +259,7 @@ router.post("/totalizadores-desempenho", async (req, res) => {
         qtdAlerta: item.qtdAlerta,
         investEntregue: item.investEntregue,
         dataTerminoReprogramada: item.dataTerminoReprogramada,
-        atendimentoHabitacional: item.atendimentoHabitacional,
+        subprograma: item.atendimentoHabitacional,
         municipio: item.municipio,
         gerenciaRegional: item.gerenciaRegional,
         regiaoAdministrativa: item.regiaoAdministrativa,
@@ -307,6 +307,16 @@ router.post("/totalizadores-desempenho", async (req, res) => {
         const regiaoDeGoverno = normalize(item.regiaoDeGoverno || "");
 
         return regiaoDeGoverno.includes(term);
+      });
+    }
+
+    if (subprograma) {
+      const term = normalize(subprograma);
+
+      atendimentos = atendimentos.filter((item) => {
+        const subprograma = normalize(item.subprograma || "");
+
+        return subprograma.includes(term);
       });
     }
     

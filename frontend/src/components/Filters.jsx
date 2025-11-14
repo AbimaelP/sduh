@@ -17,6 +17,7 @@ export default function Filters() {
       gerenciaRegional: "",
       regiaoAdministrativa: "",
       regiaoDeGoverno: "",
+      subprograma: ""
     });
   };
   const formatDormLabel = (d) =>
@@ -97,6 +98,25 @@ export default function Filters() {
                 setFilters((prev) => ({
                   ...prev,
                   regiaoDeGoverno: e.target.value,
+                }))
+              }
+              className="form-input-min"
+            />
+          </Section>
+          <Section>
+            <label htmlFor="subprograma" className="form-label">
+              Subprograma
+            </label>
+            <input
+              type="text"
+              placeholder={`Busque por Subprograma`}
+              title="Subprograma"
+              value={filters.subprograma}
+              id="subprograma"
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  subprograma: e.target.value,
                 }))
               }
               className="form-input-min"

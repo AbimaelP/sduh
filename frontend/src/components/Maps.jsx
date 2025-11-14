@@ -453,7 +453,7 @@ export default function Maps() {
                   document.querySelector(".tab-2").style.display = "block";
                 });
               } else {
-                headInfoWindow.innerHTML = `<div class="font-bold">${item.atendimentoHabitacional}</div>`;
+                headInfoWindow.innerHTML = `<div class="font-bold">${item.subprograma}</div>`;
               }
             }
           );
@@ -588,14 +588,16 @@ export default function Maps() {
     municipio = "",
     gerenciaRegional = "",
     regiaoAdministrativa = "",
-    regiaoDeGoverno = ""
+    regiaoDeGoverno = "",
+    subprograma = ""
   ) => {
     setLoadingMenu(true);
     const data = await totalizadoresEDesempenho(
       municipio,
       gerenciaRegional,
       regiaoAdministrativa,
-      regiaoDeGoverno
+      regiaoDeGoverno,
+      subprograma
     );
     const rawDataTotais = { ...rawData };
     rawDataTotais.totalizadores = data.totalizadores;
@@ -668,6 +670,13 @@ export default function Maps() {
           normalize(item.regiaoDeGoverno).includes(term)
         );
       }
+
+      if (f.subprograma) {
+        const term = normalize(f.subprograma);
+        data = data.filter((item) =>
+          normalize(item.subprograma).includes(term)
+        );
+      }
     }
 
     if (mapInstance.current) {
@@ -713,7 +722,8 @@ export default function Maps() {
         f.gerenciaRegional ||
         f.regiaoAdministrativa ||
         f.regiaoDeGoverno ||
-        f.municipio
+        f.municipio ||
+        f.subprograma
       ) {
         if (position) {
           mapInstance.current.setCenter(position);
@@ -756,7 +766,8 @@ export default function Maps() {
       f.municipio,
       f.gerenciaRegional,
       f.regiaoAdministrativa,
-      f.regiaoDeGoverno
+      f.regiaoDeGoverno,
+      f.subprograma
     );
   }, [debouncedFilters, statusObra]);
 
