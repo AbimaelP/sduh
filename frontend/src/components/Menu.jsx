@@ -84,6 +84,10 @@ export default function Menu() {
     );
   }, [rawData]);
 
+  useEffect(()=> {
+    console.log(rawData.totalizadores)
+  },{rawData})
+
   const handleStatusSidebar = () => {
     if (isOpen) {
       setHideContent(true);
@@ -135,6 +139,7 @@ export default function Menu() {
         title="Totalizadores"
         isInfoOnly={true}
         className="mt-6"
+        onLoadDisplay={true}
         data={totalizadores}
       />
     ),
@@ -154,6 +159,7 @@ export default function Menu() {
         key="indicadores"
         title="Indicadores de Desempenho"
         className="mt-2"
+        onLoadDisplay={true}
         ExpandedComponent={<Performance performanceData={rawData.desempenho}/>}
       />
     ),
@@ -182,7 +188,7 @@ export default function Menu() {
 
   return (
     <aside
-      className={`menu-y h-full ${!isOpen && "collapsed"}`}
+      className={`menu-y ${!isOpen && "collapsed"}`}
       onTransitionEnd={handleTransitionEnd}
     >
       <Section className="menu-title">

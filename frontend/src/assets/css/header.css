@@ -24,6 +24,10 @@
     height: calc(96px + 40px) !important;
   }
 
+  .menu-y {
+    height: calc(100% - 136px) !important;
+  }
+
   .menu-y.collapsed {
     height: auto !important;
   }
@@ -53,9 +57,6 @@
 }
 
 @media (max-width: 1345px) {
-  .menu-y {
-    height: calc(100% - 96px) !important;
-  }
   .menu-y {
     z-index: 10 !important;
   }

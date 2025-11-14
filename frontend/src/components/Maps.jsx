@@ -5,6 +5,7 @@ import {
   empreendimentos,
   ultimaAtualizacao,
   atendimentos,
+  totalizadoresEDesempenho,
 } from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
 import Button from "./Button";
@@ -15,10 +16,16 @@ import { useFilters } from "../contexts/FiltersContext";
 import { useData } from "../contexts/DataContext";
 import Section from "./Section";
 import Icon from "./Icon";
-import { formatDate, formatHour, formatBRL, formatWhats } from "../utils/format";
+import {
+  formatDate,
+  formatHour,
+  formatBRL,
+  formatWhats,
+} from "../utils/format";
 import open from "../utils/open";
 import { normalize } from "../utils/format";
 import Loading from "./Loading";
+import useDebounce from "../hooks/useDebounce";
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -29,12 +36,18 @@ const iconsMap = {
 };
 
 export default function Maps() {
-  const { user } = useAuth();
+  const { user, setLoadingMenu } = useAuth();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const initializedRef = useRef(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const { rawData, chargeData, lastFilterStatus, statusFiltered, lastUpdatedData } = useData();
+  const {
+    rawData,
+    chargeData,
+    lastFilterStatus,
+    statusFiltered,
+    lastUpdatedData,
+  } = useData();
   const [loading, setLoading] = useState(false);
   const [activeButton, setActiveButton] = useState(null);
   const [markers, setMarkers] = useState([]);
@@ -43,6 +56,7 @@ export default function Maps() {
   const openInfoWindowRef = useRef(null);
   const [statusObra, setStatusObra] = useState(null);
   const executedMarkersRef = useRef(false);
+  const debouncedFilters = useDebounce(filters, 2000);
 
   const debouncedCreateMarkers = useRef(
     debounce(async (data) => {
@@ -58,7 +72,7 @@ export default function Maps() {
   ).current;
 
   const createMarkers = async (empreendimentosData) => {
-    console.log('chamou create markers')
+    console.log("chamou create markers");
     if (!mapInstance.current || !window.google) return [];
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
@@ -129,16 +143,20 @@ export default function Maps() {
                     <div class="font-bold">Entre em contato com a incorporadora:</div>
                     <div class="flex justify-center mt-2">
                     ${
-                        item.contatosAtendimento &&
-                        item.contatosAtendimento.length > 0
-                          ? item.contatosAtendimento
-                              .map(
-                                (contato, index) => `
-                                <button type="button" class="btn btn-green w-auto mr-2" onclick="window.open('${formatWhats(contato.celular)}')"><i class="fab fa-whatsapp"></i>Whatsapp ${index+1}</button>`
-                              )
-                              .join(" ")
-                          : "Indisponível"
-                      }  
+                      item.contatosAtendimento &&
+                      item.contatosAtendimento.length > 0
+                        ? item.contatosAtendimento
+                            .map(
+                              (contato, index) => `
+                                <button type="button" class="btn btn-green w-auto mr-2" onclick="window.open('${formatWhats(
+                                  contato.celular
+                                )}')"><i class="fab fa-whatsapp"></i>Whatsapp ${
+                                index + 1
+                              }</button>`
+                            )
+                            .join(" ")
+                        : "Indisponível"
+                    }  
                       
                     </div>
                   </div>`;
@@ -153,9 +171,17 @@ export default function Maps() {
                           ? item.enderecosAtendimento
                               .map(
                                 (enderecoAtendimento, index) => `
-                            <div class="item-endereco-map mb-2 title="${enderecoAtendimento.tipoLogradouro} ${enderecoAtendimento.logradouro} ${enderecoAtendimento.logradouro} N° ${enderecoAtendimento.numero}">
+                            <div class="item-endereco-map mb-2 title="${
+                              enderecoAtendimento.tipoLogradouro
+                            } ${enderecoAtendimento.logradouro} ${
+                                  enderecoAtendimento.logradouro
+                                } N° ${enderecoAtendimento.numero}">
                               <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
-                              <span>${enderecoAtendimento.tipoLogradouro || ""} ${enderecoAtendimento.logradouro || ""} N° ${enderecoAtendimento.numero || "N/A"} </span>
+                              <span>${
+                                enderecoAtendimento.tipoLogradouro || ""
+                              } ${enderecoAtendimento.logradouro || ""} N° ${
+                                  enderecoAtendimento.numero || "N/A"
+                                } </span>
                             </div>`
                               )
                               .join(" ")
@@ -164,25 +190,34 @@ export default function Maps() {
                     </div>
                   </div>`;
 
-      const detalhesAlertas = `
+        const detalhesAlertas = `
         <div class="mb-2 alerta-item">
           ${
             item.alertasDetalhados && item.qtdAlerta > 0
               ? item.alertasDetalhados
                   .map(
-                    alerta => `
-                      <div class="item-alerta-map mb-2" title="${alerta.descricaoAlerta || ""}">
+                    (alerta) => `
+                      <div class="item-alerta-map mb-2" title="${
+                        alerta.descricaoAlerta || ""
+                      }">
                         <i class="fas fa-triangle-exclamation mr-2 icon-card-report-item"></i>
-                        <div>Descrição: ${alerta.descricaoAlerta || "Sem descrição"}</div>
-                        <div>Severidade: ${alerta.severidade || "Não informada"}</div>
-                        <div>Data: ${formatDate(alerta.dataAlerta) || "Sem data"}</div>
+                        <div>Tipo: ${alerta.tipoAlerta || "Sem descrição"}</div>
+                        <div>Descrição: ${
+                          alerta.descricaoAlerta || "Sem descrição"
+                        }</div>
+                        <div>Severidade: ${
+                          alerta.severidade || "Não informada"
+                        }</div>
+                        <div>Data: ${
+                          formatDate(alerta.dataAlerta) || "Sem data"
+                        }</div>
                       </div>
                     `
                   )
                   .join("")
               : "<div>Indisponível</div>"
           }
-        </div>`
+        </div>`;
 
         const infoWindow = new window.google.maps.InfoWindow(
           user.role === "sduh_mgr"
@@ -281,7 +316,9 @@ export default function Maps() {
                 </span>
                 <div class="card-map-item-infos">
                   <div class="label">ENDEREÇO</div>
-                  <div class="value">${item.enderecoEmpreendimento ?? "N/A"}</div>
+                  <div class="value">${
+                    item.enderecoEmpreendimento ?? "N/A"
+                  }</div>
                 </div>
                  <div class="flex justify-end mt-2">
                   <button
@@ -400,20 +437,21 @@ export default function Maps() {
               if (user.role != "sduh_mgr") {
                 headInfoWindow.innerHTML = `<div class="font-bold">${item.nomeEmpreendimento}</div>`;
 
-                const empreendimento = document.getElementById("empreendimento")
-                const incorporadora = document.getElementById("incorporadora")
-                empreendimento.addEventListener('click', (event) => {
-                  empreendimento.classList.add('active')
-                  incorporadora.classList.remove('active')
-                  document.querySelector(".tab-2").style.display = 'none'
-                  document.querySelector(".tab-1").style.display = 'block'
-                })
-                incorporadora.addEventListener('click', (event) => {
-                  empreendimento.classList.remove('active')
-                  incorporadora.classList.add('active')
-                  document.querySelector(".tab-1").style.display = 'none'
-                  document.querySelector(".tab-2").style.display = 'block'
-                })
+                const empreendimento =
+                  document.getElementById("empreendimento");
+                const incorporadora = document.getElementById("incorporadora");
+                empreendimento.addEventListener("click", (event) => {
+                  empreendimento.classList.add("active");
+                  incorporadora.classList.remove("active");
+                  document.querySelector(".tab-2").style.display = "none";
+                  document.querySelector(".tab-1").style.display = "block";
+                });
+                incorporadora.addEventListener("click", (event) => {
+                  empreendimento.classList.remove("active");
+                  incorporadora.classList.add("active");
+                  document.querySelector(".tab-1").style.display = "none";
+                  document.querySelector(".tab-2").style.display = "block";
+                });
               } else {
                 headInfoWindow.innerHTML = `<div class="font-bold">${item.atendimentoHabitacional}</div>`;
               }
@@ -451,100 +489,120 @@ export default function Maps() {
     return results.filter(Boolean);
   };
 
- useEffect(() => {
-  // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
-  if (initializedRef.current) return;
-  
-  setLoading(true);
-  if (!rawData || !rawData.atendimentos?.length) return;
+  useEffect(() => {
+    // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
+    if (initializedRef.current) return;
 
-  async function initializeApp() {
-    initializedRef.current = true; // 🔒 trava pra nunca mais rodar
-    console.log("Iniciando mapa com rawData:", rawData);
+    setLoading(true);
+    if (!rawData || !rawData.atendimentos?.length) return;
 
-    try {
-      // Garante que o script do Google Maps seja carregado
-      await new Promise((resolve, reject) => {
-        if (window.google && window.google.maps) {
-          resolve();
+    async function initializeApp() {
+      initializedRef.current = true; // 🔒 trava pra nunca mais rodar
+      console.log("Iniciando mapa com rawData:", rawData);
+
+      try {
+        // Garante que o script do Google Maps seja carregado
+        await new Promise((resolve, reject) => {
+          if (window.google && window.google.maps) {
+            resolve();
+            return;
+          }
+
+          const existingScript = document.querySelector(
+            `script[src*="maps.googleapis.com/maps/api/js"]`
+          );
+
+          if (existingScript) {
+            existingScript.addEventListener("load", resolve);
+            existingScript.addEventListener("error", reject);
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${
+            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+          }&libraries=marker,geometry,visualization`;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        if (!window.google || !window.google.maps) {
+          console.error("Google Maps script não carregado!");
           return;
         }
 
-        const existingScript = document.querySelector(
-          `script[src*="maps.googleapis.com/maps/api/js"]`
+        const { Map } = await window.google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement } =
+          await window.google.maps.importLibrary("marker");
+
+        // Inicializa o mapa com localização do usuário (ou fallback)
+        const initMap = (position) => {
+          mapInstance.current = new Map(mapRef.current, {
+            center: position,
+            zoom: 10,
+            mapId: "a4e035e5a4e5272a",
+            mapTypeControl: false,
+            streetViewControl: true,
+            zoomControl: true,
+            fullscreenControl: false,
+          });
+
+          new AdvancedMarkerElement({
+            map: mapInstance.current,
+            position,
+            title: "Você está aqui!",
+            zIndex: 9999,
+          });
+
+          // ⚡ Quando o mapa for criado, cria os marcadores uma única vez
+          debouncedCreateMarkers(rawData.atendimentos || []);
+        };
+
+        // Pega localização atual
+        navigator.geolocation.getCurrentPosition(
+          (pos) =>
+            initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => {
+            console.warn(
+              "Não foi possível obter localização, usando fallback:",
+              err
+            );
+            initMap({ lat: -22.5, lng: -48.5 });
+          }
         );
 
-        if (existingScript) {
-          existingScript.addEventListener("load", resolve);
-          existingScript.addEventListener("error", reject);
-          return;
-        }
-
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${
-          import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-        }&libraries=marker,geometry,visualization`;
-        script.defer = true;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-
-      if (!window.google || !window.google.maps) {
-        console.error("Google Maps script não carregado!");
-        return;
+        setOptionsFromData(rawData.atendimentos);
+      } catch (err) {
+        console.error("Erro ao inicializar o mapa:", err);
+      } finally {
+        setLoading(false);
       }
-
-      const { Map } = await window.google.maps.importLibrary("maps");
-      const { AdvancedMarkerElement } =
-        await window.google.maps.importLibrary("marker");
-
-      // Inicializa o mapa com localização do usuário (ou fallback)
-      const initMap = (position) => {
-        mapInstance.current = new Map(mapRef.current, {
-          center: position,
-          zoom: 10,
-          mapId: "a4e035e5a4e5272a",
-          mapTypeControl: false,
-          streetViewControl: true,
-          zoomControl: true,
-          fullscreenControl: false,
-        });
-
-        new AdvancedMarkerElement({
-          map: mapInstance.current,
-          position,
-          title: "Você está aqui!",
-          zIndex: 9999,
-        });
-
-        // ⚡ Quando o mapa for criado, cria os marcadores uma única vez
-        debouncedCreateMarkers(rawData.atendimentos || []);
-      };
-
-      // Pega localização atual
-      navigator.geolocation.getCurrentPosition(
-        (pos) =>
-          initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => {
-          console.warn(
-            "Não foi possível obter localização, usando fallback:",
-            err
-          );
-          initMap({ lat: -22.5, lng: -48.5 });
-        }
-      );
-
-      setOptionsFromData(rawData.atendimentos);
-    } catch (err) {
-      console.error("Erro ao inicializar o mapa:", err);
-    } finally {
-      setLoading(false);
     }
-  }
 
-  initializeApp();
-}, [rawData]);
+    initializeApp();
+  }, [rawData]);
+
+  const calculateTotalizadoresEDesempenho = async (
+    municipio = "",
+    gerenciaRegional = "",
+    regiaoAdministrativa = "",
+    regiaoDeGoverno = ""
+  ) => {
+    setLoadingMenu(true);
+    const data = await totalizadoresEDesempenho(
+      municipio,
+      gerenciaRegional,
+      regiaoAdministrativa,
+      regiaoDeGoverno
+    );
+    const rawDataTotais = { ...rawData };
+    rawDataTotais.totalizadores = data.totalizadores;
+    rawDataTotais.desempenho = data.desempenho;
+    chargeData(rawDataTotais);
+    setLoadingMenu(false);
+  };
 
   useEffect(() => {
     if (!mapInstance.current || !rawData?.atendimentos?.length) return;
@@ -558,69 +616,57 @@ export default function Maps() {
     }
 
     debouncedCreateMarkers(data || []);
+
+    // --- use debouncedFilters here ----
+    const f = debouncedFilters;
+
     if (user && user.role !== "sduh_mgr") {
-      if (filters.search) {
-        const term = normalize(filters.search);
+      if (f.search) {
+        const term = normalize(f.search);
 
         data = data.filter((item) => {
           const endereco = normalize(item.enderecoEmpreendimento || "");
           const municipio = normalize(item.municipio || "");
-
           return municipio.includes(term) || endereco.includes(term);
         });
       }
-      if (filters.tipoImovel) {
-        data = data.filter((item) => item.tipologia === filters.tipoImovel);
+
+      if (f.tipoImovel) {
+        data = data.filter((item) => item.tipologia === f.tipoImovel);
       }
 
-      if (filters.dormitorios) {
+      if (f.dormitorios) {
         data = data.filter((item) =>
-          Number(filters.dormitorios) === 3
+          Number(f.dormitorios) === 3
             ? Number(item.qtDormitorio) >= 3
-            : Number(item.qtDormitorio) === Number(filters.dormitorios)
+            : Number(item.qtDormitorio) === Number(f.dormitorios)
         );
       }
     } else {
-      if (filters.municipio) {
-        const term = normalize(filters.municipio);
-
-        data = data.filter((item) => {
-          const municipio = normalize(item.municipio || "");
-
-          return municipio.includes(term);
-        });
+      if (f.municipio) {
+        const term = normalize(f.municipio);
+        data = data.filter((item) => normalize(item.municipio).includes(term));
       }
 
-      if (filters.gerenciaRegional) {
-        const term = normalize(filters.gerenciaRegional);
-
-        data = data.filter((item) => {
-          const gerenciaRegional = normalize(item.gerenciaRegional || "");
-
-          return gerenciaRegional.includes(term);
-        });
+      if (f.gerenciaRegional) {
+        const term = normalize(f.gerenciaRegional);
+        data = data.filter((item) =>
+          normalize(item.gerenciaRegional).includes(term)
+        );
       }
 
-      if (filters.regiaoAdministrativa) {
-        const term = normalize(filters.regiaoAdministrativa);
-
-        data = data.filter((item) => {
-          const regiaoAdministrativa = normalize(
-            item.regiaoAdministrativa || ""
-          );
-
-          return regiaoAdministrativa.includes(term);
-        });
+      if (f.regiaoAdministrativa) {
+        const term = normalize(f.regiaoAdministrativa);
+        data = data.filter((item) =>
+          normalize(item.regiaoAdministrativa).includes(term)
+        );
       }
 
-      if (filters.regiaoDeGoverno) {
-        const term = normalize(filters.regiaoDeGoverno);
-
-        data = data.filter((item) => {
-          const regiaoDeGoverno = normalize(item.regiaoDeGoverno || "");
-
-          return regiaoDeGoverno.includes(term);
-        });
+      if (f.regiaoDeGoverno) {
+        const term = normalize(f.regiaoDeGoverno);
+        data = data.filter((item) =>
+          normalize(item.regiaoDeGoverno).includes(term)
+        );
       }
     }
 
@@ -629,7 +675,7 @@ export default function Maps() {
       let position = null;
       if (data.length > 0) {
         if (user && user.role !== "sduh_mgr") {
-          if (filters.search) {
+          if (f.search) {
             if (data.length > 1) {
               address = `${data[0].municipio}, SP, Brazil`;
             } else {
@@ -661,13 +707,13 @@ export default function Maps() {
 
       debouncedCreateMarkers(data || []);
       if (
-        filters.search ||
-        filters.tipoImovel ||
-        filters.dormitorios ||
-        filters.gerenciaRegional ||
-        filters.regiaoAdministrativa ||
-        filters.regiaoDeGoverno ||
-        filters.municipio
+        f.search ||
+        f.tipoImovel ||
+        f.dormitorios ||
+        f.gerenciaRegional ||
+        f.regiaoAdministrativa ||
+        f.regiaoDeGoverno ||
+        f.municipio
       ) {
         if (position) {
           mapInstance.current.setCenter(position);
@@ -705,7 +751,14 @@ export default function Maps() {
         );
       }
     }
-  }, [filters, statusObra]);
+
+    calculateTotalizadoresEDesempenho(
+      f.municipio,
+      f.gerenciaRegional,
+      f.regiaoAdministrativa,
+      f.regiaoDeGoverno
+    );
+  }, [debouncedFilters, statusObra]);
 
   const handleClick = async (status) => {
     setLoading(true);
@@ -714,7 +767,7 @@ export default function Maps() {
         const data = await atendimentos(status);
         chargeData(data);
       }
-      lastFilterStatus(status)
+      lastFilterStatus(status);
       setStatusObra(status);
     } catch (error) {
       console.log(error);
@@ -737,19 +790,44 @@ export default function Maps() {
                   handleClick(status);
                 }}
               >
-                <Button status="planejamento" className={`btn btn-white ${statusFiltered === 'planejamento' ? 'activated': ''}`}>
+                <Button
+                  status="planejamento"
+                  className={`btn btn-white ${
+                    statusFiltered === "planejamento" ? "activated" : ""
+                  }`}
+                >
                   Planejamento
                 </Button>
-                <Button status="licitacao" className={`btn btn-white ml-2 ${statusFiltered === 'licitacao' ? 'activated': ''}`}>
+                <Button
+                  status="licitacao"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "licitacao" ? "activated" : ""
+                  }`}
+                >
                   Licitação
                 </Button>
-                <Button status="em_andamento" className={`btn btn-white ml-2 ${statusFiltered === 'em_andamento' ? 'activated': ''}`}>
+                <Button
+                  status="em_andamento"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "em_andamento" ? "activated" : ""
+                  }`}
+                >
                   Em Andamento
                 </Button>
-                <Button status="entregues" className={`btn btn-white ml-2 ${statusFiltered === 'entregues' ? 'activated': ''}`}>
+                <Button
+                  status="entregues"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "entregues" ? "activated" : ""
+                  }`}
+                >
                   Entregues
                 </Button>
-                <Button status="alertas" className={`btn btn-red-alert ml-2 ${statusFiltered === 'alertas' ? 'activated': ''}`}>
+                <Button
+                  status="alertas"
+                  className={`btn btn-red-alert ml-2 ${
+                    statusFiltered === "alertas" ? "activated" : ""
+                  }`}
+                >
                   Alertas
                 </Button>
               </ButtonGroup>
