@@ -72,7 +72,6 @@ export default function Maps() {
   ).current;
 
   const createMarkers = async (empreendimentosData) => {
-    console.log("chamou create markers");
     if (!mapInstance.current || !window.google) return [];
     markers.forEach((marker) => marker.setMap(null));
     markerDivs.current.forEach((div) => {
@@ -556,6 +555,11 @@ export default function Maps() {
             zIndex: 9999,
           });
 
+          if (openInfoWindowRef.current) {
+            openInfoWindowRef.current.close();
+            openInfoWindowRef.current = null;
+          }
+
           // ⚡ Quando o mapa for criado, cria os marcadores uma única vez
           debouncedCreateMarkers(rawData.atendimentos || []);
         };
@@ -615,6 +619,10 @@ export default function Maps() {
       data = Array.isArray(rawData.atendimentos)
         ? [...rawData.atendimentos]
         : [];
+    }
+    if (openInfoWindowRef.current) {
+      openInfoWindowRef.current.close();
+      openInfoWindowRef.current = null;
     }
 
     debouncedCreateMarkers(data || []);
