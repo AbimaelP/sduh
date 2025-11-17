@@ -84,10 +84,6 @@ export default function Menu() {
     );
   }, [rawData]);
 
-  useEffect(()=> {
-    console.log(rawData.totalizadores)
-  },{rawData})
-
   const handleStatusSidebar = () => {
     if (isOpen) {
       setHideContent(true);

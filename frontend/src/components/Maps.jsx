@@ -492,8 +492,8 @@ export default function Maps() {
     // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
     if (initializedRef.current) return;
 
-    if (!rawData || !rawData.atendimentos?.length) return;
     setLoading(true);
+    if (!rawData || !rawData.atendimentos) return;
     async function initializeApp() {
       initializedRef.current = true; // 🔒 trava pra nunca mais rodar
       console.log("Iniciando mapa com rawData:", rawData);
