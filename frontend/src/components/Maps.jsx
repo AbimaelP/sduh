@@ -610,7 +610,7 @@ export default function Maps() {
   };
 
   useEffect(() => {
-    if (!mapInstance.current || !rawData?.atendimentos?.length) return;
+    if (!mapInstance.current) return;
 
     let data = [];
 
