@@ -196,20 +196,25 @@ export default function Maps() {
               ? item.alertasDetalhados
                   .map(
                     (alerta) => `
-                      <div class="item-alerta-map mb-2" title="${
-                        alerta.descricaoAlerta || ""
-                      }">
-                        <i class="fas fa-triangle-exclamation mr-2 icon-card-report-item"></i>
-                        <div>Tipo: ${alerta.tipoAlerta || "Sem descrição"}</div>
-                        <div>Descrição: ${
-                          alerta.descricaoAlerta || "Sem descrição"
-                        }</div>
-                        <div>Severidade: ${
-                          alerta.severidade || "Não informada"
-                        }</div>
-                        <div>Data: ${
-                          formatDate(alerta.dataAlerta) || "Sem data"
-                        }</div>
+                      <div class="item-alerta-map mb-6">
+                        <div class="item-alerta-infos">
+                          <div class="item-alerta">
+                            <div class="label">TIPO DE ALERTA</div>
+                            <div class="value">${alerta.tipoAlerta || "Sem descrição"}</div>
+                          </div>
+                          <div class="item-alerta">
+                            <div class="label">SEVERIDADE</div>
+                            <div class="value">${alerta.severidade || "Não informada"}</div>
+                          </div>
+                          <div class="item-alerta">
+                            <div class="label">DATA DE INICIO</div>
+                            <div class="value">${ formatDate(alerta.dataAlerta) || "Sem data" }</div>
+                          </div>
+                        </div>
+                        <div class="item-alerta mt-4">
+                          <div class="label">DESCRIÇÃO</div>
+                          <div class="value">${ alerta.descricaoAlerta || "Sem descrição" }</div>
+                        </div>
                       </div>
                     `
                   )
@@ -223,79 +228,116 @@ export default function Maps() {
             ? {
                 content: `
         <div class="card-container p-2 bg-white rounded-2xl shadow shadow-none">
-          <div class="card-nav-tab flex font-bold justify-between">
-              <div class="tab-nav w-50 text-center p-2 active">Atendimento</div>
-          </div>
           <div class="tab-1 card-info-map active-left p-2">
-            <div class="card-map-infos mb-2">
-              <div class="card-map-item">
-                <span class="container-icone-card-map">
-                  <i class="fas fa-map-marker-alt mr-2 icon-card-report-item" /></i>
-                </span>
-                <div class="card-map-item-infos">
-                  <div class="label">Gerencia Regional</div>
-                  <div class="label">${item.gerenciaRegional ?? "N/A"}</div>
-                </div>
+            <div class="flex justify-between mt-2">
+              <div>
+                <div class="txt-10">NOME DO EMPREENDIMENTO:</div>
+                <div class="f-weight-600 mb-4">${item.subprograma}</div>
               </div>
+              <button
+                class="item-info-url item-street-view bg-street-view ml-2"
+                id="streetview-btn"
+              >
+                <i class="fas fa-street-view ml-1"></i>
+                Street View
+              </button>
             </div>
-            <div class="card-map-infos mb-2">
-              <div class="card-map-item">
-                <span class="container-icone-card-map">
-                  <i class="fas fa-city mr-2 icon-card-report-item" /></i>
-                </span>
-                <div class="card-map-item-infos">
-                  <div class="label">Município</div>
-                  <div class="label">${item.municipio ?? "N/A"}</div>
-                </div>
-              </div>
-            </div>
-            <div class="card-map-infos mb-2">
-              <div class="card-map-item">
-                <span class="container-icone-card-map">
-                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
-                </span>
-                <div class="card-map-item-infos">
-                  <div class="label">Região de Governo</div>
-                  <div class="label">${item.regiaoDeGoverno ?? "N/A"}</div>
-                </div>
-              </div>
-            </div>
-            <div class="card-map-infos mb-2">
-              <div class="card-map-item">
-                <span class="container-icone-card-map">
-                  <i class="fas fa-home mr-2 icon-card-report-item" /></i>
-                </span>
-                <div class="card-map-item-infos">
-                  <div class="label">Região Administrativa</div>
-                  <div class="label">${item.regiaoAdministrativa ?? "N/A"}</div>
-                </div>
-              </div>
-            </div>
+            <div class="card-body-atendimentos">
 
-            <div class="card-map-infos mt-4">
-              <div class="card-map-infos-more">
-                <div class="font-bold">Casa Paulista - Crédito Imobiliário</div>
-                <div class="label">INVESTIMENTO ENTREGUE</div>
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Município</div>
+                    <div class="value">${item.municipio ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              ${
+                statusObra != "alertas"
+                  ? `<div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Gerencia Regional</div>
+                    <div class="value">${item.gerenciaRegional ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região de Governo</div>
+                    <div class="value">${item.regiaoDeGoverno ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+               <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região Administrativa</div>
+                    <div class="label">${
+                      item.regiaoAdministrativa ?? "N/A"
+                    }</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">VALOR TOTAL INVESTIDO</div>
                 <div class="value">${
                   formatBRL(item.investEntregue) ?? "N/A"
                 }</div>
-               <div class="flex justify-end mt-2">
-                    <div class="card-info-item card-info-item-url bg-street-view">
-                  <button
-                    class="item-info-url item-street-view"
-                    id="streetview-btn"
-                  >
-                    Ver no Street View 
-                    <i class="fas fa-street-view ml-1"></i>
-                  </button>
+                  </div>
                 </div>
-               </div>
               </div>
+
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">UH/NÚCLEOS/BENEFÍCIOS</div>
+                <div class="value">${
+                  item.uhNucleoBenViabilizados +
+                    item.uhNucleoBenLicitacao +
+                    item.uhNucleoBenEntregues +
+                    item.uhNucleoBenConcluido ?? "N/A"
+                }</div>
+                  </div>
+                </div>
+              </div>
+              
+              `
+                  : `
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Município</div>
+                    <div class="value">${item.municipio ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-2 w-45">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região Administrativa</div>
+                    <div class="value">${
+                      item.regiaoAdministrativa ?? "N/A"
+                    }</div>
+                  </div>
+                </div>
+              </div>
+              `
+              }
             </div>
-            <div class="mt-3">
-                <div class="font-bold">Alertas:</div>
-                ${detalhesAlertas}
-            </div>
+
+            ${
+              statusObra == 'alertas' ? 
+              detalhesAlertas : ""
+            }
           </div>
         </div>
         `,
@@ -628,7 +670,8 @@ export default function Maps() {
 
     // --- use debouncedFilters here ----
     const f = debouncedFilters;
-
+    console.log("chegou aqui");
+    console.log(debouncedFilters);
     if (user && user.role !== "sduh_mgr") {
       if (f.search) {
         const term = normalize(f.search);

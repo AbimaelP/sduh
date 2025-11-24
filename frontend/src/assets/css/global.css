@@ -503,3 +503,15 @@
 .card-info-map {
   padding: 1rem !important;
 }
+
+.txt-10 {
+  font-size: 10px;
+}
+
+.f-weight-600 {
+  font-weight: 600;
+}
+
+.w-45 {
+  width: 45%;
+}

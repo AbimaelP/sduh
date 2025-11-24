@@ -97,6 +97,7 @@
 
 .bg-street-view {
   background-color: #fdbf2d !important;
+  height: 40px;
 }
 
 .card-map-infos .card-map-item {
@@ -153,9 +154,36 @@
 .item-alerta-map {
   background-color: #f9fafb;
   padding: 0.5rem;
+  box-shadow: 0px 5px 5px 0px #b3b3b3;
 }
 
 .item-street-view {
   white-space: nowrap;
   padding: 5px;
+}
+
+.card-body-atendimentos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.item-alerta-infos {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  padding-bottom: 2px;
+}
+
+.alerta-item {
+  max-height: 200px;
+  overflow: auto;
+}
+
+.item-alerta .label {
+  font-size: 10px;
+}
+
+.item-alerta .value {
+  font-weight: 600;
 }

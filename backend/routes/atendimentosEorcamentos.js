@@ -270,6 +270,55 @@ router.post("/totalizadores-desempenho", async (req, res) => {
       };
     });
 
+    if (subprograma) {
+      const term = normalize(subprograma);
+
+      atendimentos = atendimentos.filter((item) => {
+        const subprograma = normalize(item.subprograma || "");
+
+        return subprograma.includes(term);
+      });
+    }
+
+    atendimentos.forEach((item) => {
+      desempenho.execucao.valor += parseInt(item.investEntregue);
+
+      const anoAtual = new Date().getFullYear();
+      const inicioMandato = new Date(
+        Math.floor((anoAtual - 1) / 4) * 4 + 1,
+        0,
+        1
+      ); // ex: 2023-01-01
+      const fimMandato = new Date(inicioMandato.getFullYear() + 3, 11, 31); // ex: 2026-12-31
+
+      // ---- Cálculo de obras fora do mandato ----
+      if (item.dataTerminoReprogramada) {
+        const termino = new Date(item.dataTerminoReprogramada);
+
+        const isDataValida =
+          !isNaN(termino) && item.dataTerminoReprogramada !== "1970-01-01";
+
+        if (isDataValida) {
+          if (termino < inicioMandato || termino > fimMandato) {
+            desempenho.obrasForaMandato.valor++;
+          }
+        }
+      }
+
+      desempenho.metas.valor += parseInt(item.uhNucleoBenEntregues);
+      if (
+        item.uhNucleoBenEntregues > 0 ||
+        item.uhNucleoBenConcluido > 0 ||
+        item.uhNucleoBenProducao > 0
+      ) {
+        desempenho.desembolso.valor += parseInt(item.investEntregue);
+      }
+
+      if (item.qtdAlerta > 0) {
+        desempenho.intercorrencias.valor += parseInt(item.qtdAlerta);
+      }
+    });
+
     if (municipio) {
       const term = normalize(municipio);
 
@@ -310,55 +359,7 @@ router.post("/totalizadores-desempenho", async (req, res) => {
       });
     }
 
-    if (subprograma) {
-      const term = normalize(subprograma);
-
-      atendimentos = atendimentos.filter((item) => {
-        const subprograma = normalize(item.subprograma || "");
-
-        return subprograma.includes(term);
-      });
-    }
-    
-
     atendimentos.forEach((item) => {
-      desempenho.execucao.valor += parseInt(item.investEntregue);
-
-      const anoAtual = new Date().getFullYear();
-      const inicioMandato = new Date(
-        Math.floor((anoAtual - 1) / 4) * 4 + 1,
-        0,
-        1
-      ); // ex: 2023-01-01
-      const fimMandato = new Date(inicioMandato.getFullYear() + 3, 11, 31); // ex: 2026-12-31
-
-      // ---- Cálculo de obras fora do mandato ----
-      if (item.dataTerminoReprogramada) {
-        const termino = new Date(item.dataTerminoReprogramada);
-
-        const isDataValida =
-          !isNaN(termino) && item.dataTerminoReprogramada !== "1970-01-01";
-
-        if (isDataValida) {
-          if (termino < inicioMandato || termino > fimMandato) {
-            desempenho.obrasForaMandato.valor++;
-          }
-        }
-      }
-
-      desempenho.metas.valor += parseInt(item.uhNucleoBenEntregues);
-      if (
-        item.uhNucleoBenEntregues > 0 ||
-        item.uhNucleoBenConcluido > 0 ||
-        item.uhNucleoBenProducao > 0
-      ) {
-        desempenho.desembolso.valor += parseInt(item.investEntregue);
-      }
-
-      if (item.qtdAlerta > 0) {
-        desempenho.intercorrencias.valor += parseInt(item.qtdAlerta);
-      }
-
       totalizadores.planejamento += item.uhNucleoBenViabilizados;
       totalizadores.licitacao += item.uhNucleoBenLicitacao;
       totalizadores.em_andamento += item.uhNucleoBenProducao;
@@ -423,7 +424,7 @@ router.post("/totalizadores-desempenho", async (req, res) => {
       totalizadores: totalizadores,
     });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     const status = err.response?.status || 500;
     const message =
       err.response?.data?.error || err.message || "Erro desconhecido";

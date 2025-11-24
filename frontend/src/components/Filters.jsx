@@ -1,12 +1,23 @@
 import { useFilters } from "../contexts/FiltersContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useData } from "../contexts/DataContext";
 
 import Section from "./Section";
 import Button from "./Button";
+import AutocompleteField from "./AutocompleteField";
 
 export default function Filters() {
   const { user } = useAuth();
+  const { rawData } = useData();
   const { filters, setFilters, options } = useFilters();
+  let atendimentos = [];
+  let unique = [];
+  if (user.role === "sduh_mgr") {
+    atendimentos = rawData?.atendimentos || [];
+    unique = (field) => [
+      ...new Set(atendimentos.map((a) => a[field]).filter(Boolean)),
+    ];
+  }
 
   const handleCleanFilters = () => {
     setFilters({
@@ -17,7 +28,7 @@ export default function Filters() {
       gerenciaRegional: "",
       regiaoAdministrativa: "",
       regiaoDeGoverno: "",
-      subprograma: ""
+      subprograma: "",
     });
   };
   const formatDormLabel = (d) =>
@@ -46,82 +57,45 @@ export default function Filters() {
               className="form-input-min"
             />
           </Section>
-          <Section>
-            <label htmlFor="gerenciaRegional" className="form-label">
-              Gerencia Regional
-            </label>
-            <input
-              type="text"
-              placeholder={`Busque por Gerencia Regional`}
-              title="Gerencia Regional"
-              value={filters.gerenciaRegional}
-              id="gerenciaRegional"
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  gerenciaRegional: e.target.value,
-                }))
-              }
-              className="form-input-min"
-            />
-          </Section>
-          <Section>
-            <label htmlFor="regiaoAdministrativa" className="form-label">
-              Região Administrativa
-            </label>
-            <input
-              type="text"
-              placeholder={`Busque por Região Administrativa`}
-              title="Região Administrativa"
-              value={filters.regiaoAdministrativa}
-              id="regiaoAdministrativa"
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  regiaoAdministrativa: e.target.value,
-                }))
-              }
-              className="form-input-min"
-            />
-          </Section>
-          <Section>
-            <label htmlFor="regiaoDeGoverno" className="form-label">
-              Região de Governo
-            </label>
-            <input
-              type="text"
-              placeholder={`Busque por Região de Governo`}
-              title="Região de Governo"
-              value={filters.regiaoDeGoverno}
-              id="regiaoDeGoverno"
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  regiaoDeGoverno: e.target.value,
-                }))
-              }
-              className="form-input-min"
-            />
-          </Section>
-          <Section>
-            <label htmlFor="subprograma" className="form-label">
-              Subprograma
-            </label>
-            <input
-              type="text"
-              placeholder={`Busque por Subprograma`}
-              title="Subprograma"
-              value={filters.subprograma}
-              id="subprograma"
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  subprograma: e.target.value,
-                }))
-              }
-              className="form-input-min"
-            />
-          </Section>
+          <AutocompleteField
+            label="Gerência Regional"
+            value={filters.gerenciaRegional}
+            placeholder="Busque por Gerência Regional"
+            data={unique("gerenciaRegional")}
+            onSelect={(val) =>
+              setFilters((prev) => ({ ...prev, gerenciaRegional: val }))
+            }
+          />
+
+          <AutocompleteField
+            label="Região Administrativa"
+            value={filters.regiaoAdministrativa}
+            placeholder="Busque por Região Administrativa"
+            data={unique("regiaoAdministrativa")}
+            onSelect={(val) =>
+              setFilters((prev) => ({ ...prev, regiaoAdministrativa: val }))
+            }
+          />
+
+          <AutocompleteField
+            label="Região de Governo"
+            value={filters.regiaoDeGoverno}
+            placeholder="Busque por Região de Governo"
+            data={unique("regiaoDeGoverno")}
+            onSelect={(val) =>
+              setFilters((prev) => ({ ...prev, regiaoDeGoverno: val }))
+            }
+          />
+
+          <AutocompleteField
+            label="Subprograma"
+            value={filters.subprograma}
+            placeholder="Busque por Subprograma"
+            data={unique("subprograma")}
+            onSelect={(val) =>
+              setFilters((prev) => ({ ...prev, subprograma: val }))
+            }
+          />
         </>
       ) : (
         <>
