@@ -54,7 +54,7 @@ export default function Maps() {
   const markerDivs = useRef([]);
   const { filters, setOptionsFromData } = useFilters();
   const openInfoWindowRef = useRef(null);
-  const [statusObra, setStatusObra] = useState(null);
+  const [statusObra, setStatusObra] = useState("alertas");
   const executedMarkersRef = useRef(false);
   const debouncedFilters = useDebounce(filters, 2000);
 
