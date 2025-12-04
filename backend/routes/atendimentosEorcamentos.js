@@ -52,6 +52,7 @@ router.get("/atendimentos", async (req, res) => {
         latitude: item.latitude,
         longitude: item.longitude,
         alertasDetalhados: item.alertasDetalhados,
+        nomeEmpreendimento: item.nomeEmpreendimento,
       };
     });
 
@@ -267,6 +268,7 @@ router.post("/totalizadores-desempenho", async (req, res) => {
         latitude: item.latitude,
         longitude: item.longitude,
         alertasDetalhados: item.alertasDetalhados,
+        nomeEmpreendimento: item.nomeEmpreendimento,
       };
     });
 

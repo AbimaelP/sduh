@@ -194,7 +194,7 @@ export default function Maps() {
           ${
             item.alertasDetalhados && item.qtdAlerta > 0
               ? item.alertasDetalhados
-                  .map(
+                  .filter(alerta => alerta.statusAlerta !== "Resolvido").map(
                     (alerta) => `
                       <div class="item-alerta-map mb-6">
                         <div class="item-alerta-infos">
@@ -232,7 +232,7 @@ export default function Maps() {
             <div class="flex justify-between mt-2">
               <div>
                 <div class="txt-10">NOME DO EMPREENDIMENTO:</div>
-                <div class="f-weight-600 mb-4">${item.subprograma}</div>
+                <div class="f-weight-600 mb-4">${item.nomeEmpreendimento}</div>
               </div>
               <button
                 class="item-info-url item-street-view bg-street-view ml-2"
@@ -244,7 +244,7 @@ export default function Maps() {
             </div>
             <div class="card-body-atendimentos">
 
-              <div class="card-map-infos mb-2 w-45">
+              <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Município</div>
@@ -254,8 +254,8 @@ export default function Maps() {
               </div>
 
               ${
-                statusObra != "alertas"
-                  ? `<div class="card-map-infos mb-2 w-45">
+                statusObra != "alertas" && item.qtdAlerta > 0
+                  ? `<div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Gerencia Regional</div>
@@ -264,7 +264,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-2 w-45">
+              <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região de Governo</div>
@@ -273,7 +273,7 @@ export default function Maps() {
                 </div>
               </div>
 
-               <div class="card-map-infos mb-2 w-45">
+               <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região Administrativa</div>
@@ -284,7 +284,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-2 w-45">
+              <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">VALOR TOTAL INVESTIDO</div>
@@ -295,7 +295,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-2 w-45">
+              <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">UH/NÚCLEOS/BENEFÍCIOS</div>
@@ -311,16 +311,7 @@ export default function Maps() {
               
               `
                   : `
-              <div class="card-map-infos mb-2 w-45">
-                <div class="card-map-item">
-                  <div class="card-map-item-infos">
-                    <div class="label">Município</div>
-                    <div class="value">${item.municipio ?? "N/A"}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card-map-infos mb-2 w-45">
+              <div class="card-map-infos mb-4 w-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região Administrativa</div>
@@ -335,7 +326,7 @@ export default function Maps() {
             </div>
 
             ${
-              statusObra == 'alertas' ? 
+              statusObra == 'alertas' && item.qtdAlerta > 0 ? 
               detalhesAlertas : ""
             }
           </div>
@@ -848,6 +839,7 @@ export default function Maps() {
                 defaultActive="Alertas"
                 className="space-now-nowrap reports-buttons-responsive"
                 onButtonClick={(status) => {
+                  setStatusAtual(status)
                   handleClick(status);
                 }}
               >
