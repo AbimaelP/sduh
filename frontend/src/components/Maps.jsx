@@ -244,7 +244,7 @@ export default function Maps() {
             </div>
             <div class="card-body-atendimentos">
 
-              <div class="card-map-infos mb-4 w-48">
+              <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Município</div>
@@ -255,7 +255,7 @@ export default function Maps() {
 
               ${
                 statusObra != "alertas" && item.qtdAlerta > 0
-                  ? `<div class="card-map-infos mb-4 w-48">
+                  ? `<div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Gerencia Regional</div>
@@ -264,7 +264,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-4 w-48">
+              <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região de Governo</div>
@@ -273,7 +273,7 @@ export default function Maps() {
                 </div>
               </div>
 
-               <div class="card-map-infos mb-4 w-48">
+               <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região Administrativa</div>
@@ -284,7 +284,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-4 w-48">
+              <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">VALOR TOTAL INVESTIDO</div>
@@ -295,7 +295,7 @@ export default function Maps() {
                 </div>
               </div>
 
-              <div class="card-map-infos mb-4 w-48">
+              <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">UH/NÚCLEOS/BENEFÍCIOS</div>
@@ -311,7 +311,7 @@ export default function Maps() {
               
               `
                   : `
-              <div class="card-map-infos mb-4 w-48">
+              <div class="card-map-infos mb-4 width-48">
                 <div class="card-map-item">
                   <div class="card-map-item-infos">
                     <div class="label">Região Administrativa</div>
