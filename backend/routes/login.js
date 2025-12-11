@@ -64,6 +64,7 @@ router.post("/login", async (req, res) => {
       }
 
       user.role = user.Roles[0].name
+      user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
       user.profiles = [];
 
       const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f', looker: "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF" };
@@ -110,7 +111,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profilesSDUH);
         user.profiles.push(profilesGestaoSDUH);
         user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
-        user.looker = "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF"
+        user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
       }
 
       if (user && !user.role) {
