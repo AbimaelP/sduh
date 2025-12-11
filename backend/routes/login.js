@@ -66,10 +66,10 @@ router.post("/login", async (req, res) => {
       user.role = user.Roles[0].name
       user.profiles = [];
 
-      const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f' };
-      const profileCidadao = { value: 'cidadao', label: 'Cidadão', appLink: "" };
-      const profilesSDUH = { value: 'sduh_user', label: 'SDUH', appLink: 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176' };
-      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)', appLink: "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176" };
+      const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f', looker: "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF" };
+      const profileCidadao = { value: 'cidadao', label: 'Cidadão', appLink: "", looker: "" };
+      const profilesSDUH = { value: 'sduh_user', label: 'SDUH', appLink: 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176', looker: "" };
+      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)', appLink: "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176", looker: "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF"};
       // Ajustar role
       if (user.role === "municipio_user" || user.role === "user") {
         user.role = "municipio_user";
@@ -77,6 +77,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileMunicipal);
         user.profiles.push(profileCidadao);
         user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
+        user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
       }
 
       if (user.role === 'sduh_user') {
@@ -86,6 +87,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profileCidadao);
         user.profiles.push(profilesSDUH);
         user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
+        user.looker = ""
       }
 
       if (user.role === 'sduh_mgr') {
@@ -96,6 +98,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profilesSDUH);
         user.profiles.push(profilesGestaoSDUH);
         user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
+        user.looker = ""
       }
 
       
@@ -107,6 +110,7 @@ router.post("/login", async (req, res) => {
         user.profiles.push(profilesSDUH);
         user.profiles.push(profilesGestaoSDUH);
         user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
+        user.looker = "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF"
       }
 
       if (user && !user.role) {

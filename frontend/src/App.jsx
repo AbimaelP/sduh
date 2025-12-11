@@ -12,8 +12,8 @@ import Applications from "./pages/Applications";
 import GovCallback from "./pages/GovCallback";
 import Loading from "./components/Loading";
 import AcessoCidadao from "./pages/AcessoCidadao";
-import ReportsGestao from "./pages/ReportsGestao";
-import { DataProvider } from './contexts/DataContext';
+import ReportsLooker from "./pages/ReportsLooker";
+import { DataProvider } from "./contexts/DataContext";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -41,7 +41,7 @@ function AppRoutes() {
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           {user.role === "sduh_mgr" ? (
-            <Route path="reports" element={<ReportsGestao />} />
+            <Route path="reports" element={<ReportsLooker />} />
           ) : (
             <Route path="reports" element={<Reports />} />
           )}
@@ -54,7 +54,12 @@ function AppRoutes() {
         >
           <Route index element={<Applications />} />
           <Route path="applications" element={<Applications />} />
-          <Route path="reports" element={<Reports />} />
+
+          {user.role === "municipio_user" ? (
+            <Route path="reports" element={<ReportsLooker />} />
+          ) : (
+            <Route path="reports" element={<Reports />} />
+          )}
         </Route>
       )}
     </Routes>

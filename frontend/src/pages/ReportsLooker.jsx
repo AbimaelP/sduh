@@ -1,9 +1,12 @@
 import LayoutClient from "../layouts/LayoutClient";
-export default function ReportsGestao() {
+import { useAuth } from "../contexts/AuthContext";
+export default function ReportsLooker() {
+  const { user } = useAuth();
+
   return (
     <LayoutClient>
       <iframe
-        src="https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF"
+        src={user.looker}
         frameborder="0"
         className="report-gestao-iframe"
         sandbox="allow-scripts allow-same-origin allow-forms"
