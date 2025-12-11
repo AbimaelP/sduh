@@ -55,7 +55,7 @@ function AppRoutes() {
           <Route index element={<Applications />} />
           <Route path="applications" element={<Applications />} />
 
-          {user.role === "municipio_user" ? (
+          {user && user.role === "municipio_user" ? (
             <Route path="reports" element={<ReportsLooker />} />
           ) : (
             <Route path="reports" element={<Reports />} />
