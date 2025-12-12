@@ -121,7 +121,7 @@ router.post("/login", async (req, res) => {
         id: user.id,
         name: user.name,
         role: user.role,
-        looker: user.looker
+        looker: user.looker,
         main_role: user.main_role,
         profiles: user.profiles,
         appLink: user.appLink
