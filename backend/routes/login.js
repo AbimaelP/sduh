@@ -64,7 +64,6 @@ router.post("/login", async (req, res) => {
       }
 
       user.role = user.Roles[0].name
-      user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
       user.profiles = [];
 
       const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f', looker: "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF" };
@@ -122,6 +121,7 @@ router.post("/login", async (req, res) => {
         id: user.id,
         name: user.name,
         role: user.role,
+        looker: user.looker
         main_role: user.main_role,
         profiles: user.profiles,
         appLink: user.appLink
