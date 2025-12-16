@@ -6,7 +6,13 @@ if (!globalThis.crypto) {
 import https from "https";
 import redis from "../redisClient.js";
 import axios from "axios";
-import { GOVBR_JWK_URL, GOVAPI_URL, GOVBR_CLIENT_ID, CLIENT_ID, CLIENT_SECRET, API_URL } from "../config.js";
+import {
+  GOVBR_JWK_URL,
+  GOVAPI_URL,
+  CLIENT_ID,
+  SECRET,
+  API_URL,
+} from "../config.js";
 import * as jose from "jose";
 import jwt from "jsonwebtoken";
 import jwkToPem from "jwk-to-pem";
@@ -24,7 +30,7 @@ export const sduhToken = async () => {
 
     const response = await axios.post(`${API_URL}/auth/token`, {
       client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET
+      client_secret: SECRET,
     });
 
     const token = response.data.access_token;
@@ -35,7 +41,9 @@ export const sduhToken = async () => {
 
     return token;
   } catch (error) {
-    throw new Error( error.response?.data?.error_description || "Falha ao obter token do DataPrev"
+    throw new Error(
+      error.response?.data?.error_description ||
+        "Falha ao obter token do DataPrev"
     );
   }
 };
@@ -49,7 +57,7 @@ export const verifyGovbrToken = async (id_token) => {
     const { payload } = await jose.jwtVerify(id_token, jwks, {
       algorithms: ["RS256"],
       issuer: GOVAPI_URL,
-      audience: GOVBR_CLIENT_ID,
+      audience: CLIENT_ID,
     });
 
     return payload;

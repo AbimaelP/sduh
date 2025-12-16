@@ -5,19 +5,21 @@ import crypto from "crypto";
 import { User } from "../models/User.js";
 import { Role } from "../models/Role.js";
 import {
-  GOVBR_CLIENT_ID,
-  GOVBR_CLIENT_SECRET,
-  GOVBR_REDIRECT_URI,
-  loadGovbrConfig,
-  GOVBR_AUTH_URL,
-  GOVBR_TOKEN_URL,
-  GOVBR_USERINFO_URL,
+  REDIRECT_URI,
+  loadAuthConfig,
+  AUTH_URL,
+  TOKEN_URL,
+  USERINFO_URL,
   APPSHEET_URL,
   APPSHEET_KEY,
   GOVRCODE_VERIFIER,
+  APP_KEY,
+  CLIENT_ID,
+  OIDC_AUTH,
+  APP_ID,
 } from "../config.js";
 
-await loadGovbrConfig();
+await loadAuthConfig();
 
 const router = express.Router();
 
@@ -25,107 +27,139 @@ function sanitizeInput(str) {
   return String(str).replace(/["'\\]/g, "");
 }
 router.post("/login", async (req, res) => {
-    const { identify, password, authType } = req.body;
+  const { identify, password, authType } = req.body;
 
-    if (!identify || !password) {
-      return res.status(400).json({ error: "Email e senha são obrigatórios" });
+  if (!identify || !password) {
+    return res.status(400).json({ error: "Email e senha são obrigatórios" });
+  }
+
+  const safeIdentify = sanitizeInput(identify);
+  const safePass = sanitizeInput(password);
+
+  try {
+    let whereClause = {};
+
+    if (authType === "gov") {
+      whereClause.cpf = safeIdentify;
+    } else {
+      whereClause.email = safeIdentify;
     }
 
-    const safeIdentify = sanitizeInput(identify);
-    const safePass = sanitizeInput(password);
+    const user = await User.findOne({
+      where: whereClause,
+      include: [
+        {
+          model: Role,
+          through: { attributes: [] }, // oculta os campos da tabela pivot
+        },
+      ],
+    });
 
-    try {
-      let whereClause = {};
+    if (authType === "gov" && !user) {
+      return res
+        .status(401)
+        .json({ error: "Usuário não cadastrado no sistema" });
+    }
 
-      if (authType === "gov") {
-        whereClause.cpf = safeIdentify;
-      } else {
-        whereClause.email = safeIdentify;
-      }
+    if (authType === "prototipo" && (!user || user.password !== safePass)) {
+      return res.status(401).json({ error: "Usuário ou senha incorretos" });
+    }
 
-      const user = await User.findOne({
-        where: whereClause,
-        include: [
-          {
-            model: Role,
-            through: { attributes: [] } // oculta os campos da tabela pivot
-          }
-        ]
-      });
+    user.role = user.Roles[0].name;
+    user.profiles = [];
 
-      if (authType === "gov" && !user) {
-        return res
-          .status(401)
-          .json({ error: "Usuário não cadastrado no sistema" });
-      }
+    const profileMunicipal = {
+      value: "municipio_user",
+      label: "Municipal",
+      appLink:
+        "https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f",
+      looker:
+        "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF",
+    };
+    const profileCidadao = {
+      value: "cidadao",
+      label: "Cidadão",
+      appLink: "",
+      looker: "",
+    };
+    const profilesSDUH = {
+      value: "sduh_user",
+      label: "SDUH",
+      appLink:
+        "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176",
+      looker: "",
+    };
+    const profilesGestaoSDUH = {
+      value: "sduh_mgr",
+      label: "SDUH (Gestão Estadual)",
+      appLink:
+        "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176",
+      looker:
+        "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF",
+    };
+    // Ajustar role
+    if (user.role === "municipio_user" || user.role === "user") {
+      user.role = "municipio_user";
+      user.main_role = "municipio_user";
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.appLink =
+        "https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f";
+      user.looker =
+        "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF";
+    }
 
-      if (authType === "prototipo" && (!user || user.password !== safePass)) {
-        return res.status(401).json({ error: "Usuário ou senha incorretos" });
-      }
+    if (user.role === "sduh_user") {
+      user.role = "sduh_user";
+      user.main_role = "sduh_user";
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.profiles.push(profilesSDUH);
+      user.appLink =
+        "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176";
+      user.looker = "";
+    }
 
-      user.role = user.Roles[0].name
-      user.profiles = [];
+    if (user.role === "sduh_mgr") {
+      user.role = "sduh_mgr";
+      user.main_role = "sduh_mgr";
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.profiles.push(profilesSDUH);
+      user.profiles.push(profilesGestaoSDUH);
+      user.appLink =
+        "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176";
+      user.looker = "";
+    }
 
-      const profileMunicipal = { value: 'municipio_user', label: 'Municipal', appLink: 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f', looker: "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF" };
-      const profileCidadao = { value: 'cidadao', label: 'Cidadão', appLink: "", looker: "" };
-      const profilesSDUH = { value: 'sduh_user', label: 'SDUH', appLink: 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176', looker: "" };
-      const profilesGestaoSDUH = { value: 'sduh_mgr', label: 'SDUH (Gestão Estadual)', appLink: "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176", looker: "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF"};
-      // Ajustar role
-      if (user.role === "municipio_user" || user.role === "user") {
-        user.role = "municipio_user";
-        user.main_role = "municipio_user";
-        user.profiles.push(profileMunicipal);
-        user.profiles.push(profileCidadao);
-        user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
-        user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
-      }
+    if (user.role === "admin" || user.role === "adm") {
+      user.role = "municipio_user";
+      user.main_role = "admin";
+      user.profiles.push(profileMunicipal);
+      user.profiles.push(profileCidadao);
+      user.profiles.push(profilesSDUH);
+      user.profiles.push(profilesGestaoSDUH);
+      user.appLink =
+        "https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f";
+      user.looker =
+        "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF";
+    }
 
-      if (user.role === 'sduh_user') {
-        user.role = "sduh_user";
-        user.main_role = "sduh_user"
-        user.profiles.push(profileMunicipal);
-        user.profiles.push(profileCidadao);
-        user.profiles.push(profilesSDUH);
-        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
-        user.looker = ""
-      }
+    if (user && !user.role) {
+      return res
+        .status(400)
+        .json({ error: "Usuário não possui nível de acesso definido" });
+    }
 
-      if (user.role === 'sduh_mgr') {
-        user.role = "sduh_mgr";
-        user.main_role = "sduh_mgr"
-        user.profiles.push(profileMunicipal);
-        user.profiles.push(profileCidadao);
-        user.profiles.push(profilesSDUH);
-        user.profiles.push(profilesGestaoSDUH);
-        user.appLink = 'https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176'
-        user.looker = ""
-      }
-
-      
-      if (user.role === "admin" || user.role === 'adm') {
-        user.role = "municipio_user";
-        user.main_role = "admin"
-        user.profiles.push(profileMunicipal);
-        user.profiles.push(profileCidadao);
-        user.profiles.push(profilesSDUH);
-        user.profiles.push(profilesGestaoSDUH);
-        user.appLink = 'https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f'
-        user.looker = "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF"
-      }
-
-      if (user && !user.role) {
-        return res.status(400).json({ error: "Usuário não possui nível de acesso definido" });
-      }
-
-      return res.json({
-        id: user.id,
-        name: user.name,
-        role: user.role,
-        looker: user.looker,
-        main_role: user.main_role,
-        profiles: user.profiles,
-        appLink: user.appLink
-      });
+    return res.json({
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      looker: user.looker,
+      main_role: user.main_role,
+      profiles: user.profiles,
+      appLink: user.appLink,
+    });
   } catch (err) {
     console.error(err.response?.data || err.message);
     return res.status(500).json({ error: "Erro interno no servidor" });
@@ -160,14 +194,8 @@ router.get("/gov/login", (req, res) => {
   req.session.nonce = nonce;
 
   const url =
-    `${GOVBR_AUTH_URL()}?response_type=code` +
-    `&client_id=${GOVBR_CLIENT_ID}` +
-    `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
-    `&scope=openid+email+profile` +
-    `&state=${state}` +
-    `&nonce=${nonce}` +
-    `&code_challenge=${code_challenge}` +
-    `&code_challenge_method=${code_challenge_method}`;
+    `${OIDC_AUTH}/OAuth2/Authorize/${APP_ID}` +
+    `?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
 
   res.json({ url });
 });
@@ -180,17 +208,18 @@ router.post("/gov/callback", async (req, res) => {
       .json({ error: "Código de autorização não recebido" });
 
   try {
-    const authString = `${GOVBR_CLIENT_ID}:${GOVBR_CLIENT_SECRET}`;
+    const authString = `${CLIENT_ID}:${SECRET}`;
     const authBase64 = Buffer.from(authString).toString("base64");
 
     const tokenResponse = await axios.post(
-      GOVBR_TOKEN_URL(),
-      qs.stringify({
+      TOKEN_URL(),
+      {
         grant_type: "authorization_code",
         code,
-        redirect_uri: GOVBR_REDIRECT_URI,
-        code_verifier: GOVRCODE_VERIFIER,
-      }),
+        redirect_uri: REDIRECT_URI,
+        client_id: CLIENT_ID,
+        client_secret: SECRET,
+      },
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -200,7 +229,7 @@ router.post("/gov/callback", async (req, res) => {
     );
     const { access_token } = tokenResponse.data;
 
-    const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
+    const userInfoResponse = await axios.get(USERINFO_URL(), {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 

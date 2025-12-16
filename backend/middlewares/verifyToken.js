@@ -3,7 +3,6 @@ import {
   verifyGovbrToken,
   verifyGovbrTokenSignature,
 } from "../utils/tokens.js";
-import { GOVBR_CLIENT_ID } from "../config.js";
 
 export const requireGovbrTokenAndCpf = async (req, res, next) => {
   try {
