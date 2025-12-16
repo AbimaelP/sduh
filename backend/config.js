@@ -27,7 +27,7 @@ export const DB_PASS = process.env.DB_PASSWORD;
 export const REDIS_HOST = process.env.REDIS_HOST;
 export const OIDC_AUTH = process.env.OIDC_AUTH;
 export const GOVBR_JWK_URL = process.env.GOVBR_JWK_URL;
-// Discovery endpoint do Gov.br homologação
+// Discovery endpoint do Gov.br homologação.
 const DISCOVERY_URL = process.env.OPENID_CONFIGURATION;
 
 let _AUTH_URL;
