@@ -14,9 +14,10 @@ import {
   APPSHEET_KEY,
   GOVRCODE_VERIFIER,
   APP_KEY,
-  CLIENT_ID,
+  CLIENT_ID_AUTH,
   OIDC_AUTH,
   APP_ID,
+  SECRET_AUTH
 } from "../config.js";
 
 await loadAuthConfig();
@@ -195,7 +196,7 @@ router.get("/gov/login", (req, res) => {
 
   const url =
     `${OIDC_AUTH}/OAuth2/Authorize/${APP_ID}` +
-    `?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
+    `?CLIENT_ID_AUTH=${CLIENT_ID_AUTH}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
 
   res.json({ url });
 });
@@ -208,7 +209,7 @@ router.post("/gov/callback", async (req, res) => {
       .json({ error: "Código de autorização não recebido" });
 
   try {
-    const authString = `${CLIENT_ID}:${SECRET}`;
+    const authString = `${CLIENT_ID_AUTH}:${SECRET_AUTH}`;
     const authBase64 = Buffer.from(authString).toString("base64");
 
     const tokenResponse = await axios.post(
@@ -217,8 +218,8 @@ router.post("/gov/callback", async (req, res) => {
         grant_type: "authorization_code",
         code,
         redirect_uri: REDIRECT_URI,
-        client_id: CLIENT_ID,
-        client_secret: SECRET,
+        CLIENT_ID_AUTH: CLIENT_ID_AUTH,
+        client_secret: SECRET_AUTH,
       },
       {
         headers: {

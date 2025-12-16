@@ -9,6 +9,9 @@ export const PORT = process.env.PORT || 3000;
 
 export const CLIENT_ID = process.env.CLIENT_ID;
 export const SECRET = process.env.SECRET;
+
+export const CLIENT_ID_AUTH = process.env.CLIENT_ID_AUTH;
+export const SECRET_AUTH = process.env.SECRET_AUTH;
 export const REDIRECT_URI = process.env.REDIRECT_URL;
 export const APP_KEY = process.env.APP_KEY;
 export const APP_ID = process.env.APP_ID;
