@@ -13,7 +13,7 @@ RUN npm install
 
 COPY . .
 
-ENV VITE_API_URL="https://empreendimentos-api-914565622949.southamerica-east1.run.app/public"
+ENV VITE_API_URL="https://homologacao.horushab.habitacao.sp.gov.br/public"
 ENV VITE_CLIENT_ID="horushab"
 ENV VITE_CLIENT_SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afbbdd28113"
 ENV VITE_APP_BACKEND_URL="https://sduh-backend-914565622949.southamerica-east1.run.app"
