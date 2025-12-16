@@ -196,7 +196,7 @@ router.get("/gov/login", (req, res) => {
 
   const url =
     `${OIDC_AUTH}/OAuth2/Authorize/${APP_ID}` +
-    `?CLIENT_ID_AUTH=${CLIENT_ID_AUTH}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
+    `?client_id=${CLIENT_ID_AUTH}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
 
   res.json({ url });
 });
@@ -218,7 +218,7 @@ router.post("/gov/callback", async (req, res) => {
         grant_type: "authorization_code",
         code,
         redirect_uri: REDIRECT_URI,
-        CLIENT_ID_AUTH: CLIENT_ID_AUTH,
+        client_id: CLIENT_ID_AUTH,
         client_secret: SECRET_AUTH,
       },
       {
