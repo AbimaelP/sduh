@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios";
-import { API_URL, CLIENT_ID, CLIENT_SECRET } from "../config.js";
+import { API_URL, CLIENT_ID, SECRET } from "../config.js";
 
 const router = express.Router();
 
@@ -222,7 +222,13 @@ const normalize = (str) =>
 
 router.post("/totalizadores-desempenho", async (req, res) => {
   const { token } = req.query;
-  const { municipio, gerenciaRegional, regiaoAdministrativa, regiaoDeGoverno, subprograma } = req.body;
+  const {
+    municipio,
+    gerenciaRegional,
+    regiaoAdministrativa,
+    regiaoDeGoverno,
+    subprograma,
+  } = req.body;
   if (!token) {
     return res.status(401).json({ error: "Token não fornecido" });
   }
@@ -419,7 +425,12 @@ router.post("/totalizadores-desempenho", async (req, res) => {
           )
         : 0;
 
-    totalizadores.total = totalizadores.planejamento + totalizadores.licitacao + totalizadores.em_andamento + totalizadores.entregues + totalizadores.alertas;
+    totalizadores.total =
+      totalizadores.planejamento +
+      totalizadores.licitacao +
+      totalizadores.em_andamento +
+      totalizadores.entregues +
+      totalizadores.alertas;
 
     return res.json({
       desempenho,
