@@ -21,6 +21,16 @@ export async function loginGOV() {
   }
 }
 
+export async function callbackMinhaArea() {
+  try {
+    const response = await api.get('/auth/minha-area/callback'); // GET porque não há payload
+    return response.data.url;
+  } catch (err) {
+    const message = err.response?.data?.error || 'Autenticação falhou';
+    throw new Error(message);
+  }
+}
+
 export async function callbackGovBR(data) {
   try {
     const response = await api.post('/auth/gov/callback', data);
@@ -30,6 +40,17 @@ export async function callbackGovBR(data) {
     throw new Error(message);
   }
 }
+
+export async function callbackCyberark(data) {
+  try {
+    const response = await api.post('/auth/cyberark/callback', data);
+    return response.data; // { id, name, role }
+  } catch (err) {
+    const message = err.response?.data?.error || 'Autenticação falhou';
+    throw new Error(message);
+  }
+}
+
 
 export async function empreendimentos(statusObra = '', municipios = []) {
   try {

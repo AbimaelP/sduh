@@ -3,7 +3,7 @@ import cors from 'cors';
 import session from 'express-session'; // 👈 importar
 import login from './routes/login.js';
 import empreendimentos from './routes/empreendimentos.js';
-import { loadGovbrConfig, PORT } from './config.js';
+import { loadGovbrConfig, PORT, loadMinhaAreaConfig } from './config.js';
 import { testConnection } from './db.js';
 import "./models/User.js";
 import "./models/Role.js";
@@ -28,6 +28,7 @@ app.use('/empreendimentos', empreendimentos);
 (async () => {
   try {
     await loadGovbrConfig();
+    await loadMinhaAreaConfig();
     await testConnection(); // ⬅️ testa a conexão com o banco
     app.listen(PORT, () => {
       console.log(`Backend rodando na porta ${PORT}`);

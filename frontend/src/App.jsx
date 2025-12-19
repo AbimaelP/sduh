@@ -12,6 +12,8 @@ import Applications from './pages/Applications';
 import GovCallback from './pages/GovCallback';
 import Loading from './components/Loading';
 import AcessoCidadao from './pages/AcessoCidadao';
+import CyberArkCallback from './pages/CyberArkCallback';
+import MinhaAreaCallback from './pages/MinhaAreaCallback';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -32,6 +34,15 @@ function AppRoutes() {
     <Route 
       path="/callback" 
       element={<GovCallback />} 
+    />
+    <Route 
+      path="/cyberark/callback" 
+      element={<CyberArkCallback />} 
+    />
+
+    <Route 
+      path="/minha-area/callback" 
+      element={<MinhaAreaCallback />} 
     />
 
     <Route 

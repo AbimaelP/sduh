@@ -14,6 +14,14 @@ export const GOVBR_CLIENT_SECRET = process.env.GOV_CLIENT_SECRET;
 export const GOVBR_REDIRECT_URI = process.env.REDIRECT_URL_GOV;
 export const GOVRCODE_VERIFIER = process.env.CODE_VERIFIER;
 
+export const MINHAAREA_CLIENT_ID = process.env.CLIENT_ID_AUTH;
+export const MINHAAREA_SECRET = process.env.SECRET_AUTH;
+export const MINHAAREA_DISCOVERY_URL = process.env.OPENID_CONFIGURATION;
+export const MINHAAREA_APP_ID = process.env.APP_ID;
+export const MINHAAREA_APP_KEY = process.env.APP_KEY;
+export const MINHAAREA_OICD_URL = process.env.OIDC_AUTH;
+export const REDIRECT_URL_MINHAAREA = process.env.REDIRECT_URL_MINHAAREA;
+
 export const DB_HOST = process.env.DB_HOST;
 export const DB_NAME = process.env.DB_NAME;
 export const DB_USER = process.env.DB_USER;
@@ -26,12 +34,28 @@ let _GOVBR_AUTH_URL;
 let _GOVBR_TOKEN_URL;
 let _GOVBR_USERINFO_URL;
 
+let _CYBERARK_AUTH_URL;
+let _CYBERARK_TOKEN_URL;
+let _CYBERARK_USERINFO_URL;
+
 export async function loadGovbrConfig() {
   try {
     const { data } = await axios.get(DISCOVERY_URL);
     _GOVBR_AUTH_URL = data.authorization_endpoint;
     _GOVBR_TOKEN_URL = data.token_endpoint;
     _GOVBR_USERINFO_URL = data.userinfo_endpoint;
+  } catch (err) {
+    console.error("Erro ao carregar configuração Gov.br:", err.message);
+    throw err;
+  }
+
+}
+export async function loadMinhaAreaConfig() {
+  try {
+    const { data } = await axios.get(MINHAAREA_DISCOVERY_URL);
+    _CYBERARK_AUTH_URL = data.authorization_endpoint;
+    _CYBERARK_TOKEN_URL = data.token_endpoint;
+    _CYBERARK_USERINFO_URL = data.userinfo_endpoint;
   } catch (err) {
     console.error("Erro ao carregar configuração Gov.br:", err.message);
     throw err;
@@ -48,4 +72,16 @@ export function GOVBR_TOKEN_URL() {
 
 export function GOVBR_USERINFO_URL() {
   return _GOVBR_USERINFO_URL;
+}
+
+export function CYBERARK_AUTH_URL() {
+  return _CYBERARK_AUTH_URL;
+}
+
+export function CYBERARK_TOKEN_URL() {
+  return _CYBERARK_TOKEN_URL;
+}
+
+export function CYBERARK_USERINFO_URL() {
+  return _CYBERARK_USERINFO_URL;
 }
