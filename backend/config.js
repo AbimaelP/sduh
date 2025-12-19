@@ -27,7 +27,7 @@ export const DB_NAME = process.env.DB_NAME;
 export const DB_USER = process.env.DB_USER;
 export const DB_PASS = process.env.DB_PASSWORD;
 
-// Discovery endpoint do Gov.br homologação
+// Discovery endpoint do Gov.br homologação.
 const DISCOVERY_URL = process.env.GOV_OPENID_CONFIGURATION;
 
 let _GOVBR_AUTH_URL;
