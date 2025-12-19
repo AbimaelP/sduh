@@ -31,6 +31,7 @@ ENV OPENID_CONFIGURATION="https://abc4967.id.cyberark.cloud/horus_hml/.well-know
 ENV CLIENT_ID_AUTH="1b26a80f-984d-4705-8fd7-599c3ff842ee"
 ENV SECRET_AUTH="OCNHHU0GKW1Q"
 ENV APP_KEY="1b26a80f-984d-4705-8fd7-599c3ff842ee"
+ENV REDIRECT_URL_MINHAAREA="https://homologacao.horushab.habitacao.sp.gov.br:5173/cyberark/callback"
 # Copia os arquivos de dependências primeiro para aproveitar o cache do Docker
 COPY package*.json ./
 

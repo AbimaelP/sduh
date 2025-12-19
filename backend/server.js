@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import express from "express";
 import cors from "cors";
 import session from "express-session"; // 👈 importar
@@ -7,15 +6,6 @@ import empreendimentos from "./routes/empreendimentos.js";
 import orcamentos from "./routes/atendimentosEorcamentos.js";
 import { loadAuthConfig, PORT } from "./config.js";
 import { testConnection } from "./db.js";
-=======
-import express from 'express';
-import cors from 'cors';
-import session from 'express-session'; // 👈 importar
-import login from './routes/login.js';
-import empreendimentos from './routes/empreendimentos.js';
-import { loadGovbrConfig, PORT, loadMinhaAreaConfig } from './config.js';
-import { testConnection } from './db.js';
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
 import "./models/User.js";
 import "./models/Role.js";
 import "./models/UserRole.js";
