@@ -31,12 +31,8 @@ app.use("/orcamentos", orcamentos);
 
 (async () => {
   try {
-<<<<<<< HEAD
-    await loadAuthConfig();
-=======
     await loadGovbrConfig();
     await loadMinhaAreaConfig();
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     await testConnection(); // ⬅️ testa a conexão com o banco
     app.listen(PORT, () => {
       console.log(`Backend rodando na porta ${PORT}`);
