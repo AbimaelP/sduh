@@ -45,9 +45,6 @@ export async function callbackGovBR(data) {
   }
 }
 
-<<<<<<< HEAD
-export async function empreendimentos(statusObra = "", municipios = []) {
-=======
 export async function callbackCyberark(data) {
   try {
     const response = await api.post('/auth/cyberark/callback', data);
@@ -60,7 +57,6 @@ export async function callbackCyberark(data) {
 
 
 export async function empreendimentos(statusObra = '', municipios = []) {
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
   try {
     const cacheKey = "empreendimentosData";
     const cacheTimestampKey = "empreendimentosTimestamp";
