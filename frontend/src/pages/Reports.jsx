@@ -10,10 +10,10 @@ import exportPDF from "../utils/export";
 import Card from "../components/Card";
 import { useAuth } from "../contexts/AuthContext";
 import Pagination from "../components/Pagination";
-import Icon from '../components/Icon';
-import DropDownItem from '../components/DropDownItem';
-import ButtonGroup from '../components/ButtonGroup';
-import { normalize } from '../utils/format';
+import Icon from "../components/Icon";
+import DropDownItem from "../components/DropDownItem";
+import ButtonGroup from "../components/ButtonGroup";
+import { normalize } from "../utils/format";
 export default function Reports() {
   const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
   const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
@@ -25,21 +25,21 @@ export default function Reports() {
   const itemsPerPage = 8;
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(itemsPerPage);
-  const [indexDataExport, setIndexDataExport] = useState([])
-
+  const [indexDataExport, setIndexDataExport] = useState([]);
+  const [expandFilters, setExpandFilters] = useState(true);
   useEffect(() => {
     const applyFilters = async () => {
       let data = [...allEmpreendimentos];
 
-  if (filters.search) {
-    const term = normalize(filters.search);
-    data = data.filter((item) => {
-      const endereco = normalize(item.enderecoEmpreendimento || "");
-      const municipio = normalize(item.municipio || "");
+      if (filters.search) {
+        const term = normalize(filters.search);
+        data = data.filter((item) => {
+          const endereco = normalize(item.enderecoEmpreendimento || "");
+          const municipio = normalize(item.municipio || "");
 
-      return municipio.includes(term) || endereco.includes(term);
-    });
-  }
+          return municipio.includes(term) || endereco.includes(term);
+        });
+      }
 
       if (filters.tipoImovel) {
         data = data.filter((item) => item.tipologia === filters.tipoImovel);
@@ -63,6 +63,9 @@ export default function Reports() {
     applyFilters();
   }, [filters, allEmpreendimentos]);
 
+  const handleSetExpandFilterReports = () => {
+    setExpandFilters(!expandFilters);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -90,70 +93,116 @@ export default function Reports() {
   };
 
   const handleExportPDF = () => {
-    if(indexDataExport.length > 0) {
+    if (indexDataExport.length > 0) {
       const dataToExport = listaEmpreendimentos.filter((item, index) =>
         indexDataExport.includes(index)
       );
-      exportPDF(dataToExport, lastUpdated)
+      exportPDF(dataToExport, lastUpdated);
     } else {
-      exportPDF(listaEmpreendimentos, lastUpdated)
+      exportPDF(listaEmpreendimentos, lastUpdated);
     }
-  }
+  };
 
   return (
     <LayoutClient>
-      <Pagination
-        totalItems={listaEmpreendimentos.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={pagina}
-        onPageChange={({ startIndex, endIndex, currentPage }) => {
-          setStartIndex(startIndex);
-          setEndIndex(endIndex);
-          setPagina(currentPage);
-        }}
-        onPageChangeManual={setPagina}
-        component={
-          <Button className="btn btn-black btn-report-export" iconPosition="left" icon="fas fa-file-alt" onClick={() => handleExportPDF()}>
-            {!indexDataExport.length ? "Exportar tudo" : "Exportar selecionados"}
-          </Button>
-        }
-      />
-      <Section>
-          <ButtonGroup
-            defaultActive="TODOS"
-            className='space-now-nowrap p-4 pb-0'
-            onButtonClick={(status) => {
-              switch (status) {
-                case "TODOS":
-                  setIndexDataExport(listaEmpreendimentos.map((_, i) => i));
-                  break;
-                case "NENHUM":
-                  setIndexDataExport([]);
-                  break;
-                case "TODOS NESSA PAGINA":
-                  setIndexDataExport((prev) => [
-                    ...new Set([...prev, ...Array.from({ length: endIndex - startIndex }, (_, i) => startIndex + i)])
-                  ]);
-                  break;
-                case "NENHUM NESSA PAGINA":
-                  setIndexDataExport((prev) =>
-                    prev.filter((i) => i < startIndex || i >= endIndex)
-                  );
-                  break;
-                default:
-                  break;
-              }
+      <Section
+        className={`shadow-border-b ${expandFilters && "expanded-filters"}`}
+      >
+        <Section className="filters-reports-content">
+          <Pagination
+            totalItems={listaEmpreendimentos.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={pagina}
+            onPageChange={({ startIndex, endIndex, currentPage }) => {
+              setStartIndex(startIndex);
+              setEndIndex(endIndex);
+              setPagina(currentPage);
             }}
+            onPageChangeManual={setPagina}
+            component={
+              <Button
+                className="btn btn-black btn-report-export"
+                iconPosition="left"
+                icon="fas fa-file-alt"
+                onClick={() => handleExportPDF()}
+              >
+                {!indexDataExport.length
+                  ? "Exportar tudo"
+                  : "Exportar selecionados"}
+              </Button>
+            }
+          />
+          <Section>
+            <ButtonGroup
+              defaultActive="TODOS"
+              className="space-now-nowrap p-4 pb-0 reports-buttons-responsive"
+              onButtonClick={(status) => {
+                switch (status) {
+                  case "TODOS":
+                    setIndexDataExport(listaEmpreendimentos.map((_, i) => i));
+                    break;
+                  case "NENHUM":
+                    setIndexDataExport([]);
+                    break;
+                  case "TODOS NESSA PAGINA":
+                    setIndexDataExport((prev) => [
+                      ...new Set([
+                        ...prev,
+                        ...Array.from(
+                          { length: endIndex - startIndex },
+                          (_, i) => startIndex + i
+                        ),
+                      ]),
+                    ]);
+                    break;
+                  case "NENHUM NESSA PAGINA":
+                    setIndexDataExport((prev) =>
+                      prev.filter((i) => i < startIndex || i >= endIndex)
+                    );
+                    break;
+                  default:
+                    break;
+                }
+              }}
             >
-            <Button status="TODOS" className="btn btn-white">Marcar Todos</Button>
-            <Button status="NENHUM" className="btn btn-white ml-2">Desmarcar Todos</Button>
-            <Button status="TODOS NESSA PAGINA" className="btn btn-white ml-2">Marcar Todos Nessa Página</Button>
-            <Button status="NENHUM NESSA PAGINA" className="btn btn-white ml-2">Desmarcar Todos Nessa Página</Button>
-          </ButtonGroup>
+              <Button status="TODOS" className="btn btn-white">
+                Marcar Todos
+              </Button>
+              <Button status="NENHUM" className="btn btn-white ml-2">
+                Desmarcar Todos
+              </Button>
+              <Button
+                status="TODOS NESSA PAGINA"
+                className="btn btn-white ml-2"
+              >
+                Marcar Todos Nessa Página
+              </Button>
+              <Button
+                status="NENHUM NESSA PAGINA"
+                className="btn btn-white ml-2"
+              >
+                Desmarcar Todos Nessa Página
+              </Button>
+            </ButtonGroup>
+          </Section>
+        </Section>
+        <Section
+          className="flex justify-center"
+          title="Expandir filtros"
+          onClick={() => handleSetExpandFilterReports()}
+        >
+          <Button
+            className="btn btn-gray expand-filters-reports"
+            icon="fas fa-chevron-up"
+          ></Button>
+        </Section>
       </Section>
       <Section className="p-4 pt-8 f-size-small-min report-screen relative">
-        <Section className='info-report' title='Selecione os empreendimentos que deseja exportar'>
-          <Icon icon='fas fa-info-circle'></Icon>
+        <Section
+          className="info-report"
+          title="Selecione os empreendimentos que deseja exportar"
+        >
+          <Icon icon="fas fa-info-circle"></Icon>
         </Section>
         <Section className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listaEmpreendimentos.slice(startIndex, endIndex).map((item, i) => {

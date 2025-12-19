@@ -85,15 +85,105 @@
 }
 
 .card-info-item-url {
-  background-color: #0775eb;
+  background-color: #dc2626;
   color: #ffff;
   padding: 3px 15px;
   border-radius: 11px;
   font-weight: 500;
   display: flex;
   align-items: center;
+  width: auto;
 }
 
 .bg-street-view {
   background-color: #fdbf2d !important;
+  height: 30px;
+}
+
+.card-map-infos .card-map-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  width: 100%;
+}
+.card-map-infos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-map-infos .card-map-item-infos .label {
+  font-size: 10px;
+}
+
+.card-map-infos .card-map-item-infos .value {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.card-map-infos .container-icone-card-map .icon-card-report-item {
+  padding-top: 2px;
+  font-size: 16px;
+}
+
+.card-map-infos-more {
+  background-color: #f9fafb;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.card-map-infos-more .label {
+  font-size: 10px;
+}
+.card-map-infos-more .value {
+  font-size: 16px;
+}
+
+.tab-2 {
+  display: none;
+}
+
+.item-endereco-map {
+  background-color: #f9fafb;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.item-alerta-map {
+  background-color: #f9fafb;
+  padding: 0.5rem;
+  box-shadow: 0px 5px 5px 0px #b3b3b3;
+}
+
+.item-street-view {
+  white-space: nowrap;
+  padding: 5px;
+}
+
+.card-body-atendimentos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.item-alerta-infos {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  padding-bottom: 2px;
+}
+
+.alerta-item {
+  max-height: 200px;
+  overflow: auto;
+}
+
+.item-alerta .label {
+  font-size: 10px;
+}
+
+.item-alerta .value {
+  font-weight: 600;
 }

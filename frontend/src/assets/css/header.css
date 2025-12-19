@@ -11,3 +11,86 @@
   position: relative;
   z-index: 0;
 }
+@media (max-width: 625px) {
+  .map-sduh_mgr {
+    height: calc(100vh - (209px + 90px)) !important;
+  }
+
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column-reverse;
+    height: calc(96px + 40px) !important;
+  }
+
+  .menu-y {
+    height: calc(100% - 136px) !important;
+  }
+
+  .menu-y.collapsed {
+    height: auto !important;
+  }
+
+  .layout-menu-collapse {
+    margin-left: 0 !important ;
+  }
+
+  .layout-menu-collapse .header-second {
+    margin-left: 60px;
+  }
+
+  .header-responsive {
+    flex-direction: column;
+    white-space: nowrap;
+    padding-left: 0 !important;
+    align-items: start;
+  }
+
+  .header-responsive a {
+    margin-left: 10px;
+  }
+
+  .layout {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 1345px) {
+  .menu-y {
+    z-index: 10 !important;
+  }
+  .pagination {
+    padding-top: 55px !important;
+    justify-content: space-between;
+    padding: 0 17px;
+  }
+  .pagination button:nth-of-type(1) {
+    margin-right: 10px;
+  }
+  .pagination button:nth-of-type(2) {
+    margin-left: 10px;
+  }
+
+  .pagination button:nth-of-type(1),
+  .pagination button:nth-of-type(2) {
+    width: 30%;
+  }
+
+  .reports-buttons-responsive {
+    flex-wrap: wrap;
+  }
+
+  .reports-buttons-responsive button {
+    margin-left: 0 !important;
+    width: auto !important;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+}
+
+.gm-style-iw.gm-style-iw-c {
+  min-width: 400px;
+  max-width: 400px;
+  width: 100%;
+}

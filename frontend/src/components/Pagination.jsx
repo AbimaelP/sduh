@@ -31,15 +31,6 @@ export default function Pagination({
 
   return (
     <Section className="mt-4 relative">
-      <Button
-        className="btn btn-gray"
-        classNameLink="btn-voltar-mapa"
-        icon='fas fa-map'
-        link="/"
-      >
-        Voltar para o Mapa
-      </Button>
-
       <Section className="pagination">
         <button
           className={`btn btn-gray btn-pagination ${currentPage === 1 && 'btn-disabled'}`}
