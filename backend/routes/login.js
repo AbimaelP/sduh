@@ -211,7 +211,7 @@ router.post("/cyberark/callback", async (req, res) => {
       {
         grant_type: "authorization_code",
         code,
-        redirect_uri: GOVBR_REDIRECT_URI,
+        redirect_uri: REDIRECT_URL,
         client_id: MINHAAREA_CLIENT_ID,
         client_secret: MINHAAREA_SECRET,
       },
