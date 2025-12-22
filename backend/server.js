@@ -4,7 +4,7 @@ import session from "express-session"; // 👈 importar
 import login from "./routes/login.js";
 import empreendimentos from "./routes/empreendimentos.js";
 import orcamentos from "./routes/atendimentosEorcamentos.js";
-import { loadAuthConfig, PORT } from "./config.js";
+import { loadGovbrConfig, PORT, loadMinhaAreaConfig } from "./config.js";
 import { testConnection } from "./db.js";
 import "./models/User.js";
 import "./models/Role.js";

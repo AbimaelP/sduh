@@ -5,24 +5,6 @@ import crypto from "crypto";
 import { User } from "../models/User.js";
 import { Role } from "../models/Role.js";
 import {
-<<<<<<< HEAD
-  REDIRECT_URI,
-  loadAuthConfig,
-  AUTH_URL,
-  TOKEN_URL,
-  USERINFO_URL,
-  APPSHEET_URL,
-  APPSHEET_KEY,
-  GOVRCODE_VERIFIER,
-  APP_KEY,
-  CLIENT_ID_AUTH,
-  OIDC_AUTH,
-  APP_ID,
-  SECRET_AUTH
-} from "../config.js";
-
-await loadAuthConfig();
-=======
   GOVBR_CLIENT_ID,
   GOVBR_CLIENT_SECRET,
   GOVBR_REDIRECT_URI,
@@ -44,7 +26,6 @@ await loadAuthConfig();
 
 await loadGovbrConfig();
 await loadMinhaAreaConfig();
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
 
 const router = express.Router();
 
@@ -93,7 +74,6 @@ router.post("/login", async (req, res) => {
     user.role = user.Roles[0].name;
     user.profiles = [];
 
-<<<<<<< HEAD
     const profileMunicipal = {
       value: "municipio_user",
       label: "Municipal",
@@ -122,14 +102,6 @@ router.post("/login", async (req, res) => {
         "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176",
       looker:
         "https://lookerstudio.google.com/embed/reporting/5756095b-0b28-42b9-a27e-09de5e988aef/page/r4NVF",
-=======
-    const profileMunicipal = { value: "municipio_user", label: "Municipal" };
-    const profileCidadao = { value: "cidadao", label: "Cidadão" };
-    const profilesSDUH = { value: "sduh_user", label: "SDUH" };
-    const profilesGestaoSDUH = {
-      value: "sduh_mgr",
-      label: "SDUH (Gestão Estadual)",
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     };
     // Ajustar role
     if (user.role === "municipio_user" || user.role === "user") {
@@ -139,11 +111,8 @@ router.post("/login", async (req, res) => {
       user.profiles.push(profileCidadao);
       user.appLink =
         "https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f";
-<<<<<<< HEAD
       user.looker =
         "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF";
-=======
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     }
 
     if (user.role === "sduh_user") {
@@ -154,10 +123,7 @@ router.post("/login", async (req, res) => {
       user.profiles.push(profilesSDUH);
       user.appLink =
         "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176";
-<<<<<<< HEAD
       user.looker = "";
-=======
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     }
 
     if (user.role === "sduh_mgr") {
@@ -169,10 +135,7 @@ router.post("/login", async (req, res) => {
       user.profiles.push(profilesGestaoSDUH);
       user.appLink =
         "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176";
-<<<<<<< HEAD
       user.looker = "";
-=======
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     }
 
     if (user.role === "admin" || user.role === "adm") {
@@ -183,13 +146,9 @@ router.post("/login", async (req, res) => {
       user.profiles.push(profilesSDUH);
       user.profiles.push(profilesGestaoSDUH);
       user.appLink =
-<<<<<<< HEAD
         "https://www.appsheet.com/start/74847a1c-56fa-4087-bb14-d3cb48aaef4f";
       user.looker =
         "https://lookerstudio.google.com/embed/reporting/41164f8d-3a25-4e8c-97c7-ac349b9e3dfe/page/r4NVF";
-=======
-        "https://www.appsheet.com/start/448169c0-b347-4ecf-ae5e-896b7e381176";
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
     }
 
     if (user && !user.role) {
@@ -202,10 +161,7 @@ router.post("/login", async (req, res) => {
       id: user.id,
       name: user.name,
       role: user.role,
-<<<<<<< HEAD
       looker: user.looker,
-=======
->>>>>>> 33f907a0be75e617fcf8f13faf2592d7c0ab6b1c
       main_role: user.main_role,
       profiles: user.profiles,
       appLink: user.appLink,
