@@ -184,28 +184,6 @@ function sha256(buffer) {
   return crypto.createHash("sha256").update(buffer).digest();
 }
 
-router.get("/gov/login", (req, res) => {
-  const state = crypto.randomBytes(16).toString("hex");
-  const nonce = crypto.randomBytes(16).toString("hex");
-
-  // Hardcoded code_verifier
-  const code_verifier = GOVRCODE_VERIFIER;
-
-  const code_challenge = base64URLEncode(sha256(code_verifier));
-  const code_challenge_method = "S256";
-
-  // Salvar na sessão se quiser manter compatibilidade
-  req.session.code_verifier = code_verifier;
-  req.session.state = state;
-  req.session.nonce = nonce;
-
-  const url =
-    `${OIDC_AUTH}/OAuth2/Authorize/${APP_ID}` +
-    `?client_id=${CLIENT_ID_AUTH}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid+email+profile&state=${state}&code=${code_challenge}`;
-
-  res.json({ url });
-});
-
 router.get("/minha-area/callback", (req, res) => {
   const state = crypto.randomBytes(16).toString("hex");
 
@@ -259,6 +237,34 @@ router.post("/cyberark/callback", async (req, res) => {
   }
 });
 
+router.get("/gov/login", (req, res) => {
+  const state = crypto.randomBytes(16).toString("hex");
+  const nonce = crypto.randomBytes(16).toString("hex");
+
+  // Hardcoded code_verifier
+  const code_verifier = GOVRCODE_VERIFIER;
+
+  const code_challenge = base64URLEncode(sha256(code_verifier));
+  const code_challenge_method = "S256";
+
+  // Salvar na sessão se quiser manter compatibilidade
+  req.session.code_verifier = code_verifier;
+  req.session.state = state;
+  req.session.nonce = nonce;
+
+  const url =
+    `${GOVBR_AUTH_URL()}?response_type=code` +
+    `&client_id=${GOVBR_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(GOVBR_REDIRECT_URI)}` +
+    `&scope=openid+email+profile` +
+    `&state=${state}` +
+    `&nonce=${nonce}` +
+    `&code_challenge=${code_challenge}` +
+    `&code_challenge_method=${code_challenge_method}`;
+
+  res.json({ url });
+});
+
 router.post("/gov/callback", async (req, res) => {
   const { code } = req.body;
   if (!code)
@@ -267,18 +273,17 @@ router.post("/gov/callback", async (req, res) => {
       .json({ error: "Código de autorização não recebido" });
 
   try {
-    const authString = `${CLIENT_ID_AUTH}:${SECRET_AUTH}`;
+    const authString = `${GOVBR_CLIENT_ID}:${GOVBR_CLIENT_SECRET}`;
     const authBase64 = Buffer.from(authString).toString("base64");
 
     const tokenResponse = await axios.post(
-      TOKEN_URL(),
-      {
+      GOVBR_TOKEN_URL(),
+      qs.stringify({
         grant_type: "authorization_code",
         code,
-        redirect_uri: REDIRECT_URI,
-        client_id: CLIENT_ID_AUTH,
-        client_secret: SECRET_AUTH,
-      },
+        redirect_uri: GOVBR_REDIRECT_URI,
+        code_verifier: GOVRCODE_VERIFIER,
+      }),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -288,7 +293,7 @@ router.post("/gov/callback", async (req, res) => {
     );
     const { access_token } = tokenResponse.data;
 
-    const userInfoResponse = await axios.get(USERINFO_URL(), {
+    const userInfoResponse = await axios.get(GOVBR_USERINFO_URL(), {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
