@@ -22,6 +22,7 @@ import {
   CYBERARK_USERINFO_URL,
   CYBERARK_AUTH_URL,
   REDIRECT_URL_MINHAAREA,
+  REDIRECT_URI,
 } from "../config.js";
 
 await loadGovbrConfig();
