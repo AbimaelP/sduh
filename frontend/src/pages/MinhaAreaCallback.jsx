@@ -7,14 +7,10 @@ import { useAuth } from "../contexts/AuthContext";
 
 export default function MinhaAreaCallback() {
   const navigate = useNavigate();
-  const { user, login } = useAuth();
 
   useEffect(() => {
     const processCallback = async () => {
-      if (user) {
-        navigate("/");
-      }
- 
+
       try {
         const url = await callbackMinhaArea();
         window.location.href = url
@@ -24,7 +20,7 @@ export default function MinhaAreaCallback() {
     };
 
     processCallback();
-  }, [navigate, user]);
+  }, []);
 
   return (
     <Section className="flex w-screen h-screen items-center justify-center">
