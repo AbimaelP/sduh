@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -6,8 +6,6 @@ import Reports from "./pages/Reports";
 import DefaultLayout from "./components/DefaultLayout";
 import { FiltersProvider } from './contexts/FiltersContext';
 import { MenuProvider } from './contexts/MenuContext';
-import Section from './components/Section';
-import Icon from './components/Icon';
 import Applications from './pages/Applications';
 import GovCallback from './pages/GovCallback';
 import Loading from './components/Loading';
@@ -19,8 +17,14 @@ import { DataProvider } from "./contexts/DataContext";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
-  if (loading) {
+  const isCallback =
+    location.pathname.startsWith("/minha-area/callback") ||
+    location.pathname.startsWith("/callback") ||
+    location.pathname.startsWith("/cyberark/callback");
+
+  if (loading && !isCallback) {
     return <Loading />;
   }
 
@@ -31,23 +35,14 @@ function AppRoutes() {
         element={user ? <Navigate to="/" replace /> : <Login />}
       />
 
-    <Route 
-      path="/callback" 
-      element={<GovCallback />} 
-    />
-    <Route 
-      path="/cyberark/callback" 
-      element={<CyberArkCallback />} 
-    />
-
-    <Route 
-      path="/minha-area/callback" 
-      element={<MinhaAreaCallback />} 
-    />
+      {/* ✅ Callbacks liberados mesmo com loading */}
+      <Route path="/callback/*" element={<GovCallback />} />
+      <Route path="/cyberark/callback/*" element={<CyberArkCallback />} />
+      <Route path="/minha-area/callback/*" element={<MinhaAreaCallback />} />
 
       <Route path="/acesso-cidadao" element={<AcessoCidadao />} />
 
-      {user && user.role != "municipio_user" && user.role != "sduh_user" ? (
+      {user && user.role !== "municipio_user" && user.role !== "sduh_user" ? (
         <Route
           path="/"
           element={!user ? <Navigate to="/login" replace /> : <DefaultLayout />}
