@@ -10,13 +10,16 @@ export default function MinhaAreaCallback() {
   const { user, login } = useAuth();
 
   useEffect(() => {
+    console.log('chegou aqui')
     const processCallback = async () => {
       if (user) {
         navigate("/");
       }
  
       try {
+        console.log('buscando url minha cyberark')
         const url = await callbackMinhaArea();
+        console.log(url)
         window.location.href = url
       } catch (err) {
         navigate("/login");
