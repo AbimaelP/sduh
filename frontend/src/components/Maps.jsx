@@ -1,19 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import DropDownItem from "./DropDownItem";
-import { empreendimentos, ultimaAtualizacao } from "../services/api/api";
+import {
+  empreendimentos,
+  ultimaAtualizacao,
+  atendimentos,
+  totalizadoresEDesempenho,
+} from "../services/api/api";
 import ButtonGroup from "./ButtonGroup";
 import Button from "./Button";
 import "../assets/css/maps.css";
 import "../assets/css/report.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useFilters } from "../contexts/FiltersContext";
-import Section from './Section';
-import Icon from './Icon';
-import { formatDate, formatHour, formatBRL } from '../utils/format'
-import open from '../utils/open';
-import { normalize } from '../utils/format';
-import Loading from './Loading';
+import { useData } from "../contexts/DataContext";
+import Section from "./Section";
+import Icon from "./Icon";
+import {
+  formatDate,
+  formatHour,
+  formatBRL,
+  formatWhats,
+} from "../utils/format";
+import open from "../utils/open";
+import { normalize } from "../utils/format";
+import Loading from "./Loading";
+import useDebounce from "../hooks/useDebounce";
 
 const iconsMap = {
   APTO: { icon: "fas fa-building", color: "#8A2BE2" },
@@ -24,465 +36,875 @@ const iconsMap = {
 };
 
 export default function Maps() {
-  const { user } = useAuth();
+  const { user, setLoadingMenu } = useAuth();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  const initializedRef = useRef(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const [allEmpreendimentos, setAllEmpreendimentos] = useState([]);
-  const [listaEmpreendimentos, setListaEmpreendimentos] = useState([]);
+  const {
+    rawData,
+    chargeData,
+    lastFilterStatus,
+    statusFiltered,
+    lastUpdatedData,
+  } = useData();
   const [loading, setLoading] = useState(false);
   const [activeButton, setActiveButton] = useState(null);
   const [markers, setMarkers] = useState([]);
   const markerDivs = useRef([]);
   const { filters, setOptionsFromData } = useFilters();
   const openInfoWindowRef = useRef(null);
-  const [lastUpdated, setLastUpdated] = useState(null)
-  const [statusObra, setStatusObra] = useState(null);
+  const [statusObra, setStatusObra] = useState("alertas");
+  const executedMarkersRef = useRef(false);
+  const debouncedFilters = useDebounce(filters, 2000);
 
- useEffect(() => {
-  const loadGoogleMapsScript = () => {
-    return new Promise((resolve, reject) => {
-      if (window.google && window.google.maps) {
-        resolve();
-        return;
+  const debouncedCreateMarkers = useRef(
+    debounce(async (data) => {
+      setLoading(true);
+      try {
+        await createMarkers(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
+    }, 500) // 300ms após o último caractere digitado
+  ).current;
 
-      // já existe um script carregando?
-      if (document.querySelector(`script[src*="maps.googleapis.com/maps/api/js"]`)) {
-        const existingScript = document.querySelector(`script[src*="maps.googleapis.com/maps/api/js"]`);
-        existingScript.addEventListener("load", resolve);
-        existingScript.addEventListener("error", reject);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${
-        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-      }&libraries=marker,geometry,visualization`;
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
+  const createMarkers = async (empreendimentosData) => {
+    if (!mapInstance.current || !window.google) return [];
+    markers.forEach((marker) => marker.setMap(null));
+    markerDivs.current.forEach((div) => {
+      if (div && div.parentNode) div.parentNode.removeChild(div);
     });
+    markerDivs.current = [];
+
+    const promises = empreendimentosData.map(async (item) => {
+      const {
+        cep,
+        municipio,
+        tipologia,
+        qtDormitorio,
+        enderecoEmpreendimento,
+        unidadesSubsidiadas,
+        subsidioEstadual,
+        nomeEmpreendimento,
+      } = item;
+      const address = `${item.cep || ""} ${
+        item.enderecoEmpreendimento || ""
+      }, ${item.municipio}, SP, Brazil`;
+
+      try {
+        if (!item.latitude || !item.longitude) return null;
+
+        const position = new window.google.maps.LatLng(
+          item.latitude,
+          item.longitude
+        );
+
+        // (item.enderecosAtendimento = [
+        //   {
+        //     tipoLogradouro: "Rua",
+        //     logradouro: "Floriano Peixoto",
+        //     numero: "350",
+        //     bairro: "Centro",
+        //     cidade: "Campinas",
+        //     estado: "SP",
+        //     cep: "13015-200",
+        //     complemento: "Sala 3 - Térreo",
+        //   },
+        //   {
+        //     tipoLogradouro: "Avenida",
+        //     logradouro: "Brasil",
+        //     numero: "820",
+        //     bairro: "Nova Campinas",
+        //     cidade: "Campinas",
+        //     estado: "SP",
+        //     cep: "13070-180",
+        //     complemento: "Prédio da CDHU",
+        //   },
+        // ]),
+        //   (item.contatosAtendimento = [
+        //     {
+        //       nome: "Maria Oliveira",
+        //       email: "maria.oliveira@habitacao.sp.gov.br",
+        //       telefone: "(19) 3234-1122",
+        //       celular: "(19) 98877-1122",
+        //     },
+        //     {
+        //       nome: "João Santos",
+        //       email: "joao.santos@habitacao.sp.gov.br",
+        //       telefone: "(19) 3278-9988",
+        //       celular: "(19) 99123-4455",
+        //     },
+        //   ]);
+        const contatosList = `<div class="mb-4">
+                    <div class="font-bold">Entre em contato com a incorporadora:</div>
+                    <div class="flex justify-center mt-2">
+                    ${
+                      item.contatosAtendimento &&
+                      item.contatosAtendimento.length > 0
+                        ? item.contatosAtendimento
+                            .map(
+                              (contato, index) => `
+                                <button type="button" class="btn btn-green w-auto mr-2" onclick="window.open('${formatWhats(
+                                  contato.celular
+                                )}')"><i class="fab fa-whatsapp"></i>Whatsapp ${
+                                index + 1
+                              }</button>`
+                            )
+                            .join(" ")
+                        : "Indisponível"
+                    }  
+                      
+                    </div>
+                  </div>`;
+
+        const enderecosAtendimento = `
+                  <div>
+                    <div class="font-bold">Endereços de atendimento:</div>
+                    <div class="mt-2">
+                      ${
+                        item.enderecosAtendimento &&
+                        item.enderecosAtendimento.length > 0
+                          ? item.enderecosAtendimento
+                              .map(
+                                (enderecoAtendimento, index) => `
+                            <div class="item-endereco-map mb-2 title="${
+                              enderecoAtendimento.tipoLogradouro
+                            } ${enderecoAtendimento.logradouro} ${
+                                  enderecoAtendimento.logradouro
+                                } N° ${enderecoAtendimento.numero}">
+                              <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
+                              <span>${
+                                enderecoAtendimento.tipoLogradouro || ""
+                              } ${enderecoAtendimento.logradouro || ""} N° ${
+                                  enderecoAtendimento.numero || "N/A"
+                                } </span>
+                            </div>`
+                              )
+                              .join(" ")
+                          : "Indisponível"
+                      }                      
+                    </div>
+                  </div>`;
+
+        const detalhesAlertas = `
+        <div class="mb-2 alerta-item">
+          ${
+            item.alertasDetalhados && item.qtdAlerta > 0
+              ? item.alertasDetalhados
+                  .filter(alerta => alerta.statusAlerta !== "Resolvido").map(
+                    (alerta) => `
+                      <div class="item-alerta-map mb-6">
+                        <div class="item-alerta-infos">
+                          <div class="item-alerta">
+                            <div class="label">TIPO DE ALERTA</div>
+                            <div class="value">${alerta.tipoAlerta || "Sem descrição"}</div>
+                          </div>
+                          <div class="item-alerta">
+                            <div class="label">SEVERIDADE</div>
+                            <div class="value">${alerta.severidade || "Não informada"}</div>
+                          </div>
+                          <div class="item-alerta">
+                            <div class="label">DATA DE INICIO</div>
+                            <div class="value">${ formatDate(alerta.dataAlerta) || "Sem data" }</div>
+                          </div>
+                        </div>
+                        <div class="item-alerta mt-4">
+                          <div class="label">DESCRIÇÃO</div>
+                          <div class="value">${ alerta.descricaoAlerta || "Sem descrição" }</div>
+                        </div>
+                      </div>
+                    `
+                  )
+                  .join("")
+              : "<div>Indisponível</div>"
+          }
+        </div>`;
+
+        const infoWindow = new window.google.maps.InfoWindow(
+          user.role === "sduh_mgr"
+            ? {
+                content: `
+        <div class="card-container p-2 bg-white rounded-2xl shadow shadow-none">
+          <div class="tab-1 card-info-map active-left p-2">
+            <div class="flex justify-between mt-2">
+              <div>
+                <div class="txt-10">NOME DO EMPREENDIMENTO:</div>
+                <div class="f-weight-600 mb-4">${item.nomeEmpreendimento}</div>
+              </div>
+              <button
+                class="item-info-url item-street-view bg-street-view ml-2"
+                id="streetview-btn"
+              >
+                <i class="fas fa-street-view ml-1"></i>
+                Street View
+              </button>
+            </div>
+            <div class="card-body-atendimentos">
+
+              <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Município</div>
+                    <div class="value">${item.municipio ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              ${
+                statusObra != "alertas" && item.qtdAlerta > 0
+                  ? `<div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Gerencia Regional</div>
+                    <div class="value">${item.gerenciaRegional ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região de Governo</div>
+                    <div class="value">${item.regiaoDeGoverno ?? "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+
+               <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região Administrativa</div>
+                    <div class="label">${
+                      item.regiaoAdministrativa ?? "N/A"
+                    }</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">VALOR TOTAL INVESTIDO</div>
+                <div class="value">${
+                  formatBRL(item.investEntregue) ?? "N/A"
+                }</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">UH/NÚCLEOS/BENEFÍCIOS</div>
+                <div class="value">${
+                  item.uhNucleoBenViabilizados +
+                    item.uhNucleoBenLicitacao +
+                    item.uhNucleoBenEntregues +
+                    item.uhNucleoBenConcluido ?? "N/A"
+                }</div>
+                  </div>
+                </div>
+              </div>
+              
+              `
+                  : `
+              <div class="card-map-infos mb-4 width-48">
+                <div class="card-map-item">
+                  <div class="card-map-item-infos">
+                    <div class="label">Região Administrativa</div>
+                    <div class="value">${
+                      item.regiaoAdministrativa ?? "N/A"
+                    }</div>
+                  </div>
+                </div>
+              </div>
+              `
+              }
+            </div>
+
+            ${
+              statusObra == 'alertas' && item.qtdAlerta > 0 ? 
+              detalhesAlertas : ""
+            }
+          </div>
+        </div>
+        `,
+              }
+            : {
+                content: `
+          <div class="card-container p-2 bg-white rounded-2xl shadow shadow-none">
+          <div class="card-nav-tab flex font-bold justify-between">
+              <div class="tab-nav w-50 text-center p-2 active" id="empreendimento">Empreendimento</div>
+              <div class="tab-nav w-50 text-center p-2" id="incorporadora">Incorporadora</div>
+          </div>
+          <div class="tab-1 card-info-map active-left p-2">
+            <div class="card-map-infos mb-4">
+              <div class="card-map-item">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-map-marker-alt mr-2 icon-card-report-item mr-2" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">ENDEREÇO</div>
+                  <div class="value">${
+                    item.enderecoEmpreendimento ?? "N/A"
+                  }</div>
+                </div>
+                 <div class="flex justify-end mt-2">
+                  <button
+                    class="item-info-url item-street-view bg-street-view"
+                    id="streetview-btn"
+                  >
+                    <i class="fas fa-street-view ml-1"></i>
+                    Street View
+                  </button>
+               </div>
+              </div>
+            </div>
+            <div class="card-map-infos">
+              <div class="card-map-item mr-4">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">TIPO</div>
+                  <div class="value">${item.tipologia ?? "N/A"}</div>
+                </div>
+              </div>
+              <div class="card-map-item">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-bed mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">DORMITÓRIOS</div>
+                  <div class="value">${item.qtDormitorio ?? "N/A"}</div>
+                </div>
+              </div>
+              <div class="card-map-item ml-4">
+                <span class="container-icone-card-map">
+                  <i class="fas fa-building mr-2 icon-card-report-item" /></i>
+                </span>
+                <div class="card-map-item-infos">
+                  <div class="label">DISPONÍVEIS</div>
+                  <div class="value">${item.unidadesSubsidiadas ?? "N/A"}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-map-infos mt-4">
+              <div class="card-map-infos-more">
+                <div class="font-bold">Casa Paulista - Crédito Imobiliário</div>
+                <div class="label">VALOR DO BENEFÍCIO</div>
+                <div class="value">${
+                  formatBRL(item.subsidioEstadual) ?? "N/A"
+                }</div>
+
+               <div class="flex justify-end mt-2">
+                <span class="card-info-item card-info-item-url">
+                  <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank" class="item-info-url">Clique para ir ao site do programa
+                  <i class="fas fa-external-link-square-alt ml-1" /></i>
+                  </a>
+                </span>
+               </div>
+              </div>
+            </div>
+          </div>
+            <div class="tab-2 card-info-map active-right p-2">
+                  ${contatosList}
+                  ${enderecosAtendimento}
+              </div>
+        </div>
+        `,
+              }
+        );
+
+        const overlay = new window.google.maps.OverlayView();
+
+        overlay.onAdd = function () {
+          const div = document.createElement("div");
+          div.innerHTML = `
+          <div class='custom-marker-icon' style='background-color: ${
+            iconsMap[tipologia]?.color || "gray"
+          };'>
+            <i class='${
+              iconsMap[tipologia]?.icon || "fas fa-map-marker-alt"
+            } map-marker-icon'></i>
+          </div>
+        `;
+          this.div = div;
+          markerDivs.current.push(div);
+
+          div.addEventListener("click", () => {
+            // fecha qualquer outro InfoWindow aberto
+            if (openInfoWindowRef.current) {
+              openInfoWindowRef.current.close();
+            }
+
+            infoWindow.setPosition(position);
+            infoWindow.open({ map: mapInstance.current, anchor: null });
+            openInfoWindowRef.current = infoWindow; // atualiza a referência
+          });
+
+          const panes = this.getPanes();
+          panes.overlayMouseTarget.appendChild(div);
+
+          window.google.maps.event.addListenerOnce(
+            infoWindow,
+            "domready",
+            () => {
+              const btn = document.getElementById("streetview-btn");
+              if (btn) {
+                btn.addEventListener("click", () => {
+                  const streetView = mapInstance.current.getStreetView();
+                  streetView.setPosition(position);
+                  streetView.setPov({ heading: 100, pitch: 0 });
+                  streetView.setVisible(true);
+                });
+              }
+
+              const headInfoWindow = document.querySelector(".gm-style-iw-ch");
+
+              if (user.role != "sduh_mgr") {
+                headInfoWindow.innerHTML = `<div class="font-bold">${item.nomeEmpreendimento}</div>`;
+
+                const empreendimento =
+                  document.getElementById("empreendimento");
+                const incorporadora = document.getElementById("incorporadora");
+                empreendimento.addEventListener("click", (event) => {
+                  empreendimento.classList.add("active");
+                  incorporadora.classList.remove("active");
+                  document.querySelector(".tab-2").style.display = "none";
+                  document.querySelector(".tab-1").style.display = "block";
+                });
+                incorporadora.addEventListener("click", (event) => {
+                  empreendimento.classList.remove("active");
+                  incorporadora.classList.add("active");
+                  document.querySelector(".tab-1").style.display = "none";
+                  document.querySelector(".tab-2").style.display = "block";
+                });
+              } else {
+                headInfoWindow.innerHTML = `<div class="font-bold">${item.subprograma}</div>`;
+              }
+            }
+          );
+        };
+
+        overlay.draw = function () {
+          const projection = this.getProjection();
+          const point = projection.fromLatLngToDivPixel(position);
+          if (this.div) {
+            this.div.style.position = "absolute";
+            this.div.style.left = `${point.x}px`;
+            this.div.style.top = `${point.y}px`;
+          }
+        };
+
+        overlay.onRemove = function () {
+          if (this.div && this.div.parentNode) {
+            this.div.parentNode.removeChild(this.div);
+          }
+          this.div = null;
+        };
+
+        overlay.setMap(mapInstance.current);
+        return overlay;
+      } catch (err) {
+        console.warn("Erro ao geocodificar:", address);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(promises);
+    setMarkers(results.filter(Boolean));
+    return results.filter(Boolean);
   };
 
-  loadGoogleMapsScript()
-    .then(() => setMapsLoaded(true))
-    .catch(() => console.error("Erro ao carregar Google Maps"));
-}, []);
+  useEffect(() => {
+    // ✅ Só roda se ainda não inicializou, tiver dados e o mapa ainda não existir
+    if (initializedRef.current) return;
 
-const debouncedCreateMarkers = useRef(
-  debounce(async (data) => {
-    try {
-      await createMarkers(data);
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
+    setLoading(true);
+    if (!rawData || !rawData.atendimentos) return;
+    async function initializeApp() {
+      initializedRef.current = true; // 🔒 trava pra nunca mais rodar
+      console.log("Iniciando mapa com rawData:", rawData);
+
+      try {
+        // Garante que o script do Google Maps seja carregado
+        await new Promise((resolve, reject) => {
+          if (window.google && window.google.maps) {
+            resolve();
+            return;
+          }
+
+          const existingScript = document.querySelector(
+            `script[src*="maps.googleapis.com/maps/api/js"]`
+          );
+
+          if (existingScript) {
+            existingScript.addEventListener("load", resolve);
+            existingScript.addEventListener("error", reject);
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${
+            import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+          }&libraries=marker,geometry,visualization`;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        if (!window.google || !window.google.maps) {
+          console.error("Google Maps script não carregado!");
+          return;
+        }
+
+        const { Map } = await window.google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement } =
+          await window.google.maps.importLibrary("marker");
+
+        // Inicializa o mapa com localização do usuário (ou fallback)
+        const initMap = (position) => {
+          mapInstance.current = new Map(mapRef.current, {
+            center: position,
+            zoom: 10,
+            mapId: "a4e035e5a4e5272a",
+            mapTypeControl: false,
+            streetViewControl: true,
+            zoomControl: true,
+            fullscreenControl: false,
+          });
+
+          new AdvancedMarkerElement({
+            map: mapInstance.current,
+            position,
+            title: "Você está aqui!",
+            zIndex: 9999,
+          });
+
+          if (openInfoWindowRef.current) {
+            openInfoWindowRef.current.close();
+            openInfoWindowRef.current = null;
+          }
+
+          // ⚡ Quando o mapa for criado, cria os marcadores uma única vez
+          debouncedCreateMarkers(rawData.atendimentos || []);
+        };
+
+        // Pega localização atual
+        navigator.geolocation.getCurrentPosition(
+          (pos) =>
+            initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => {
+            console.warn(
+              "Não foi possível obter localização, usando fallback:",
+              err
+            );
+            initMap({ lat: -22.5, lng: -48.5 });
+          }
+        );
+
+        setOptionsFromData(rawData.atendimentos);
+      } catch (err) {
+        console.error("Erro ao inicializar o mapa:", err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, 500) // 300ms após o último caractere digitado
-).current;
 
-useEffect(() => {
-  setLoading(true)
-  let data = [...allEmpreendimentos];
-  if (statusObra) {
-    data = data.filter(
-      (item) => item.statusObra === statusObra
+    initializeApp();
+  }, [rawData]);
+
+  const calculateTotalizadoresEDesempenho = async (
+    municipio = "",
+    gerenciaRegional = "",
+    regiaoAdministrativa = "",
+    regiaoDeGoverno = "",
+    subprograma = ""
+  ) => {
+    setLoadingMenu(true);
+    const data = await totalizadoresEDesempenho(
+      municipio,
+      gerenciaRegional,
+      regiaoAdministrativa,
+      regiaoDeGoverno,
+      subprograma
     );
-  }
+    const rawDataTotais = { ...rawData };
+    rawDataTotais.totalizadores = data.totalizadores;
+    rawDataTotais.desempenho = data.desempenho;
+    chargeData(rawDataTotais);
+    setLoadingMenu(false);
+  };
 
-  if (filters.search) {
-    const term = normalize(filters.search);
-    data = data.filter((item) => {
-      const endereco = normalize(item.enderecoEmpreendimento || "");
-      const municipio = normalize(item.municipio || "");
+  useEffect(() => {
+    if (!mapInstance.current) return;
 
-      return municipio.includes(term) || endereco.includes(term);
-    });
-  }
-  if (filters.tipoImovel) {
-    data = data.filter((item) => item.tipologia === filters.tipoImovel);
-  }
+    let data = [];
 
-  if (filters.dormitorios) {
-    data = data.filter((item) =>
-      Number(filters.dormitorios) === 3
-        ? Number(item.qtDormitorio) >= 3
-        : Number(item.qtDormitorio) === Number(filters.dormitorios)
-    );
-  }
+    if (user) {
+      data = Array.isArray(rawData.atendimentos)
+        ? [...rawData.atendimentos]
+        : [];
+    }
+    if (openInfoWindowRef.current) {
+      openInfoWindowRef.current.close();
+      openInfoWindowRef.current = null;
+    }
 
-  setListaEmpreendimentos(data);
-  debouncedCreateMarkers(data);
+    debouncedCreateMarkers(data || []);
 
-  if ((filters.search || filters.tipoImovel || filters.dormitorios) && data.length > 0) {
+    // --- use debouncedFilters here ----
+    const f = debouncedFilters;
+    console.log("chegou aqui");
+    console.log(debouncedFilters);
+    if (user && user.role !== "sduh_mgr") {
+      if (f.search) {
+        const term = normalize(f.search);
+
+        data = data.filter((item) => {
+          const endereco = normalize(item.enderecoEmpreendimento || "");
+          const municipio = normalize(item.municipio || "");
+          return municipio.includes(term) || endereco.includes(term);
+        });
+      }
+
+      if (f.tipoImovel) {
+        data = data.filter((item) => item.tipologia === f.tipoImovel);
+      }
+
+      if (f.dormitorios) {
+        data = data.filter((item) =>
+          Number(f.dormitorios) === 3
+            ? Number(item.qtDormitorio) >= 3
+            : Number(item.qtDormitorio) === Number(f.dormitorios)
+        );
+      }
+    } else {
+      if (f.municipio) {
+        const term = normalize(f.municipio);
+        data = data.filter((item) => normalize(item.municipio).includes(term));
+      }
+
+      if (f.gerenciaRegional) {
+        const term = normalize(f.gerenciaRegional);
+        data = data.filter((item) =>
+          normalize(item.gerenciaRegional).includes(term)
+        );
+      }
+
+      if (f.regiaoAdministrativa) {
+        const term = normalize(f.regiaoAdministrativa);
+        data = data.filter((item) =>
+          normalize(item.regiaoAdministrativa).includes(term)
+        );
+      }
+
+      if (f.regiaoDeGoverno) {
+        const term = normalize(f.regiaoDeGoverno);
+        data = data.filter((item) =>
+          normalize(item.regiaoDeGoverno).includes(term)
+        );
+      }
+
+      if (f.subprograma) {
+        const term = normalize(f.subprograma);
+        data = data.filter((item) =>
+          normalize(item.subprograma).includes(term)
+        );
+      }
+    }
+
     if (mapInstance.current) {
       let address = `SÃO PAULO, SP, Brazil`;
       let position = null;
       if (data.length > 0) {
-        if (filters.search) {
+        if (user && user.role !== "sduh_mgr") {
+          if (f.search) {
+            if (data.length > 1) {
+              address = `${data[0].municipio}, SP, Brazil`;
+            } else {
+              address = `${data[0].cep ?? ""} ${
+                data[0].enderecoEmpreendimento ?? ""
+              }, ${data[0].municipio}, SP, Brazil`;
+              if (data[0].latitude && data[0].longitude) {
+                position = new window.google.maps.LatLng(
+                  data[0].latitude,
+                  data[0].longitude
+                );
+              }
+            }
+          }
+        } else {
           if (data.length > 1) {
             address = `${data[0].municipio}, SP, Brazil`;
           } else {
-            address = `${data[0].cep ?? ""} ${data[0].enderecoEmpreendimento ?? ""}, ${data[0].municipio}, SP, Brazil`;
+            address = `${data[0].municipio}, SP, Brazil`;
             if (data[0].latitude && data[0].longitude) {
-              position = new window.google.maps.LatLng(data[0].latitude, data[0].longitude);
+              position = new window.google.maps.LatLng(
+                data[0].latitude,
+                data[0].longitude
+              );
             }
           }
         }
       }
 
-      if (position) {
-        mapInstance.current.setCenter(position);
-        mapInstance.current.setZoom(11);
-      } else {
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder
-          .geocode({ address })
-          .then((res) => {
-            if (res.results[0]) {
-              mapInstance.current.setCenter(res.results[0].geometry.location);
-              mapInstance.current.setZoom(11);
-            }
-          })
-          .catch((err) => {
-            console.error("Erro ao geocodificar município:", err);
-          });
-      }
-    }
-    } else {
-    // nenhum filtro -> usa localização do usuário
-    if (mapInstance.current && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          mapInstance.current.setCenter({ lat: latitude, lng: longitude });
-          mapInstance.current.setZoom(10);
-        },
-        (err) => {
-          console.warn("Erro ao obter localização do usuário:", err);
-          // fallback: centro de SP
-          mapInstance.current.setCenter({ lat: -23.55052, lng: -46.633308 });
-          mapInstance.current.setZoom(10);
-        }
-      );
-    }
-  }
-}, [filters, allEmpreendimentos, statusObra]);
-
-  const createMarkers = async (empreendimentosData) => {
-  if (!mapInstance.current || !window.google) return [];
-
-  // limpa marcadores antigos
-  markers.forEach((marker) => marker.setMap(null));
-  markerDivs.current.forEach((div) => {
-    if (div && div.parentNode) div.parentNode.removeChild(div);
-  });
-  markerDivs.current = [];
-
-  const promises = empreendimentosData.map(async (item) => {
-    const { cep, municipio, tipologia, qtDormitorio, enderecoEmpreendimento, unidadesSubsidiadas, subsidioEstadual, nomeEmpreendimento } = item;
-    const address = `${item.cep || ''} ${item.enderecoEmpreendimento || ''}, ${item.municipio}, SP, Brazil`;
-
-    try {
-      if (!item.latitude || !item.longitude) return null;
-
-      const position = new window.google.maps.LatLng(item.latitude, item.longitude);
-
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: `
-          <div class="card-container p-4 bg-white rounded-2xl shadow shadow-none">
-          <div class="card-header flex items-center">
-            <div class="font-bold">${item.nomeEmpreendimento}</div>
-          </div>
-          
-          <div class="card-info">
-            <div class="card-item ">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-map-marker-alt mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Endereço do Empreendimento:</span>
-                  <span class="item-info-detail" title="${item.enderecoEmpreendimento}">
-                    ${item.enderecoEmpreendimento ?? 'N/A'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-city mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Município:</span>
-                  <span class="item-info-detail">${item.municipio ?? 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-bed mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Número de Dormitórios:</span>
-                  <span class="item-info-detail">${item.qtDormitorio ?? 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-home mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Tipologia:</span>
-                  <span class="item-info-detail">${item.tipologia ?? 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-hand-holding-usd mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Valor do Benefício:</span>
-                  <span class="item-info-detail">${formatBRL(item.subsidioEstadual) ?? 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-
-            <div class="card-item">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-building mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Unidades Disponíveis:</span>
-                  <span class="item-info-detail">${item.unidadesSubsidiadas ?? 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item ">
-              <div class="flex">
-                <span class="container-icone-card-report">
-                  <i class="fas fa-info-circle mr-2 f-size-small icon-card-report-item" /></i>
-                  </span>
-                <div class="card-info-item">
-                  <span class="item-info-title-map">Endereço para Atendimento:</span>
-                  <span class="item-info-detail" title="${item.enderecosAtendimento}">
-                    ${item.enderecosAtendimento ?? 'N/A'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <div class="card-info-item card-info-item-url">
-                  <a href="https://www.habitacao.sp.gov.br/habitacao/institucional/nossos_servicos/programa-casa-paulista/cidadao" target="_blank" class="item-info-url">Casa Paulista - Crédito Imobiliário 
-                  <i class="fas fa-external-link-square-alt ml-1" /></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-item">
-              <div class="flex">
-                <div class="card-info-item card-info-item-url bg-street-view">
-                  <button
-                    class="item-info-url item-street-view"
-                    id="streetview-btn"
-                  >
-                    Ver no Street View 
-                    <i class="fas fa-street-view ml-1"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="w-full flex justify-center">
-              <button class="btn btn-green font-bold-important ${!item.contatosAtendimento && 'no-event-click btn-disabled'}" onclick="window.open('https://wa.me?phone=${item.contatosAtendimento}')">
-                Fale pelo Whatsapp
-              </button>
-            </div>
-          </div>
-        </div>
-        `,
-      });
-
-      const overlay = new window.google.maps.OverlayView();
-
-      overlay.onAdd = function () {
-        const div = document.createElement("div");
-        div.innerHTML = `
-          <div class='custom-marker-icon' style='background-color: ${iconsMap[tipologia]?.color || "gray"};'>
-            <i class='${iconsMap[tipologia]?.icon || "fas fa-map-marker-alt"} map-marker-icon'></i>
-          </div>
-        `;
-        this.div = div;
-        markerDivs.current.push(div);
-
-        div.addEventListener("click", () => {
-          // fecha qualquer outro InfoWindow aberto
-          if (openInfoWindowRef.current) {
-            openInfoWindowRef.current.close();
-          }
-          infoWindow.setPosition(position);
-          infoWindow.open({ map: mapInstance.current, anchor: null });
-          openInfoWindowRef.current = infoWindow; // atualiza a referência
-        });
-
-        const panes = this.getPanes();
-        panes.overlayMouseTarget.appendChild(div);
-
-        window.google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-          const btn = document.getElementById("streetview-btn");
-          if (btn) {
-            btn.addEventListener("click", () => {
-              const streetView = mapInstance.current.getStreetView();
-              streetView.setPosition(position);
-              streetView.setPov({ heading: 100, pitch: 0 });
-              streetView.setVisible(true);
+      debouncedCreateMarkers(data || []);
+      if (
+        f.search ||
+        f.tipoImovel ||
+        f.dormitorios ||
+        f.gerenciaRegional ||
+        f.regiaoAdministrativa ||
+        f.regiaoDeGoverno ||
+        f.municipio ||
+        f.subprograma
+      ) {
+        if (position) {
+          mapInstance.current.setCenter(position);
+          mapInstance.current.setZoom(11);
+        } else {
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder
+            .geocode({ address })
+            .then((res) => {
+              if (res.results[0]) {
+                mapInstance.current.setCenter(res.results[0].geometry.location);
+                mapInstance.current.setZoom(11);
+              }
+            })
+            .catch((err) => {
+              console.error("Erro ao geocodificar município:", err);
             });
-          }
-        });
-      };
-
-      overlay.draw = function () {
-        const projection = this.getProjection();
-        const point = projection.fromLatLngToDivPixel(position);
-        if (this.div) {
-          this.div.style.position = "absolute";
-          this.div.style.left = `${point.x}px`;
-          this.div.style.top = `${point.y}px`;
         }
-      };
-
-      overlay.onRemove = function () {
-        if (this.div && this.div.parentNode) {
-          this.div.parentNode.removeChild(this.div);
-        }
-        this.div = null;
-      };
-
-      overlay.setMap(mapInstance.current);
-      return overlay;
-    } catch (err) {
-      console.warn("Erro ao geocodificar:", address);
-      return null;
-    }
-  });
-
-  const results = await Promise.all(promises);
-  setMarkers(results.filter(Boolean));
-  return results.filter(Boolean);
-};
-
-useEffect(() => {
-  if (!mapsLoaded) return;
-
-  async function initializeApp() {
-    if (!window.google) return console.error("Google Maps script não carregado!");
-
-    const { Map } = await window.google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement } = await window.google.maps.importLibrary("marker");
-
-    const initMap = (position) => {
-      mapInstance.current = new Map(mapRef.current, {
-        center: position,
-        zoom: 10,
-        mapId: "a4e035e5a4e5272a",
-        mapTypeControl: false,
-        streetViewControl: true,
-        zoomControl: true,
-        fullscreenControl: false,
-      });
-
-      new AdvancedMarkerElement({
-        map: mapInstance.current,
-        position,
-        title: "Você está aqui!",
-        zIndex: 9999
-      });
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => initMap({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => {
-        console.warn("Não foi possível obter localização, usando fallback:", err);
-        initMap({ lat: -22.5, lng: -48.5 });
       }
+    } else {
+      // nenhum filtro -> usa localização do usuário
+      if (mapInstance.current && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            mapInstance.current.setCenter({ lat: latitude, lng: longitude });
+            mapInstance.current.setZoom(10);
+          },
+          (err) => {
+            console.warn("Erro ao obter localização do usuário:", err);
+            // fallback: centro de SP
+            mapInstance.current.setCenter({ lat: -23.55052, lng: -46.633308 });
+            mapInstance.current.setZoom(10);
+          }
+        );
+      }
+    }
+
+    calculateTotalizadoresEDesempenho(
+      f.municipio,
+      f.gerenciaRegional,
+      f.regiaoAdministrativa,
+      f.regiaoDeGoverno,
+      f.subprograma
     );
-  }
+  }, [debouncedFilters, statusObra]);
 
-  initializeApp();
-}, [mapsLoaded]);
-
-useEffect(() => {
-  const fetchData = async () => {
+  const handleClick = async (status) => {
     setLoading(true);
     try {
-      let data = await empreendimentos('');
-      setOptionsFromData(data);
-      let lastUpdatedData = await ultimaAtualizacao();
-
-      setAllEmpreendimentos(data);
-      setLastUpdated(lastUpdatedData);
-      
-      await createMarkers(data);
-    } catch (err) {
-      console.error("Erro ao carregar empreendimentos:", err.message);
+      if (user.role === "sduh_mgr") {
+        const data = await atendimentos(status);
+        chargeData(data);
+      }
+      lastFilterStatus(status);
+      setStatusObra(status);
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (user) {
-    fetchData();
-  }
-}, [user, mapsLoaded]);
-
-  const handleClick = (status) => {
-    setStatusObra(status);
-  };
-
   return (
     <>
-      { loading ? <Loading /> : <></> }
+      {loading ? <Loading /> : <></>}
       <Section>
         {user && user.role === "sduh_mgr" ? (
           <Section className="p-2 flex bg-white justify-between items-center">
             <Section className="flex items-center">
               <ButtonGroup
                 defaultActive="Alertas"
-                className='space-now-nowrap'
-                onButtonClick={(status) => { handleClick(status) }}
+                className="space-now-nowrap reports-buttons-responsive"
+                onButtonClick={(status) => {
+                  setStatusAtual(status)
+                  handleClick(status);
+                }}
+              >
+                <Button
+                  status="planejamento"
+                  className={`btn btn-white ${
+                    statusFiltered === "planejamento" ? "activated" : ""
+                  }`}
                 >
-                <Button status="EM PLANTA" className="btn btn-white">Planejamento</Button>
-                <Button status="LANÇAMENTO" className="btn btn-white ml-2">Licitação</Button>
-                <Button status="EM CONSTRUÇÃO" className="btn btn-white ml-2">Em Andamento</Button>
-                <Button status="CONSTRUÍDO" className="btn btn-white ml-2">Entregues</Button>
-                <Button status="Alertas" className="btn btn-red ml-2">Alertas</Button>
+                  Planejamento
+                </Button>
+                <Button
+                  status="licitacao"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "licitacao" ? "activated" : ""
+                  }`}
+                >
+                  Licitação
+                </Button>
+                <Button
+                  status="em_andamento"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "em_andamento" ? "activated" : ""
+                  }`}
+                >
+                  Em Andamento
+                </Button>
+                <Button
+                  status="entregues"
+                  className={`btn btn-white ml-2 ${
+                    statusFiltered === "entregues" ? "activated" : ""
+                  }`}
+                >
+                  Entregues
+                </Button>
+                <Button
+                  status="alertas"
+                  className={`btn btn-red-alert ml-2 ${
+                    statusFiltered === "alertas" ? "activated" : ""
+                  }`}
+                >
+                  Alertas
+                </Button>
               </ButtonGroup>
             </Section>
           </Section>
         ) : (
           <></>
         )}
-      <Section className="font-normal f-size-small-nano container-last-updated-map">{lastUpdated ? <>Atualizado em {formatDate(lastUpdated)} às {formatHour(lastUpdated)}</>: <>Carregando...</>}</Section>
+        <Section className="font-normal f-size-small-nano container-last-updated-map">
+          {lastUpdatedData ? (
+            <>
+              Atualizado em {formatDate(lastUpdatedData)} às{" "}
+              {formatHour(lastUpdatedData)}
+            </>
+          ) : (
+            <>Carregando...</>
+          )}
+        </Section>
       </Section>
-      <div id="map" ref={mapRef} className={`map-container map-${user && user.role}`}></div>
+      <div
+        id="map"
+        ref={mapRef}
+        className={`map-container map-${user && user.role}`}
+      ></div>
     </>
   );
 }

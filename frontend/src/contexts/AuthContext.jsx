@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // adiciona loading
+  const [loadingMenu, setLoadingMenu] = useState(false); // adiciona loading
 
   const login = async (
     identify = "",
@@ -45,7 +46,8 @@ export const AuthProvider = ({ children }) => {
       userData.role = role;
       const selectedProfile = userData.profiles.filter((item) => { return item.value === role})[0]
 
-      userData.appLink = selectedProfile.appLink//atribuir app link correspondente
+      userData.appLink = selectedProfile.appLink
+      userData.looker = selectedProfile.looker
 
       setUser(userData);
       localStorage.removeItem("user");
@@ -66,6 +68,14 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
+  const onLoadingMenu = () => {
+    setLoadingMenu(true);
+  };
+
+  const offLoadingMenu = () => {
+    setLoadingMenu(false);
+  };
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -83,6 +93,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         onLoading,
         offLoading,
+        setLoadingMenu,
+        loadingMenu,
         changeUserAccessRole,
       }}
     >

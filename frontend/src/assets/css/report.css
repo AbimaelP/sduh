@@ -41,7 +41,6 @@
   z-index: 2;
 }
 
-
 .card-container {
   border-radius: 10px;
   box-shadow: 1px 1px 3px 0px black;
@@ -124,5 +123,10 @@ input[type="checkbox"].appearance-none:checked::after {
 }
 
 .gm-style-iw.gm-style-iw-c {
-  max-width: 485px !important;
+  max-width: 390px !important;
+}
+
+.report-gestao-iframe {
+  width: 100%;
+  height: calc(100% - 52px);
 }

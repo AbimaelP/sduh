@@ -6,7 +6,7 @@ import Section from './Section';
 export default function Header() {
   return (
     <Section className="header p-2">
-      <Section className="pl-4 pr-4 flex items-center">
+      <Section className="pl-4 pr-4 flex items-center header-responsive">
         <Link to="/">
           <Logo className="h-10" logoName="logoInverted" />
         </Link>

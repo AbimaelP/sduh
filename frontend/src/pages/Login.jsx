@@ -36,6 +36,11 @@ export default function Login() {
     }
   };
 
+  const handleLoginServidor = () => {
+    setLoading(true)
+    window.location.href = import.meta.env.VITE_URL_MINHAAREA;
+  };
+
   return (
     <>
       { loading ? <Loading /> : <></> }
@@ -87,12 +92,19 @@ export default function Login() {
               >
                 ACESSAR
               </Button> */}
-              <Button
+              {/* <Button
                 type="button"
                 onClick={() => handleLogin("cidadao")}
                 className="btn-md mt-3 btn-red f-size-small"
               >
                 ACESSE O PAINEL DO CIDADÃO
+              </Button> */}
+              <Button
+                type="button"
+                onClick={() => handleLoginServidor()}
+                className="btn-md mt-3 btn-blue f-size-small"
+              >
+                ENTRAR COMO SERVIDOR PÚBLICO
               </Button>
               <Button
                 type="button"

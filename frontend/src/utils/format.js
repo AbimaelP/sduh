@@ -41,3 +41,11 @@ export const normalize = (str) =>
     .replace(/\s+/g, " ")            // transforma vários espaços em 1
     .replace(/[.,]/g, "")            // (opcional) remove vírgula/ponto
     .trim();
+
+export const formatWhats = (str) => {
+  if (!str) return "";
+
+  const digits = str.replace(/\D/g, "");
+
+  return `https://wa.me/${digits}`;
+};
