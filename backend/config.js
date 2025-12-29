@@ -48,7 +48,7 @@ let _GOV_USERINFO_URL;
 let _CYBERARK_AUTH_URL;
 let _CYBERARK_TOKEN_URL;
 let _CYBERARK_USERINFO_URL;
-
+//
 export async function loadGovbrConfig() {
   try {
     const { data } = await axios.get(DISCOVERY_URL);
