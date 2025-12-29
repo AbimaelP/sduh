@@ -10,13 +10,15 @@ export default function AcessoCidadao() {
   const { user, login } = useAuth();
 
   useEffect(() => {
-    const processAcessoCidadao = async () => {
+    const processAcessoCidadao = () => {
+      navigate("/login")
+
       if (user) {
         navigate("/");
       }
 
       try {
-        await login('Cidadão', 'cidadao', 'cidadao')
+        // await login('Cidadão', 'cidadao', 'cidadao')
         navigate("/");
       } catch (err) {
         navigate("/login");
