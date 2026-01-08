@@ -107,7 +107,7 @@ router.get("/token", async (req, res) => {
     const data = response.data.access_token;
     return res.json(data);
   } catch (err) {
-    console.error(err.response?.data || err.message);
+    console.error(err.response);
     const status = err.response?.status || 500;
     const message =
       err.response?.data?.error || err.message || "Erro desconhecido";

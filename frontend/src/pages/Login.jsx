@@ -92,13 +92,13 @@ export default function Login() {
               >
                 ACESSAR
               </Button> */}
-              {/* <Button
+              <Button
                 type="button"
                 onClick={() => handleLogin("cidadao")}
                 className="btn-md mt-3 btn-red f-size-small"
               >
                 ACESSE O PAINEL DO CIDADÃO
-              </Button> */}
+              </Button>
               <Button
                 type="button"
                 onClick={() => handleLoginServidor()}
