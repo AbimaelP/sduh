@@ -19,6 +19,7 @@ ENV VITE_CLIENT_SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afb
 ENV VITE_APP_BACKEND_URL="https://sduh-backend-914565622949.southamerica-east1.run.app"
 ENV VITE_GOOGLE_MAPS_API_KEY="AIzaSyCK1WTYiu5zg8Sw0E79aubZQ_HZ1dbLf8I"
 ENV VITE_GOOGLE_MAPS_API_KEY_DEV="AIzaSyCVUn13ipUTxghQqg9j8PiooToVqRqIGP8I"
+ENV VITE_URL_MINHAAREA=https://hml.plataforma.sp.gov.br
 
 
 # Build do Vite (ele vai substituir import.meta.env.* pelas variáveis acima)
