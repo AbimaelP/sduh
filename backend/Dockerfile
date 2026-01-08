@@ -4,7 +4,7 @@
 # ----------------------------------------------------
 
 # Estágio 1: Usar uma imagem base do Node.js
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /usr/src/app
