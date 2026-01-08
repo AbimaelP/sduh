@@ -15,7 +15,7 @@ ENV APP_SHEET_URL="https://api.appsheet.com/api/v2/apps/52ad0add-0bbe-4112-8146-
 ENV APP_SHEET_KEY="V2-xBhdP-ga0B7-nZiek-ACxio-SE1aF-YifT8-wRGfu-i6LeE"
 ENV API_URL="https://homologacao.horushab.habitacao.sp.gov.br/public"
 ENV CLIENT_ID="horushab"
-ENV CLIENT_SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afbbdd28113"
+ENV SECRET="819ea51612a11abbca8d5f12667ac84b7658bb1efb63ade48ba27afbbdd28113"
 ENV REDIRECT_URL="https://homologacao.horushab.habitacao.sp.gov.br"
 
 ENV GOV_OPENID_CONFIGURATION="https://rhsso.idp-hml.sp.gov.br/auth/realms/idpsp/.well-known/openid-configuration"
