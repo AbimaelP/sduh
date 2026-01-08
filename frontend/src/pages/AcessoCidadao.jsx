@@ -10,7 +10,7 @@ export default function AcessoCidadao() {
   const { user, login } = useAuth();
 
   useEffect(() => {
-    const processAcessoCidadao = () => {
+    const processAcessoCidadao = async () => {
       // navigate("/login")
 
       if (user) {
