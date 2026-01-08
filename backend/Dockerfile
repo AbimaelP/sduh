@@ -15,7 +15,7 @@ ENV APP_SHEET_URL="https://api.appsheet.com/api/v2/apps/44299b5a-b51e-417d-96aa-
 ENV APP_SHEET_KEY="V2-rwLB4-JTgfh-OJY0w-Ojbke-PXYph-zxcUW-IIQg4-UDdEX"
 ENV API_URL="https://horushab.habitacao.sp.gov.br/public"
 ENV CLIENT_ID="horushab"
-ENV CLIENT_SECRET="dnYFc6f2txBs3Ug2LK62GqDQyZr9dBuq6AbmLug5Z2wQN5iuvVH4nVCVXRbARGCa"
+ENV SECRET="dnYFc6f2txBs3Ug2LK62GqDQyZr9dBuq6AbmLug5Z2wQN5iuvVH4nVCVXRbARGCa"
 
 ENV GOVAPI_URL=https://sso.acesso.gov.br/
 ENV REDIRECT_URL=https://horushab.habitacao.sp.gov.br
