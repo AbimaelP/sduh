@@ -11,14 +11,14 @@ export default function AcessoCidadao() {
 
   useEffect(() => {
     const processAcessoCidadao = () => {
-      navigate("/login")
+      // navigate("/login")
 
       if (user) {
         navigate("/");
       }
 
       try {
-        // await login('Cidadão', 'cidadao', 'cidadao')
+        await login('Cidadão', 'cidadao', 'cidadao')
         navigate("/");
       } catch (err) {
         navigate("/login");
